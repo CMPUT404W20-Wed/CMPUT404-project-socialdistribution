@@ -8,7 +8,7 @@
     "parcel-bundler": "^1.12.4"
   },
   "scripts": {
-    "start": "parcel watch frontend/*.html -d social_backend/static --public-url /static/",
-    "build": "parcel build frontend/*.html -d social_backend/static --public-url /static/"
+    "start": "parcel watch frontend/*.html -d social_backend/static/social_backend --public-url /static/social_backend/",
+    "build": "parcel build frontend/*.html -d social_backend/static/social_backend --public-url /static/social_backend/"
   }
 }
