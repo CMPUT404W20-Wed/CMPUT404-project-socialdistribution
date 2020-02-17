@@ -2,4 +2,5 @@
 /.cache/
 **/__pycache__/
 /node_modules/
-/social_backend/dist/
+/social_backend/static/
+/db.sqlite3
