@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Test page</title>
+        <title>app</title>
         <meta charset="utf-8" />
-        <script src="stream.jsx" async></script>
+        {% load static %}
+        <script src="{% static "social_backend/index.js" %}" async></script>
     </head>
     <body>
         <div id="root"></div>

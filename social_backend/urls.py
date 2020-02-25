@@ -21,6 +21,6 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     #catch all, list non react nav first
-    path('', views.demo_view),
-    re_path(r'.*', views.demo_view)
+    path('', views.app),
+    re_path(r'.*', views.app)
 ]
