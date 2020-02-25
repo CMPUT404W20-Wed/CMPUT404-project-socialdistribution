@@ -1,2 +1,6 @@
-venv/
-__pycache__/
+/venv/
+/.cache/
+**/__pycache__/
+/node_modules/
+/social_backend/static/
+/db.sqlite3
