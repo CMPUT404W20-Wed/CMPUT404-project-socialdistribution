@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-ReactDOM.render(
-    <p>If you can see this, that's a good sign</p>,
-    document.getElementById('root')
+import App from './components/app/App'
+
+ReactDOM.render(<App />, document.getElementById('root')
 );
