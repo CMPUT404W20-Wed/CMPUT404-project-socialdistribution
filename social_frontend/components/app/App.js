@@ -1,17 +1,17 @@
 import React from 'react';
 import {
-  BrowserRouter as Router, //can also use HashRouter
-    Route,
-    Switch,
-    NavLink,
+  BrowserRouter as Router, // can also use HashRouter
+  Route,
+  Switch,
+  NavLink,
 } from 'react-router-dom';
 
 
-//TODO remove the component definition here, move to own folders
-const test = () => (<div>Hello World from test</div>)
-const test1 = () => (<div>Hello World from test1</div>)
-const test2 = () => (<div>Hello World from test2</div>)
-const test3 = () => (<div>Hello World from test3</div>)
+// TODO remove the component definition here, move to own folders
+const test = () => (<div>Hello World from test</div>);
+const test1 = () => (<div>Hello World from test1</div>);
+const test2 = () => (<div>Hello World from test2</div>);
+const test3 = () => (<div>Hello World from test3</div>);
 
 const App = () => (
   <Router>
