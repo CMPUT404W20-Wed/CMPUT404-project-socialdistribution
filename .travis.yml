@@ -1,4 +1,14 @@
+os: linux
 language: python
 python: "3.6"
+before_install:
+    - nvm install 13.8.0
+install:
+    - npm ci
+    - pip install -r requirements.txt
 script:
+    - npx eslint social_frontend/ --ext .js,.jsx
+    - npm run build
+    - npm test
     - python -Wa manage.py test
+cache: npm
