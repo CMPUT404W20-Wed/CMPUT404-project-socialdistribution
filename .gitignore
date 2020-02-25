@@ -4,3 +4,4 @@
 /node_modules/
 /social_backend/static/
 /db.sqlite3
+.vscode
