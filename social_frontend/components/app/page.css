@@ -21,13 +21,13 @@ body, #root {
     flex-direction: column;
 }
 
-header {
+.header {
     background-color: #eee;
     border-bottom: 1px solid black;
     height: 30px;
 }
 
-main {
+.main {
     height: 100%;
     display: grid;
     grid-template-columns: 1fr 700px 1fr;

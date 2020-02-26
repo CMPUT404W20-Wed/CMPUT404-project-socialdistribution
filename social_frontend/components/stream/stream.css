@@ -1,0 +1,11 @@
+
+.stream {
+    display: flex;
+    flex-direction: column;
+}
+
+.post {
+    background-color: #aaa;
+    margin: 0.5em 1em;
+    border: 1px solid black;
+}

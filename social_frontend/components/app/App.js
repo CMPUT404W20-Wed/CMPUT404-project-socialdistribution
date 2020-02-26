@@ -8,13 +8,15 @@ import {
 
 import StreamPage from './StreamPage';
 
+import './page.css';
+
 // TODO remove the component definition here, move to own folders
 const test1 = () => (<div>Hello World from test1</div>);
 const test2 = () => (<div>Hello World from test2</div>);
 const test3 = () => (<div>Hello World from test3</div>);
 
 const Header = () => (
-  <header>
+  <header className="header">
     <NavLink to="/" exact activeClassName="header-btn-active" className="header-btn">
       Home
     </NavLink>
