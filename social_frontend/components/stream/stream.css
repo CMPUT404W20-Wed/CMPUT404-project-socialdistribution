@@ -9,3 +9,8 @@
     margin: 0.5em 1em;
     border: 1px solid black;
 }
+
+.post-header {
+  background-color: #999;
+  padding: 4px;
+}
