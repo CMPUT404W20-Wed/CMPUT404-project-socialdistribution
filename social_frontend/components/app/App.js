@@ -17,6 +17,7 @@ const test3 = () => (<div>Hello World from test3</div>);
 
 const Header = () => (
   <header className="header">
+    <h1>App</h1>
     <NavLink to="/" exact activeClassName="header-btn-active" className="header-btn">
       Home
     </NavLink>
