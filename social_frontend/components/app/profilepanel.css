@@ -1,0 +1,37 @@
+
+.profile {
+    width: 300px;
+    margin: 40px 20px;
+    justify-self: end;
+    align-self: start;
+    border: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+}
+
+.profile-header {
+    border-bottom: 1px solid #ccc;
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-header .avatar {
+    width: 180px;
+    height: 180px;
+    background-color: #088;
+    border-radius: 10px;
+    margin: 16px;
+    color: transparent;
+}
+
+.profile-header .user-name {
+    margin: 0;
+    padding-bottom: 18px;
+    font-weight: normal;
+}
+
+.profile .placeholder {
+    padding: 12px 16px;
+    color: #555;
+}
