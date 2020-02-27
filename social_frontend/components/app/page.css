@@ -54,3 +54,7 @@ html {
 .stream {
     grid-area: 2 / 2;
 }
+
+.standalone-post {
+  max-width: 700px;
+}

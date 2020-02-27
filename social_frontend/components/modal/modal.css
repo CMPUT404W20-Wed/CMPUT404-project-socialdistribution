@@ -1,4 +1,8 @@
 
+html.modal-active {
+  overflow: hidden;
+}
+
 .modal {
     position: fixed;
     left: 0;

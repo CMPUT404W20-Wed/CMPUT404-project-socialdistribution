@@ -8,7 +8,6 @@
 
 .standalone-post,
 .modal .standalone-post {
-  max-width: 800px;
   margin: 65px auto 16px auto;
   border: 1px solid #ccc;
   border-radius: 0 0 5px 5px;

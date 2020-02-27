@@ -11,6 +11,12 @@ export default class Modal extends React.Component {
 
   componentDidMount() {
     window.addEventListener('keydown', this.captureKeyPress);
+    document.documentElement.classList.add('modal-active');
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.captureKeyPress);
+    document.documentElement.classList.remove('modal-active');
   }
 
   captureKeyPress(event) {
