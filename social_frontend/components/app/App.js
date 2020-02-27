@@ -2,48 +2,40 @@ import React from 'react';
 import {
   BrowserRouter as Router, // can also use HashRouter
   Route,
-  Switch,
-  NavLink,
 } from 'react-router-dom';
 
 import StreamPage from './StreamPage';
+import ModalSwitch from '../modal/ModalSwitch';
 
 import './page.css';
 
-// TODO remove the component definition here, move to own folders
-const test1 = () => (<div>Hello World from test1</div>);
-const test2 = () => (<div>Hello World from test2</div>);
-const test3 = () => (<div>Hello World from test3</div>);
 
+/* Global header; renders at the top of every page.
+ * Currently contains nothing interesting.
+ */
 const Header = () => (
   <header className="header">
     <h1>App</h1>
-    <NavLink to="/" exact activeClassName="header-btn-active" className="header-btn">
-      Home
-    </NavLink>
-    <NavLink to="/test1" activeClassName="header-btn-active" className="header-btn">
-      Test1
-    </NavLink>
-    <NavLink to="/test2" activeClassName="header-btn-active" className="header-btn">
-      Test2
-    </NavLink>
-    <NavLink to="/test3" exact activeClassName="header-btn-active" className="header-btn">
-      Test3
-    </NavLink>
   </header>
 );
 
+
+/* Top-level component.
+ * Routing logic is implemented here:
+ * | /         -- "home" stream view
+ * | /post/### -- individual post view
+ */
 const App = () => (
   <Router>
     <Header />
-    <Switch>
+    <ModalSwitch>
       <Route path="/" exact>
         <StreamPage />
       </Route>
-      <Route path="/test1" component={test1} />
-      <Route path="/test2" component={test2} />
-      <Route path="/test3" component={test3} />
-    </Switch>
+      <Route path="/post/">
+        <h1>post</h1>
+      </Route>
+    </ModalSwitch>
   </Router>
 );
 

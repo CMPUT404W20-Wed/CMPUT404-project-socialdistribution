@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 
 import './profilepanel.css';
 
+
+/* Floating profile panel that appears to the left on the "home" view. */
 const ProfilePanel = ({ user }) => (
   <aside className="profile">
     <header className="profile-header">

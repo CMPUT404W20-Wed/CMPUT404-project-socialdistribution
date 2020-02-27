@@ -5,7 +5,11 @@ import Post from './Post';
 import './stream.css';
 
 
-// Stream of posts.
+/* Stream is a list of posts.
+ * The list of posts is displayed linearly.
+ * TODO when dynamic loading is implemented, state should probably
+ * be moved up, and posts here will become a prop
+ */
 export default class Stream extends React.Component {
   state = {
     posts: [
@@ -73,6 +77,7 @@ export default class Stream extends React.Component {
           }) => (
             <Post
               key={id}
+              postId={id}
               author={author}
               content={content}
               commentCount={commentCount}

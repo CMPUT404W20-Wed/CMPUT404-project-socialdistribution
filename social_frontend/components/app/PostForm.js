@@ -3,6 +3,10 @@ import PropTypes from 'prop-types';
 
 import './postform.css';
 
+
+/* Control cluster at the bottom of the post form.
+ * canPost should be set based on whether the post is valid.
+ */
 const PostFormControls = ({ canPost }) => (
   <div className="post-form-controls">
     <input type="submit" value="Post" disabled={!canPost} />
@@ -20,6 +24,8 @@ PostFormControls.propTypes = {
   canPost: PropTypes.bool.isRequired,
 };
 
+
+/* Form enabling the user to create a new post. */
 export default class PostForm extends React.Component {
   state = {
     textContent: '',
