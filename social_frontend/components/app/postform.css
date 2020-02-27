@@ -1,0 +1,58 @@
+
+.post-form {
+    margin: 8px;
+    margin-top: 20px;
+    padding: 8px 8px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+.post-form-text {
+    resize: vertical;
+    border: 1px solid #ccc;
+    min-height: 10em;
+    padding: 1em;
+    font-family: sans-serif;
+    font-size: 11pt;
+}
+
+.post-form-text::placeholder {
+    color: #aaa;
+    opacity: 1;
+}
+
+.post-form-controls {
+    padding-top: 8px;
+    display: flex;
+}
+
+.post-form-controls input[type=submit] {
+    width: 80px;
+    font-weight: bold;
+}
+
+.post-form-controls input,
+.post-form-controls select {
+    padding: 6px;
+    border: 1px solid #aaa;
+    background-color: inherit;
+    color: #aaa;
+    -webkit-appearance: none;
+}
+
+.post-form-controls input:enabled,
+.post-form-controls select:enabled {
+    background-color: #f8f8f8;
+    color: #555;
+}
+
+.post-form-controls select {
+    margin-left: auto;
+}
+
+.post-form-controls option {
+    color: red;
+}

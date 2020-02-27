@@ -37,12 +37,25 @@ body, #root {
     margin: 0;
     font-weight: normal;
     font-size: 24px;
+    line-height: 29px;
     color: white;
 }
 
 .main {
-    margin-top: 48px;
+    margin-top: 53px; /* height of header = line-height + 2*padding */
     height: 100%;
     display: grid;
     grid-template-columns: 1fr 700px 1fr;
+}
+
+.profile {
+    grid-area: 1 / 1 / span 2 / span 1;
+}
+
+.post-form {
+    grid-area: 1 / 2;
+}
+
+.stream {
+    grid-area: 2 / 2;
 }
