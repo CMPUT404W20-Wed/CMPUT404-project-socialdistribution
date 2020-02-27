@@ -3,14 +3,16 @@ import PropTypes from 'prop-types';
 
 import Stream from '../stream/Stream';
 import PostHeader from './PostHeader';
+import PostForm from '../app/PostForm';
 
 import './post.css';
 
 
 const PostComments = ({ postId }) => (
-  <footer className="post-footer">
+  <div className="post-footer">
     <Stream isComments />
-  </footer>
+    <PostForm isComment />
+  </div>
 );
 
 PostComments.propTypes = {

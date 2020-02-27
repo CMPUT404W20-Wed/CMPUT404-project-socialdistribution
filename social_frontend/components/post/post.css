@@ -9,14 +9,18 @@
 .standalone-post,
 .modal .standalone-post {
   margin: 65px auto 16px auto;
-  border: 1px solid #ccc;
-  border-radius: 0 0 5px 5px;
 }
 
 .modal .standalone-post {
+  border-radius: 0 0 5px 5px;
+  border: 1px solid #ccc;
   overflow-y: auto;
   border-radius: 5px;
   max-height: 100%;
+}
+
+.standalone-post > .post-header {
+  background-color: inherit;
 }
 
 .post-header {
@@ -70,7 +74,7 @@
   background-color: #080;
 }
 
-.comment {
+.modal .comment {
   margin: 0;
   border-left: none;
   border-right: none;
