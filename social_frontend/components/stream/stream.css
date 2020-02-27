@@ -5,68 +5,15 @@
     flex-direction: column;
 }
 
-.post {
-    background-color: white;
-    margin: 0.5em 1em;
-    border: 1px solid #ccc;
-    border-radius: 0 0 5px 5px;
-}
-
-.post-header {
-    background-color: #f0f0f0;
-    padding: 16px;
-    border-bottom: 1px solid #ccc;
-    display: grid;
-    grid-template: auto / max-content auto;
-}
-
-.post-header .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 4px;
-    grid-area: 1 / 1;
-    overflow: hidden;
-    color: transparent;
-}
-
-.post:nth-child(3n+1) .post-header .avatar {
+.stream-post:nth-child(3n+1) .post-header .avatar {
     background-color: #800;
 }
 
-.post:nth-child(3n+2) .post-header .avatar {
+.stream-post:nth-child(3n+2) .post-header .avatar {
     background-color: #880;
 }
 
-.post:nth-child(3n) .post-header .avatar {
+.stream-post:nth-child(3n) .post-header .avatar {
     background-color: #808;
 }
 
-.post-header .author {
-    grid-area: 1 / 2;
-    margin: 0 16px;
-    font-size: 110%;
-}
-
-.content-text {
-    padding: 1em;
-    font-size: 11pt;
-}
-
-.post-footer a {
-    display: block;
-    padding: 8px 16px;
-    border-top: 1px solid #ccc;
-    border-radius: 0 0 5px 5px;
-    font-size: 11pt;
-    color: #555;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.post-footer.no-comments a {
-  color: #ccc;
-}
-
-.post-footer a:hover {
-  background-color: #f8f8f8;
-}

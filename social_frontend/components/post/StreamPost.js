@@ -2,28 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ModalLink from '../modal/ModalLink';
 
+import PostHeader from './PostHeader';
 
-/* Header of a post.
- * Displays post info
- * (currently just author, but should also include other information)
- */
-const PostHeader = ({ author }) => (
-  <header className="post-header">
-    <img className="avatar" alt={author} />
-    <div className="author">{author}</div>
-  </header>
-);
-
-PostHeader.propTypes = {
-  author: PropTypes.string.isRequired,
-};
+import './post.css';
 
 
 /* Footer of a post.
  * Displays the comment count.
  * Clicking the footer links to the expanded view of the post.
  */
-const PostFooter = ({ commentCount, postId }) => (
+const StreamPostFooter = ({ commentCount, postId }) => (
   <footer
     className={commentCount ? 'post-footer' : 'post-footer no-comments'}
   >
@@ -40,7 +28,7 @@ const PostFooter = ({ commentCount, postId }) => (
   </footer>
 );
 
-PostFooter.propTypes = {
+StreamPostFooter.propTypes = {
   commentCount: PropTypes.number.isRequired,
   postId: PropTypes.string.isRequired,
 };
@@ -50,31 +38,49 @@ PostFooter.propTypes = {
  * Displays the post's content, and some basic information.
  * Clicking the post's footer links to the expanded view of the post.
  */
-const Post = ({
+const StreamPost = ({
   postId,
   author,
   content,
   commentCount,
+  isComment,
 }) => (
   // TODO Pasting the content directly into the HTML is not the
   // correct way to handle actual posts from the server!
-  <article className="post">
+  <article
+    className={
+      isComment
+        ? 'post comment stream-post'
+        : 'post stream-post'
+    }
+  >
     <PostHeader author={author} />
     <div className="content-text">
       {content}
     </div>
-    <PostFooter
-      postId={postId}
-      commentCount={commentCount}
-    />
+    {
+      isComment
+        ? null
+        : (
+          <StreamPostFooter
+            postId={postId}
+            commentCount={commentCount}
+          />
+        )
+    }
   </article>
 );
 
-Post.propTypes = {
+StreamPost.propTypes = {
   postId: PropTypes.string.isRequired,
   author: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
   commentCount: PropTypes.number.isRequired,
+  isComment: PropTypes.bool,
 };
 
-export default Post;
+StreamPost.defaultProps = {
+  isComment: false,
+};
+
+export default StreamPost;

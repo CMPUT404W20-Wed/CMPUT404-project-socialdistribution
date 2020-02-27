@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 
 import StreamPage from './StreamPage';
+import PostPage from '../post/PostPage';
 import ModalSwitch from '../modal/ModalSwitch';
 
 import './page.css';
@@ -32,9 +33,7 @@ const App = () => (
       <Route path="/" exact>
         <StreamPage />
       </Route>
-      <Route path="/post/">
-        <h1>post</h1>
-      </Route>
+      <Route path="/post/:id" render={({ id }) => <PostPage postId={id} />} />
     </ModalSwitch>
   </Router>
 );

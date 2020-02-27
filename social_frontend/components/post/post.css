@@ -1,0 +1,88 @@
+
+.stream-post {
+    background-color: white;
+    margin: 0.5em 1em;
+    border: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+}
+
+.standalone-post,
+.modal .standalone-post {
+  max-width: 800px;
+  margin: 65px auto 16px auto;
+  border: 1px solid #ccc;
+  border-radius: 0 0 5px 5px;
+}
+
+.modal .standalone-post {
+  overflow-y: auto;
+  border-radius: 5px;
+  max-height: 100%;
+}
+
+.post-header {
+    background-color: #f0f0f0;
+    padding: 16px;
+    border-bottom: 1px solid #ccc;
+    display: grid;
+    grid-template: auto / max-content auto;
+}
+
+.post-header .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    grid-area: 1 / 1;
+    overflow: hidden;
+    color: transparent;
+}
+
+.post-header .author {
+    grid-area: 1 / 2;
+    margin: 0 16px;
+    font-size: 110%;
+}
+
+.content-text {
+    padding: 1em;
+    font-size: 11pt;
+}
+
+.post-footer a {
+    display: block;
+    padding: 8px 16px;
+    border-top: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+    font-size: 11pt;
+    color: #555;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.post-footer.no-comments a {
+  color: #ccc;
+}
+
+.post-footer a:hover {
+  background-color: #f8f8f8;
+}
+
+.standalone-post .avatar {
+  background-color: #080;
+}
+
+.comment {
+  margin: 0;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+}
+
+.comment .avatar {
+  width: 30px;
+  height: 30px;
+}
+
+.comment .author {
+  font-size: 100%;
+}
