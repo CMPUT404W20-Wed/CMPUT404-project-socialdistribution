@@ -6,15 +6,19 @@ import PropTypes from 'prop-types';
  * Displays post info
  * (currently just author, but should also include other information)
  */
-const PostHeader = ({ author }) => (
+const PostHeader = ({ author: { id, displayName } }) => (
   <header className="post-header">
-    <img className="avatar" alt={author} />
-    <div className="author">{author}</div>
+    <img className="avatar" alt={id} />
+    <div className="author">{displayName}</div>
+    <div className="author-id">{id}</div>
   </header>
 );
 
 PostHeader.propTypes = {
-  author: PropTypes.string.isRequired,
+  author: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    displayName: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default PostHeader;

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   BrowserRouter as Router, // can also use HashRouter
   Route,
+  Redirect,
 } from 'react-router-dom';
 
 import StreamPage from './StreamPage';
@@ -31,9 +32,20 @@ const App = () => (
     <Header />
     <ModalSwitch>
       <Route path="/" exact>
-        <StreamPage />
+        <Redirect to="/stream/all" />
       </Route>
-      <Route path="/post/:id" render={({ id }) => <PostPage postId={id} />} />
+      <Route
+        path="/stream/:filter"
+        render={({ filter }) => <StreamPage filter={filter} />}
+      />
+      <Route
+        path="/post/:id"
+        render={({ id }) => <PostPage postId={id} />}
+      />
+      <Route
+        path="*"
+        render={() => <main className="centered-main">Invalid route!</main>}
+      />
     </ModalSwitch>
   </Router>
 );

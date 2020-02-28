@@ -8,6 +8,7 @@ import PostForm from '../app/PostForm';
 import './post.css';
 
 
+/* Footer containing post comments. */
 const PostComments = ({ postId }) => (
   <div className="post-footer">
     <Stream isComments />
@@ -20,11 +21,15 @@ PostComments.propTypes = {
 };
 
 
+/* A standalone post, including comments. */
 export default class PostPage extends React.Component {
   state = {
     post: {
       id: '0',
-      author: 'Author0ID',
+      author: {
+        id: 'post.author@example.net',
+        displayName: 'Post Author',
+      },
       content: 'You\'re looking at an expanded post.',
       commentCount: 14,
     },

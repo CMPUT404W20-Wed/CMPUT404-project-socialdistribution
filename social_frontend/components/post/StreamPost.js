@@ -73,7 +73,10 @@ const StreamPost = ({
 
 StreamPost.propTypes = {
   postId: PropTypes.string.isRequired,
-  author: PropTypes.string.isRequired,
+  author: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    displayName: PropTypes.string.isRequired,
+  }).isRequired,
   content: PropTypes.string.isRequired,
   commentCount: PropTypes.number.isRequired,
   isComment: PropTypes.bool,

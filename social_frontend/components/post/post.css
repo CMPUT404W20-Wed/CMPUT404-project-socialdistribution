@@ -6,17 +6,18 @@
     border-radius: 0 0 5px 5px;
 }
 
-.standalone-post,
-.modal .standalone-post {
+.standalone-post {
   margin: 65px auto 16px auto;
+}
+
+.modal .standalone-post {
+  margin: 16px auto;
 }
 
 .modal .standalone-post {
   border-radius: 0 0 5px 5px;
   border: 1px solid #ccc;
-  overflow-y: auto;
   border-radius: 5px;
-  max-height: 100%;
 }
 
 .standalone-post > .post-header {
@@ -35,7 +36,7 @@
     width: 40px;
     height: 40px;
     border-radius: 4px;
-    grid-area: 1 / 1;
+    grid-area: 1 / 1 / span 2;
     overflow: hidden;
     color: transparent;
 }
@@ -44,6 +45,14 @@
     grid-area: 1 / 2;
     margin: 0 16px;
     font-size: 110%;
+}
+
+.post-header .author-id {
+    grid-area: 2 / 2;
+    margin: 0 16px;
+    font-size: 80%;
+    color: #888;
+    align-self: end;
 }
 
 .content-text {
@@ -81,11 +90,19 @@
   border-bottom: none;
 }
 
+.comment .post-header {
+  padding: 10px 16px;
+}
+
 .comment .avatar {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
 }
 
 .comment .author {
-  font-size: 100%;
+  font-size: 12pt;
+}
+
+.comment .author-id {
+  font-size: 8pt;
 }
