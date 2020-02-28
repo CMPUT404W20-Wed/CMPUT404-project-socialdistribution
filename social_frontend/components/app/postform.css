@@ -34,6 +34,25 @@
     font-weight: bold;
 }
 
+.post-form-controls input[type=checkbox] {
+    margin: 0;
+    padding: 0;
+    width: 35px;
+    cursor: pointer;
+}
+
+.post-form-controls input[type=checkbox]:hover {
+    background-color: white;
+}
+
+.post-form-controls input[type=checkbox]:checked {
+    background-color: #fcc;
+}
+
+.post-form-controls input[type=checkbox]:checked:hover {
+    background-color: #ffd4d4;
+}
+
 .post-form-controls input,
 .post-form-controls select {
     padding: 6px;
@@ -51,6 +70,7 @@
 
 .post-form-controls select {
     margin-left: auto;
+    margin-right: 8px;
 }
 
 .post-form-controls option {

@@ -18,13 +18,16 @@ const PostFormControls = ({ canPost, isComment }) => (
       isComment
         ? null
         : (
-          <select className="post-form-visibility">
-            <option>Public</option>
-            <option>Friends of friends</option>
-            <option>All friends</option>
-            <option>Local friends</option>
-            <option>Private</option>
-          </select>
+          <>
+            <select className="post-form-visibility">
+              <option>Public</option>
+              <option>Friends of friends</option>
+              <option>All friends</option>
+              <option>Local friends</option>
+              <option>Private</option>
+            </select>
+            <input type="checkbox" name="unlisted" />
+          </>
         )
     }
   </div>
