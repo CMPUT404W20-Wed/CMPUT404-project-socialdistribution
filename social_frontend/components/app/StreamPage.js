@@ -5,6 +5,8 @@ import Stream from '../stream/Stream';
 import ProfilePanel from './ProfilePanel';
 import PostForm from './PostForm';
 
+
+/* Navigation bar for stream filters. */
 const StreamFilterNav = () => (
   <nav className="stream-nav">
     <NavLink to="/stream/all" exact activeClassName="active">

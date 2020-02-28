@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
 import Stream from '../stream/Stream';
 import PostHeader from './PostHeader';
@@ -9,16 +9,18 @@ import './post.css';
 
 
 /* Footer containing post comments. */
-const PostComments = ({ postId }) => (
+const PostComments = (/* { postId } */) => (
   <div className="post-footer">
     <Stream isComments />
     <PostForm isComment />
   </div>
 );
 
+/*
 PostComments.propTypes = {
   postId: PropTypes.string.isRequired,
 };
+*/
 
 
 /* A standalone post, including comments. */
