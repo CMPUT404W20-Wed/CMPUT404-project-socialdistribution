@@ -20,18 +20,23 @@
     border-radius: 5px;
 }
 
-#root > .standalone-post > header > .post-header {
+#root > .standalone-post > .post-header {
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
-.post > header {
+.post-header {
+    position: relative;
     display: flex;
     background-color: #f0f0f0;
     border-bottom: 1px solid #ccc;
 }
 
-.post-header {
+.post.own .post-header {
+    background-color: #ffe8e8;
+}
+
+.post-author {
     padding: 16px;
     display: grid;
     grid-template: auto / max-content auto;
@@ -39,7 +44,7 @@
     text-decoration: none;
 }
 
-.post-header .avatar {
+.post-author .avatar {
     width: 40px;
     height: 40px;
     border-radius: 4px;
@@ -48,13 +53,13 @@
     color: transparent;
 }
 
-.post-header .author {
+.post-author .author-name {
     grid-area: 1 / 2;
     margin: 0 16px;
     font-size: 110%;
 }
 
-.post-header .author-id {
+.post-author .author-id {
     grid-area: 2 / 2;
     margin: 0 16px;
     font-size: 80%;
@@ -79,37 +84,106 @@
 }
 
 .post-footer.no-comments a.comments-link {
-  color: #ccc;
+    color: #ccc;
 }
 
 .post-footer a.comments-link:hover {
-  background-color: #f8f8f8;
+    background-color: #f8f8f8;
 }
 
 .standalone-post .avatar {
-  background-color: #080;
+    background-color: #080;
 }
 
 .modal .comment {
-  margin: 0;
-  border-left: none;
-  border-right: none;
-  border-bottom: none;
+    margin: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
 }
 
 .comment .post-header {
-  padding: 10px 16px;
+    padding: 10px 16px;
 }
 
 .comment .avatar {
-  width: 36px;
-  height: 36px;
+    width: 36px;
+    height: 36px;
 }
 
 .comment .author {
-  font-size: 12pt;
+    font-size: 12pt;
 }
 
 .comment .author-id {
-  font-size: 8pt;
+    font-size: 8pt;
+}
+
+.post-menu {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    border-radius: 5px;
+}
+
+.post-menu .popup-handle {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.post-menu .popup-handle:hover,
+.post-menu:focus-within .popup-handle {
+    background-color: #fff0f0;
+}
+
+.post-menu .popup-menu {
+    background-color: white;
+    border: 1px solid #eee;
+    border-radius: 5px;
+}
+
+.post-menu .popup-menu::before,
+.post-menu .popup-menu::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 6px;
+    width: 1px;
+    height: 1px;
+    border: 6px solid transparent;
+}
+
+.post-menu .popup-menu::before {
+    top: -12px;
+    z-index: 1;
+    border-bottom-color: white;
+}
+
+.post-menu .popup-menu::after {
+    top: -13px;
+    border-bottom-color: #eee;
+}
+
+.post-menu .popup-menu button {
+    width: 120px;
+    padding: 8px 16px;
+    -webkit-appearance: none;
+    border: none;
+    background-color: white;
+    text-align: center;
+    cursor: pointer;
+}
+
+.post-menu .popup-menu button:not(:last-child) {
+    border-bottom: 1px solid #eee;
+}
+
+.post-menu .popup-menu button:hover {
+    background-color: #f8f8f8;
+}
+
+.post-menu .post-delete-button {
+    color: #a00;
 }

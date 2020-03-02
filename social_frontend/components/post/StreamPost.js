@@ -44,17 +44,14 @@ const StreamPost = ({
   content,
   commentCount,
   isComment,
+  isOwnPost,
 }) => (
   // TODO Pasting the content directly into the HTML is not the
   // correct way to handle actual posts from the server!
   <article
-    className={
-      isComment
-        ? 'post comment stream-post'
-        : 'post stream-post'
-    }
+    className={`post stream-post ${isComment ? 'comment' : ''} ${isOwnPost ? 'own' : ''}`}
   >
-    <PostHeader author={author} />
+    <PostHeader author={author} isOwnPost={isOwnPost} />
     <div className="content-text">
       {content}
     </div>
@@ -80,10 +77,12 @@ StreamPost.propTypes = {
   content: PropTypes.string.isRequired,
   commentCount: PropTypes.number.isRequired,
   isComment: PropTypes.bool,
+  isOwnPost: PropTypes.bool,
 };
 
 StreamPost.defaultProps = {
   isComment: false,
+  isOwnPost: false,
 };
 
 export default StreamPost;

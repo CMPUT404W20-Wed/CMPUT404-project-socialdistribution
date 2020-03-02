@@ -108,6 +108,7 @@ export default class Stream extends React.Component {
               content={content}
               commentCount={commentCount}
               isComment={isComments}
+              isOwnPost={id === '0'} // TODO demo logic
             />
           ),
         )}
