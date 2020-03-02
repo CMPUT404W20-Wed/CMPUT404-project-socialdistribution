@@ -7,6 +7,7 @@ import {
 
 import StreamPage from './StreamPage';
 import PostPage from '../post/PostPage';
+import LoginPage from './LoginPage';
 import ModalSwitch from '../modal/ModalSwitch';
 
 import './page.css';
@@ -34,6 +35,7 @@ const App = () => (
       <Route path="/" exact>
         <Redirect to="/stream/all" />
       </Route>
+      <Route path="/login" exact component={LoginPage} />
       <Route
         path="/stream/:filter"
         exact
