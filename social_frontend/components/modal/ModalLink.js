@@ -12,12 +12,14 @@ const ModalLink = ({
   location,
   hash,
   to,
+  className,
   children,
 }) => {
   const background = ((location.state && location.state.background)
     || location);
   return (
     <Link
+      className={className}
       to={{
         hash,
         pathname: to,
@@ -37,11 +39,13 @@ ModalLink.propTypes = {
   }).isRequired,
   hash: PropTypes.string,
   to: PropTypes.string.isRequired,
+  className: PropTypes.string,
   children: PropTypes.node.isRequired,
 };
 
 ModalLink.defaultProps = {
   hash: '',
+  className: undefined,
 };
 
 export default withRouter(ModalLink);

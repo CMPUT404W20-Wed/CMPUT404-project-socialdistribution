@@ -7,29 +7,36 @@
 }
 
 .standalone-post {
-  margin: 65px auto 16px auto;
+    margin: 65px auto 16px auto;
 }
 
 .modal .standalone-post {
-  margin: 16px auto;
+    margin: 16px auto;
 }
 
 .modal .standalone-post {
-  border-radius: 0 0 5px 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+    border-radius: 0 0 5px 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
-.standalone-post > .post-header {
-  background-color: inherit;
+#root > .standalone-post > header > .post-header {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.post > header {
+    display: flex;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ccc;
 }
 
 .post-header {
-    background-color: #f0f0f0;
     padding: 16px;
-    border-bottom: 1px solid #ccc;
     display: grid;
     grid-template: auto / max-content auto;
+    color: unset;
+    text-decoration: none;
 }
 
 .post-header .avatar {
@@ -60,7 +67,7 @@
     font-size: 11pt;
 }
 
-.post-footer a {
+.post-footer a.comments-link {
     display: block;
     padding: 8px 16px;
     border-top: 1px solid #ccc;
@@ -71,11 +78,11 @@
     text-decoration: none;
 }
 
-.post-footer.no-comments a {
+.post-footer.no-comments a.comments-link {
   color: #ccc;
 }
 
-.post-footer a:hover {
+.post-footer a.comments-link:hover {
   background-color: #f8f8f8;
 }
 

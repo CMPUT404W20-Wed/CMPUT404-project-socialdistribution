@@ -15,7 +15,7 @@ const StreamPostFooter = ({ commentCount, postId }) => (
   <footer
     className={commentCount ? 'post-footer' : 'post-footer no-comments'}
   >
-    <ModalLink to={`/post/${postId}`} hash="comments">
+    <ModalLink className="comments-link" to={`/post/${postId}`} hash="comments">
       {
         commentCount === 0
           ? 'No comments'

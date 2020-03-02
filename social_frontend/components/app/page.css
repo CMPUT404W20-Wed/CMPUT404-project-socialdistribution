@@ -48,11 +48,11 @@ html {
     margin: auto;
 }
 
-.profile {
+.profile-panel {
     grid-area: 1 / 1 / span 3 / span 1;
 }
 
-.post-form {
+.post-form, .profile {
     grid-area: 1 / 2;
 }
 

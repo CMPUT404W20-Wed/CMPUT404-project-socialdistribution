@@ -36,11 +36,20 @@ const App = () => (
       </Route>
       <Route
         path="/stream/:filter"
+        exact
         render={({ filter }) => <StreamPage filter={filter} />}
       />
       <Route
         path="/post/:id"
-        render={({ id }) => <PostPage postId={id} />}
+        exact
+        render={({ match: { params: { id } } }) => <PostPage postId={id} />}
+      />
+      <Route
+        path="/profile/:id"
+        exact
+        render={({ match: { params: { id } } }) => (
+          <StreamPage filter="profile" profileId={id} />
+        )}
       />
       <Route
         path="*"

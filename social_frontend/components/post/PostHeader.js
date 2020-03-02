@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 
 /* Header of a post.
@@ -7,10 +8,15 @@ import PropTypes from 'prop-types';
  * (currently just author, but should also include other information)
  */
 const PostHeader = ({ author: { id, displayName } }) => (
-  <header className="post-header">
-    <img className="avatar" alt={id} />
-    <div className="author">{displayName}</div>
-    <div className="author-id">{id}</div>
+  <header>
+    <Link
+      className="post-header"
+      to={`/profile/${id}`}
+    >
+      <img className="avatar" alt={id} />
+      <div className="author">{displayName}</div>
+      <div className="author-id">{id}</div>
+    </Link>
   </header>
 );
 

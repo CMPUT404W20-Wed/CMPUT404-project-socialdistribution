@@ -1,8 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 
 import Stream from '../stream/Stream';
-import ProfilePanel from './ProfilePanel';
+import Profile from '../profile/Profile';
 import PostForm from './PostForm';
 
 
@@ -32,19 +33,37 @@ const StreamFilterNav = () => (
  * This is an abstraction over all kinds of stream pages: browsing, profiles,
  * and possibly others.
  */
-const StreamPage = () => (
+const StreamPage = ({ /* filter, */ profileId }) => (
   <main className="main">
-    <ProfilePanel
+    <Profile
+      panel={profileId === null}
+      userId={profileId === null ? 'demo.user@example.net' : profileId}
       userDisplayName="DemoUser"
-      userId="demo.user@example.net"
       friendCount={10}
       followingCount={1}
       followerCount={1294}
     />
-    <PostForm />
-    <StreamFilterNav />
+    {
+      profileId === null
+        ? (
+          <>
+            <PostForm />
+            <StreamFilterNav />
+          </>
+        )
+        : null
+    }
     <Stream />
   </main>
 );
+
+StreamPage.propTypes = {
+  // filter: PropTypes.string.isRequired,
+  profileId: PropTypes.string,
+};
+
+StreamPage.defaultProps = {
+  profileId: null,
+};
 
 export default StreamPage;
