@@ -2,7 +2,6 @@
 .login-page-wrapper {
     flex-grow: 1;
     display: flex;
-    background-color: #ffd8d8;
 }
 
 .login-page {
@@ -25,7 +24,12 @@
     margin-bottom: 16px;
 }
 
-.login-form input {
+.login-page.state-error .field {
+    border-color: #800;
+}
+
+.login-form input,
+.login-form .submit {
     padding: 6px;
     border: 1px solid #aaa;
     color: #555;
@@ -33,13 +37,13 @@
     -webkit-appearance: none;
 }
 
-.login-form input[type=submit] {
+.login-form .submit {
     background-color: inherit;
     color: #888;
     font-weight: bold;
 }
 
-.login-form input[type=submit]:enabled {
+.login-form .submit:enabled {
     background-color: #f8f8f8;
     color: #555;
 }
@@ -51,4 +55,12 @@
     text-align: right;
     font-size: 10pt;
     color: #999;
+}
+
+.login-page .error {
+    margin: 16px;
+    margin-top: 0;
+    font-size: 10pt;
+    text-align: center;
+    color: #800;
 }

@@ -37,6 +37,41 @@ html {
     color: white;
 }
 
+.header .current-user {
+    margin-left: auto;
+    align-self: stretch;
+    position: relative;
+}
+
+.header .current-user .popup,
+.header .current-user .popup-handle {
+    height: 100%;
+}
+
+.header .current-user .popup-handle {
+    padding-right: 16px;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+}
+
+.header .current-user .popup-handle:hover {
+    background-color: #d44;
+}
+
+.header .current-user-name {
+    margin-right: 12px;
+    color: white;
+}
+
+.header .current-user-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #088;
+    border-radius: 5px;
+    color: transparent;
+}
+
 .main {
     margin-top: 53px; /* height of header = line-height + 2*padding */
     height: 100%;

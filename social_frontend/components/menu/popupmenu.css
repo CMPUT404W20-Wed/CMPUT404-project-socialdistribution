@@ -10,7 +10,72 @@
 }
 
 .popup:focus-within .popup-menu {
-    display: block;
+    display: flex;
     position: absolute;
     z-index: 8;
+}
+
+.popup-menu {
+    border-radius: 5px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 120px;
+    flex-direction: column;
+}
+
+.popup-menu::before,
+.popup-menu::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 6px;
+    width: 1px;
+    height: 1px;
+    border: 6px solid transparent;
+}
+
+.popup-menu::before {
+    top: -12px;
+    z-index: 1;
+    border-bottom-color: white;
+}
+
+.popup-menu::after {
+    top: -13px;
+    border-bottom-color: #ccc;
+}
+
+.popup-menu > * {
+    display: block;
+    font-size: 11pt;
+    text-decoration: none;
+    color: #555;
+    font-family: sans-serif;
+    padding: 8px 16px;
+    -webkit-appearance: none;
+    border: none;
+    background-color: white;
+    text-align: left;
+    cursor: pointer;
+}
+
+.popup-menu > *:not(:last-child) {
+    border-bottom: 1px solid #ccc;
+}
+
+.popup-menu > *:first-child {
+    border-radius: 3px 3px 0 0;
+}
+
+.popup-menu > *:last-child {
+    border-radius: 0 0 3px 3px;
+}
+
+.popup-menu > *:hover {
+    background-color: #f8f8f8;
+}
+
+.popup-red-button {
+    color: #a00;
 }
