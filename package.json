@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "dependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-router-dom": "^5.1.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "@babel/preset-react": "^7.8.3",
+    "babel-eslint": "^10.0.3",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.18.3",
+    "eslint-plugin-react-hooks": "^1.7.0",
+    "parcel-bundler": "^1.12.4"
+  },
+  "scripts": {
+    "start": "parcel watch social_frontend/*.html -d social_backend/static/social_backend --public-url /static/social_backend/",
+    "build": "parcel build social_frontend/*.html -d social_backend/static/social_backend --public-url /static/social_backend/"
+  }
+}
