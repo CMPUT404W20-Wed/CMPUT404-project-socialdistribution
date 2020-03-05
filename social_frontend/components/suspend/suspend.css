@@ -3,7 +3,7 @@
     position: relative;
 }
 
-.suspender {
+.suspenseful .suspender {
     position: absolute;
     left: 0;
     top: 0;
@@ -23,6 +23,6 @@
 }
 
 @keyframes pulse {
-    from { opacity: 0.5; }
+    from { opacity: 0.33; }
     to { opacity: 1.0; }
 }

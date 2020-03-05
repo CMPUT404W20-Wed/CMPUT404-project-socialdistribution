@@ -111,10 +111,22 @@ const Main = ({ sessionUser }) => (
         '/personal',
       ]}
       exact
-      render={({ match }) => (
-        <StreamPage filter={match} sessionUser={sessionUser} />
-      )}
-    />
+    >
+      <Route
+        path={[
+          '/:filter',
+          '/',
+        ]}
+        render={({ match: { params: { filter, page } } }) => (
+          <StreamPage
+            key={filter}
+            filter={filter}
+            page={page}
+            sessionUser={sessionUser}
+          />
+        )}
+      />
+    </Route>
     <Route
       path="/post/:id"
       exact
@@ -130,6 +142,7 @@ const Main = ({ sessionUser }) => (
       render={
         ({ match: { params: { id } } }) => (
           <StreamPage
+            key={id}
             filter="profile"
             profileId={id}
             sessionUser={sessionUser}

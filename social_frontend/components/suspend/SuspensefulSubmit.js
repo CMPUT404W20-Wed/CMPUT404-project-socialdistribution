@@ -1,17 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import './submit.css';
+import Suspender from './Suspender';
 
-
-/* Overlay for the suspenseful button; displayed when suspended. */
-const Suspender = () => (
-  <div className="suspender">
-    <span>·</span>
-    <span>·</span>
-    <span>·</span>
-  </div>
-);
+import './suspend.css';
 
 
 /* Submit button that can display a progress indicator.

@@ -3,33 +3,10 @@ import PropTypes from 'prop-types';
 import ModalLink from '../modal/ModalLink';
 
 import PostHeader from './PostHeader';
-import Stream from '../stream/Stream';
-import PostForm from '../postform/PostForm';
+import Comments from './Comments';
 import { userShape, postShape } from '../shapes';
 
 import './post.css';
-
-
-/* Footer containing post comments. */
-const PostComments = ({ /* postId, */ sessionUser }) => {
-  const Comment = ({ post }) => (
-    <Post type="comment" sessionUser={sessionUser} post={post} />
-  );
-
-  Comment.propTypes = { post: postShape.isRequired };
-
-  return (
-    <div className="post-footer">
-      <Stream PostComponent={Comment} />
-      <PostForm isComment />
-    </div>
-  );
-};
-
-PostComments.propTypes = {
-  /* postId: PropTypes.string.isRequired, */
-  sessionUser: userShape.isRequired,
-};
 
 
 /* Footer displaying comment count.
@@ -82,7 +59,13 @@ const Post = ({
   let footer;
   let className;
   if (type === 'standalone') {
-    footer = <PostComments postId={postId} sessionUser={sessionUser} />;
+    const Comment = ({ post }) => (
+      <Post type="comment" post={post} sessionUser={sessionUser} />
+    );
+
+    Comment.propTypes = { post: postShape.isRequired };
+
+    footer = <Comments PostComponent={Comment} postId={postId} />;
     className = 'standalone-post';
   } else if (type === 'stream') {
     footer = <StreamPostFooter postId={postId} commentCount={commentCount} />;
