@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+/* PropTypes validation shapes for model objects. */
+
 export const userShape = PropTypes.shape({
   id: PropTypes.string.isRequired,
   displayName: PropTypes.string.isRequired,

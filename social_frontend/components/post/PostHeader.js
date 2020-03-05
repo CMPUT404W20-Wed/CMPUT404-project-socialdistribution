@@ -6,8 +6,9 @@ import PopupMenu from '../menu/PopupMenu';
 
 
 /* Header of a post.
- * Displays post info
- * (currently just author, but should also include other information)
+ * Displays post info, and links to edit and delete if isOwnPost is set.
+ *
+ * TODO use actual icon for menu
  */
 const PostHeader = ({ author: { id, displayName }, isOwnPost }) => (
   <header className="post-header">
@@ -20,14 +21,17 @@ const PostHeader = ({ author: { id, displayName }, isOwnPost }) => (
       <div className="author-id">{id}</div>
     </Link>
     {
-      isOwnPost
-        ? (
-          <PopupMenu className="post-menu" handle=":">
-            <button type="button" className="post-edit-button">Edit</button>
-            <button type="button" className="post-delete-button">Delete</button>
-          </PopupMenu>
-        )
-        : null
+      isOwnPost && (
+        <PopupMenu className="post-menu" handle="⁝">
+          <button type="button" className="post-edit-button">Edit</button>
+          <button
+            type="button"
+            className="post-delete-button popup-red-button"
+          >
+            Delete
+          </button>
+        </PopupMenu>
+      )
     }
   </header>
 );

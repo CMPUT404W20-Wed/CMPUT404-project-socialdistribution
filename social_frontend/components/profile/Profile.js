@@ -7,7 +7,11 @@ import { userShape } from '../shapes';
 import './profile.css';
 
 
-/* Floating profile panel that appears to the left on the "home" view. */
+/* Profile view: displays information and links related to a user.
+ *
+ * If the panel prop is set, appears as a floating side panel.
+ * If the panel prop is unset, appears as a header.
+ */
 const Profile = ({
   panel,
   user: {

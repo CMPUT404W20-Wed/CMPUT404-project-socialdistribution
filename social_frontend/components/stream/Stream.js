@@ -8,6 +8,9 @@ import './stream.css';
  * The list of posts is displayed linearly.
  * TODO when dynamic loading is implemented, state should probably
  * be moved up, and posts here will become a prop
+ *
+ * The PostComponent prop determines the component used to render each post.
+ * Each instance will be passed the prop 'post' containing the post to render.
  */
 export default class Stream extends React.Component {
   state = {

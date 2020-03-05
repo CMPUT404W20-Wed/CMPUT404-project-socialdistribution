@@ -3,6 +3,12 @@ import PropTypes from 'prop-types';
 
 import './popupmenu.css';
 
+
+/* Pop-up menu.
+ *
+ * Clicking on the handle causes the children to be made visible
+ * (using CSS focus-within)
+ */
 const PopupMenu = ({ handle, children, className }) => (
   <div className={`popup ${className}`}>
     <button type="button" className="popup-handle">

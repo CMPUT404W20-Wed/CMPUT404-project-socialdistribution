@@ -3,7 +3,12 @@ import React from 'react';
 import Post from '../post/Post';
 import { userShape } from '../shapes';
 
-/* A standalone post, including comments. */
+
+/* Page displaying a single post, including comments.
+ * This could be displayed either by itself or in a modal.
+ *
+ * TODO this should eventually request the post, taking in a postId
+ */
 export default class PostPage extends React.Component {
   state = {
     post: {

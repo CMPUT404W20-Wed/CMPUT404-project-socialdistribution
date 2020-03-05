@@ -4,7 +4,7 @@ import ModalLink from '../modal/ModalLink';
 
 import PostHeader from './PostHeader';
 import Stream from '../stream/Stream';
-import PostForm from '../app/PostForm';
+import PostForm from '../postform/PostForm';
 import { userShape, postShape } from '../shapes';
 
 import './post.css';
@@ -32,8 +32,7 @@ PostComments.propTypes = {
 };
 
 
-/* Footer of a post.
- * Displays the comment count.
+/* Footer displaying comment count.
  * Clicking the footer links to the expanded view of the post.
  */
 const StreamPostFooter = ({ commentCount, postId }) => (
@@ -59,9 +58,12 @@ StreamPostFooter.propTypes = {
 };
 
 
-/* View for a post in the stream. (aka. unexpanded post)
- * Displays the post's content, and some basic information.
- * Clicking the post's footer links to the expanded view of the post.
+/* General view of a post.
+ *
+ * type prop controls the appearance and footer content:
+ * 'standalone' => comments in footer
+ *     'stream' => link to expand post in footer
+ *    'comment' => no footer
  */
 const Post = ({
   post: {
@@ -89,6 +91,8 @@ const Post = ({
     footer = null;
     className = 'stream-post comment';
   }
+
+  if (isOwnPost) className += ' own';
 
   // TODO Pasting the content directly into the HTML is not the
   // correct way to handle actual posts from the server!

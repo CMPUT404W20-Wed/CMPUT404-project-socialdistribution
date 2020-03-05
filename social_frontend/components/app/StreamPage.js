@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 import Stream from '../stream/Stream';
 import Post from '../post/Post';
 import Profile from '../profile/Profile';
-import PostForm from './PostForm';
+import PostForm from '../postform/PostForm';
 import { userShape, postShape } from '../shapes';
 
 
@@ -34,9 +34,15 @@ const StreamFilterNav = () => (
 /* Page body, potentially containing a profile panel, post form, and stream.
  * This is an abstraction over all kinds of stream pages: browsing, profiles,
  * and possibly others.
+ *
+ * If profileId is set, displays profile page for that id (TODO nyi)
+ * Otherwise if filter is set, display posts matching the filter (TODO nyi)
  */
 const StreamPage = ({ /* filter, */ profileId, sessionUser }) => {
   const displayUser = sessionUser; // TODO user from profileId || sessionUser
+
+  // Specify "stream" type for posts in the stream.
+  // (This sets their appearance appropriately)
   const StreamPost = ({ post }) => (
     <Post type="stream" post={post} sessionUser={sessionUser} />
   );

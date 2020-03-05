@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Switch,
-  StaticRouter,
   withRouter,
 } from 'react-router-dom';
 
@@ -38,13 +37,11 @@ class ModalSwitch extends React.Component {
     if (background) {
       return (
         <>
-          <StaticRouter location={background}>
-            <Switch>
-              {children}
-            </Switch>
-          </StaticRouter>
+          <Switch location={background}>
+            {children}
+          </Switch>
           <Modal onCancel={this.cancelModal}>
-            <Switch>
+            <Switch location={location}>
               {children}
             </Switch>
           </Modal>
@@ -53,7 +50,7 @@ class ModalSwitch extends React.Component {
     }
 
     return (
-      <Switch>
+      <Switch location={location}>
         {children}
       </Switch>
     );

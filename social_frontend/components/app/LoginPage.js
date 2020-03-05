@@ -7,11 +7,23 @@ import SuspensefulSubmit from '../submit/SuspensefulSubmit';
 import './login.css';
 
 
+/* Page displaying a login form. */
 export default class LoginPage extends React.Component {
   state = {
+    /* Current value of the username and password fields. */
     enteredUsername: '',
     enteredPassword: '',
+
+    /* Status of the form:
+     *   'ready' => not submitted
+     * 'pending' => request sent, no response yet
+     *   'error' => server rejected login
+     */
     loginState: 'ready',
+
+    /* Error message to display on the form;
+     * should generally be null unless loginState is 'error'
+     */
     errorMessage: null,
   };
 
@@ -50,6 +62,8 @@ export default class LoginPage extends React.Component {
       errorMessage: null,
     });
 
+    // don't need a then() since a successful login
+    // will redirect the user away from this component
     loginCallback(enteredUsername, enteredPassword).catch(
       (error) => {
         this.setState({
@@ -69,8 +83,7 @@ export default class LoginPage extends React.Component {
     } = this.state;
 
     const enableSubmit = enteredUsername.length > 0
-      && enteredPassword.length > 0
-      && loginState !== 'pending';
+      && enteredPassword.length > 0;
 
     return (
       <div className="login-page-wrapper">
@@ -94,8 +107,7 @@ export default class LoginPage extends React.Component {
             />
             {
               errorMessage
-                ? <div className="error">{errorMessage}</div>
-                : null
+                && <div className="error">{errorMessage}</div>
             }
             <SuspensefulSubmit
               label="Log in"

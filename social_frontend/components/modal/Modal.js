@@ -1,7 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-/* Wraps children in a modal sheet. */
+
+/* Wraps children in a modal sheet.
+ *
+ * The modal sheet overlays the page; it can be cancelled by pressing Escape.
+ * (Cancelling calls the onCancel prop, which can then decide whether to
+ *  actually close the modal.)
+ * While the modal is active, the DOM root element will have the class
+ * 'modal-active' -- this is used to prevent the content behind the
+ * modal from being scrolled while the modal is active.
+ */
 export default class Modal extends React.Component {
   constructor(props) {
     super(props);

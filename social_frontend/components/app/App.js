@@ -15,10 +15,14 @@ import { userShape } from '../shapes';
 
 import './page.css';
 
+
 // TODO This should be set by Django
 window.pageSession = { user: null };
 
 
+/* User context menu; appears at right of header bar.
+ * Contains Profile and Log Out links.
+ */
 const UserMenu = ({ user, logoutCallback }) => {
   const { id, displayName } = user;
   return (
@@ -55,8 +59,8 @@ UserMenu.propTypes = {
 
 
 /* Global header; renders at the top of every page.
- * Contains links pertaining to the logged-in user.
- * TODO Log out link doesn't actually log out yet, it just goes to /login
+ * Renders a <UserMenu> only when the user is logged in;
+ * in any case, also renders a home-link / app title.
  */
 const Header = ({ sessionUser, logoutCallback }) => (
   <header className="header">
@@ -79,13 +83,90 @@ Header.defaultProps = {
 };
 
 
-/* Top-level component.
+/* Subsidiary top-level component containing most pages.
+ * Everything here assumes the user is logged in; <App> should already have
+ * handled the case where the user is not logged in.
+ * <App> also provides a header; this component only contains "on-page" UI.
+ *
  * Routing logic is implemented here:
- * | /         -- "home" stream view
- * | /post/### -- individual post view
+ * | /            -- "home" stream view, shows everything
+ * | /friends     -- stream of posts from the session user's friends
+ * | /following   -- stream of posts from users the session user follows
+ * | /related     -- stream of posts from the session user's friends-of-friends
+ * | /personal    -- stream of posts explicitly shared with the session user
+ * | /post/###    -- individual post view
+ * | /profile/###           -- profile view
+ * | /profile/###/friends   -- list of friends
+ * | /profile/###/following -- list of users the specified user follows
+ * | /profile/###/followers -- list of users following the specified user
+ */
+const Main = ({ sessionUser }) => (
+  <ModalSwitch>
+    <Route
+      path={[
+        '/',
+        '/following',
+        '/related',
+        '/friends',
+        '/personal',
+      ]}
+      exact
+      render={({ match }) => (
+        <StreamPage filter={match} sessionUser={sessionUser} />
+      )}
+    />
+    <Route
+      path="/post/:id"
+      exact
+      render={
+        ({ match: { params: { id } } }) => (
+          <PostPage postId={id} sessionUser={sessionUser} />
+        )
+      }
+    />
+    <Route
+      path="/profile/:id"
+      exact
+      render={
+        ({ match: { params: { id } } }) => (
+          <StreamPage
+            filter="profile"
+            profileId={id}
+            sessionUser={sessionUser}
+          />
+        )
+      }
+    />
+    <Route
+      path="*"
+      render={() => (
+        <main className="centered-main">Invalid route!</main>
+      )}
+    />
+  </ModalSwitch>
+);
+
+Main.propTypes = {
+  sessionUser: userShape.isRequired,
+};
+
+
+/* Top-level component.
+ * Stores session information
+ * (ie. the currently logged-in user ("session user")).
+ *
+ * This component is directly responsible for everything that exists
+ * independenly of whether the user is logged in.
+ *
+ * If the user is not logged in they will be presented with a login screen
+ * at whatever URL they visit. (There is no explicit login URL.)
+ *
+ * Delegates to <Main> once the user is logged in, which implements
+ * most page logic.
  */
 export default class App extends React.Component {
   state = {
+    /* The current session. */
     session: window.pageSession,
   };
 
@@ -96,14 +177,22 @@ export default class App extends React.Component {
     this.doLogout = this.doLogout.bind(this);
   }
 
+  /* Attempt to login using the specified username and password.
+   * Returns a Promise.
+   * If login fails, the promise rejects; if login succeeds,
+   * the promise resolves, but this also updates the current
+   * session, which will probably unmount the component that
+   * called this method before it can react to the result.
+   * TODO Local stub
+   */
   doLogin(username, password) {
-    // TODO demo
     return new Promise((resolve, reject) => {
       setTimeout(
         () => {
           if (username === password) {
             this.setState({
               session: {
+                // Demo session data
                 user: {
                   id: `${username}@example.net`,
                   displayName: username,
@@ -123,8 +212,15 @@ export default class App extends React.Component {
     });
   }
 
+  /* Logs out the current user.
+   * Returns a Promise.
+   * If logout fails (which can really only be the server's fault), the
+   * promise rejects; if login succeeds, the promise resolves, but this
+   * also updates the current session, which will probably unmount the
+   * component that called this method before it can react to the result.
+   * TODO Local stub
+   */
   doLogout() {
-    // TODO demo
     return new Promise((resolve) => {
       setTimeout(
         () => {
@@ -145,51 +241,7 @@ export default class App extends React.Component {
         {
           (user === null)
             ? <LoginPage loginCallback={this.doLogin} />
-            : (
-              <ModalSwitch>
-                <Route
-                  path={[
-                    '/',
-                    '/following',
-                    '/related',
-                    '/friends',
-                    '/personal',
-                  ]}
-                  exact
-                  render={({ match }) => (
-                    <StreamPage filter={match} sessionUser={user} />
-                  )}
-                />
-                <Route
-                  path="/post/:id"
-                  exact
-                  render={
-                    ({ match: { params: { id } } }) => (
-                      <PostPage postId={id} sessionUser={user} />
-                    )
-                  }
-                />
-                <Route
-                  path="/profile/:id"
-                  exact
-                  render={
-                    ({ match: { params: { id } } }) => (
-                      <StreamPage
-                        filter="profile"
-                        profileId={id}
-                        sessionUser={user}
-                      />
-                    )
-                  }
-                />
-                <Route
-                  path="*"
-                  render={() => (
-                    <main className="centered-main">Invalid route!</main>
-                  )}
-                />
-              </ModalSwitch>
-            )
+            : <Main sessionUser={user} />
         }
       </Router>
     );
