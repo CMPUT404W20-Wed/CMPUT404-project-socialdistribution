@@ -2,17 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link, NavLink } from 'react-router-dom';
 
+import { userShape } from '../shapes';
+
 import './profile.css';
 
 
 /* Floating profile panel that appears to the left on the "home" view. */
 const Profile = ({
   panel,
-  userId,
-  userDisplayName,
-  friendCount,
-  followingCount,
-  followerCount,
+  user: {
+    id,
+    displayName,
+    friendCount,
+    followingCount,
+    followerCount,
+  },
 }) => {
   const HeaderMaybeLink = panel
     ? Link
@@ -20,10 +24,10 @@ const Profile = ({
   return (
     <aside className={panel ? 'profile-panel' : 'profile'}>
       <header className="profile-header">
-        <HeaderMaybeLink to={`/profile/${userId}`}>
-          <img className="avatar" alt={userId} />
-          <h2 className="user-name">{userDisplayName}</h2>
-          <div className="user-id">{userId}</div>
+        <HeaderMaybeLink to={`/profile/${id}`}>
+          <img className="avatar" alt={id} />
+          <h2 className="user-name">{displayName}</h2>
+          <div className="user-id">{id}</div>
         </HeaderMaybeLink>
       </header>
       <nav className="profile-nav">
@@ -32,7 +36,7 @@ const Profile = ({
             ? null
             : (
               <NavLink
-                to={`/profile/${userId}`}
+                to={`/profile/${id}`}
                 className="profile-link"
                 activeClassName="selected"
               >
@@ -41,7 +45,7 @@ const Profile = ({
             )
         }
         <NavLink
-          to={`/profile/${userId}/friends`}
+          to={`/profile/${id}/friends`}
           className="profile-link profile-stat"
           activeClassName="selected"
         >
@@ -51,7 +55,7 @@ const Profile = ({
           </div>
         </NavLink>
         <NavLink
-          to={`/profile/${userId}/following`}
+          to={`/profile/${id}/following`}
           className="profile-link profile-stat"
           activeClassName="selected"
         >
@@ -61,7 +65,7 @@ const Profile = ({
           </div>
         </NavLink>
         <NavLink
-          to={`/profile/${userId}/followers`}
+          to={`/profile/${id}/followers`}
           className="profile-link profile-stat"
           activeClassName="selected"
         >
@@ -77,11 +81,7 @@ const Profile = ({
 
 Profile.propTypes = {
   panel: PropTypes.bool,
-  userDisplayName: PropTypes.string.isRequired,
-  userId: PropTypes.string.isRequired,
-  friendCount: PropTypes.number.isRequired,
-  followingCount: PropTypes.number.isRequired,
-  followerCount: PropTypes.number.isRequired,
+  user: userShape.isRequired,
 };
 
 Profile.defaultProps = {

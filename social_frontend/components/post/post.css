@@ -32,7 +32,7 @@
     border-bottom: 1px solid #ccc;
 }
 
-.post.own .post-header {
+.post.own > .post-header {
     background-color: #ffe8e8;
 }
 
@@ -100,10 +100,6 @@
     border-left: none;
     border-right: none;
     border-bottom: none;
-}
-
-.comment .post-header {
-    padding: 10px 16px;
 }
 
 .comment .avatar {

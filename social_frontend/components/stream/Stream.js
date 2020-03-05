@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import StreamPost from '../post/StreamPost';
-
 import './stream.css';
 
 
@@ -90,37 +88,16 @@ export default class Stream extends React.Component {
   };
 
   render() {
-    const { isComments } = this.props;
+    const { PostComponent } = this.props;
     const { posts } = this.state;
     return (
-      <div className={isComments ? 'stream comment-stream' : 'stream'}>
-        {posts.map(
-          ({
-            id,
-            author,
-            content,
-            commentCount,
-          }) => (
-            <StreamPost
-              key={id}
-              postId={id}
-              author={author}
-              content={content}
-              commentCount={commentCount}
-              isComment={isComments}
-              isOwnPost={id === '0'} // TODO demo logic
-            />
-          ),
-        )}
+      <div className="stream">
+        {posts.map((post) => <PostComponent key={post.id} post={post} />)}
       </div>
     );
   }
 }
 
 Stream.propTypes = {
-  isComments: PropTypes.bool,
-};
-
-Stream.defaultProps = {
-  isComments: false,
+  PostComponent: PropTypes.elementType.isRequired,
 };
