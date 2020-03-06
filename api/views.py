@@ -2,6 +2,7 @@ from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render
 from .models import User, Post, Comment
+import json
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
 # TODO: probably should return some status code indicating wrong method instead of pass, other errors
@@ -41,7 +42,7 @@ def all_posts(request):
         post = json.loads(request.body)
         post["author"] = User.objects.get(pk=post["author"])
         Post.objects.create(**post)
-        return HttpReponse(status=204)
+        return HttpResponse(status=204)
     pass
 
 # posts by post id
