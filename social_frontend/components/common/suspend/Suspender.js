@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './suspend.css';
+import '../../../styles/suspend.css';
 
 
 /* Progress indicator. */

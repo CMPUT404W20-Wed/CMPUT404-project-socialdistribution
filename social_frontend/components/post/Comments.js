@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Stream from '../stream/Stream';
-import PostForm from '../postform/PostForm';
+import Stream from '../Stream';
+import Editor from '../Editor';
 
 
 /* Footer containing post comments. */
@@ -28,7 +28,7 @@ export default class Comments extends React.Component {
     return (
       <div className="post-footer">
         <Stream PostComponent={PostComponent} posts={posts} />
-        <PostForm isComment />
+        <Editor isComment />
       </div>
     );
   }

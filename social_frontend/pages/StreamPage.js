@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 
-import Stream from '../stream/Stream';
-import Post from '../post/Post';
-import Profile from '../profile/Profile';
-import PostForm from '../postform/PostForm';
-import Suspender from '../suspend/Suspender';
-import { userShape, postShape } from '../shapes';
+import Stream from '../components/Stream';
+import Post from '../components/post/Post';
+import Profile from '../components/Profile';
+import Editor from '../components/Editor';
+import Suspender from '../components/common/suspend/Suspender';
+import { userShape, postShape } from '../util/shapes';
 
 const demoPosts = [
   {
@@ -203,7 +203,7 @@ export default class StreamPage extends React.Component {
         {
           profileId === null && (
             <>
-              <PostForm />
+              <Editor />
               <StreamFilterNav />
             </>
           )

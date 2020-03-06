@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ModalLink from '../modal/ModalLink';
 
 import PostHeader from './PostHeader';
 import Comments from './Comments';
-import { userShape, postShape } from '../shapes';
+import ModalLink from '../common/modal/ModalLink';
+import { userShape, postShape } from '../../util/shapes';
 
-import './post.css';
+import '../../styles/post.css';
 
 
 /* Footer displaying comment count.

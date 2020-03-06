@@ -7,8 +7,6 @@ import {
 
 import Modal from './Modal';
 
-import './modal.css';
-
 
 /* Switch that enables the displaying of modals via <ModalLink>.
  * When a <ModalLink> is clicked, <ModalSwitch> displays both the

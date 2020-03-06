@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import SuspensefulSubmit from '../suspend/SuspensefulSubmit';
+import SuspensefulSubmit from '../components/common/suspend/SuspensefulSubmit';
 
-import './login.css';
+import '../styles/login.css';
 
 
 /* Page displaying a login form. */

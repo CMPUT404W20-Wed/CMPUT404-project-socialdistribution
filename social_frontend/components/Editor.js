@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import './postform.css';
+import '../styles/editor.css';
 
 
 /* Control cluster at the bottom of the post form.

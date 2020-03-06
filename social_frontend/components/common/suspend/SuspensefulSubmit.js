@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import Suspender from './Suspender';
 
-import './suspend.css';
+import '../../../styles/suspend.css';
 
 
 /* Submit button that can display a progress indicator.

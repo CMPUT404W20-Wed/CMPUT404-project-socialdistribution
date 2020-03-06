@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import SuspensefulSubmit from '../suspend/SuspensefulSubmit';
-import { postShape } from '../shapes';
+import SuspensefulSubmit from './common/suspend/SuspensefulSubmit';
+import { postShape } from '../util/shapes';
 
-import './stream.css';
+import '../styles/stream.css';
 
 
 /* Stream is a list of posts.

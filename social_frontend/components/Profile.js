@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link, NavLink } from 'react-router-dom';
 
-import { userShape } from '../shapes';
+import { userShape } from '../util/shapes';
 
-import './profile.css';
+import '../styles/profile.css';
 
 
 /* Profile view: displays information and links related to a user.

@@ -6,14 +6,14 @@ import {
   Link,
 } from 'react-router-dom';
 
-import StreamPage from './StreamPage';
-import PostPage from './PostPage';
-import LoginPage from './LoginPage';
-import ModalSwitch from '../modal/ModalSwitch';
-import PopupMenu from '../menu/PopupMenu';
-import { userShape } from '../shapes';
+import StreamPage from './pages/StreamPage';
+import PostPage from './pages/PostPage';
+import LoginPage from './pages/LoginPage';
+import ModalSwitch from './components/common/modal/ModalSwitch';
+import PopupMenu from './components/common/PopupMenu';
+import { userShape } from './util/shapes';
 
-import './page.css';
+import './styles/page.css';
 
 
 // TODO This should be set by Django

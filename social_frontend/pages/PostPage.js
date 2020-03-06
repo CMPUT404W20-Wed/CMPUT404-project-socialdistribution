@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Post from '../post/Post';
-import { userShape } from '../shapes';
+import Post from '../components/post/Post';
+import { userShape } from '../util/shapes';
 
 
 /* Page displaying a single post, including comments.

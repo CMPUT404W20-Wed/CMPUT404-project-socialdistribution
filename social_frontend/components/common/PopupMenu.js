@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import './popupmenu.css';
+import '../../styles/popupmenu.css';
 
 
 /* Pop-up menu.

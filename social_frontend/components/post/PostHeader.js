@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import PopupMenu from '../menu/PopupMenu';
+import PopupMenu from '../common/PopupMenu';
 
 
 /* Header of a post.
