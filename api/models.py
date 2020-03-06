@@ -2,6 +2,8 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+# TODO: need validators (some fields required) https://docs.djangoproject.com/en/3.0/ref/validators/
+# TODO: some fields should not be settable by user
 
 # extend the User object to get the extra fields, example #4 here:
 # https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html
@@ -48,7 +50,7 @@ class Post(models.Model):
         ("PRIVATE", "PRIVATE"),
         ("SERVERONLY", "SERVERONLY"),
     ]
-    visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES)
+    visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES, default="PUBLIC")
     #"visibleTo":[], # list of author URIs who can read the PRIVATE message
     # categories this post fits into (a list of strings)
     #"categories":["web","tutorial"],

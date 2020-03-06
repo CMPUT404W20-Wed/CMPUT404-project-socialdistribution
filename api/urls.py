@@ -19,7 +19,7 @@ from . import views
 urlpatterns = [
     path('author/posts', views.posts_visible),
     path('author/<uuid:aid>/posts', views.posts_by_aid),
-    path('posts/', views.get_all_posts),
+    path('posts/', views.all_posts),
     path('posts/<uuid:pid>', views.posts_by_pid),
     path('posts/<uuid:pid>/comments', views.comments_by_pid),
 ]
