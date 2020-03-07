@@ -71,3 +71,8 @@ class Comment(models.Model):
     updated = models.DateField(auto_now=True)
 
     comment = models.CharField(max_length=255)
+
+class Friends(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user1 = models.CharField(max_length=40)
+    user2 = models.CharField(max_length=40)

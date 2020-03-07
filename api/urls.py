@@ -22,4 +22,6 @@ urlpatterns = [
     path('posts/', views.all_posts),
     path('posts/<uuid:pid>', views.posts_by_pid),
     path('posts/<uuid:pid>/comments', views.comments_by_pid),
+    path('author/<uuid:aid>/friends', views.friends_by_aid),
+    path('author/<uuid:aid1>/friends/<uuid:aid2>', views.friendship_by_aid)
 ]
