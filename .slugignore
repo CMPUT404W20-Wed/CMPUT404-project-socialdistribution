@@ -1,0 +1,11 @@
+# frontend sources
+/social_frontend/
+# docs
+/*.md
+/example-article.json
+/project.org
+/LICENSE
+/swagger_doc.yml
+# foreign configs
+/.eslintrc.json
+/.travis.yml

@@ -1,0 +1,135 @@
+
+.stream-post {
+    background-color: white;
+    margin: 0.5em 1em;
+    border: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+}
+
+.standalone-post {
+    margin: 65px auto 16px auto;
+}
+
+.modal .standalone-post {
+    margin: 16px auto;
+}
+
+.modal .standalone-post {
+    border-radius: 0 0 5px 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#root > .standalone-post > .post-header {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.post-header {
+    position: relative;
+    display: flex;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ccc;
+}
+
+.post.own > .post-header {
+    background-color: #ffe8e8;
+}
+
+.post-author {
+    padding: 16px;
+    display: grid;
+    grid-template: auto / max-content auto;
+    color: unset;
+    text-decoration: none;
+}
+
+.post-author .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    grid-area: 1 / 1 / span 2;
+    overflow: hidden;
+    color: transparent;
+}
+
+.post-author .author-name {
+    grid-area: 1 / 2;
+    margin: 0 16px;
+    font-size: 110%;
+}
+
+.post-author .author-id {
+    grid-area: 2 / 2;
+    margin: 0 16px;
+    font-size: 80%;
+    color: #888;
+    align-self: end;
+}
+
+.content-text {
+    padding: 1em;
+    font-size: 11pt;
+}
+
+.post-footer a.comments-link {
+    display: block;
+    padding: 8px 16px;
+    border-top: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+    font-size: 11pt;
+    color: #555;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.post-footer.no-comments a.comments-link {
+    color: #ccc;
+}
+
+.post-footer a.comments-link:hover {
+    background-color: #f8f8f8;
+}
+
+.standalone-post .avatar {
+    background-color: #080;
+}
+
+.modal .comment {
+    margin: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+}
+
+.comment .avatar {
+    width: 36px;
+    height: 36px;
+}
+
+.comment .author {
+    font-size: 12pt;
+}
+
+.comment .author-id {
+    font-size: 8pt;
+}
+
+.post-menu {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+}
+
+.post-menu .popup-handle {
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+}
+
+.post-menu .popup-handle:hover,
+.post-menu:focus-within .popup-handle {
+    background-color: #fff0f0;
+}
+
