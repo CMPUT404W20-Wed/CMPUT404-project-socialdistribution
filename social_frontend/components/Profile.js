@@ -41,7 +41,7 @@ const Profile = ({
             : (
               <NavLink
                 to={`/profile/${id}`}
-                className="profile-link"
+                className="profile-link posts-link"
                 activeClassName="selected"
               >
                 Posts
@@ -50,7 +50,7 @@ const Profile = ({
         }
         <NavLink
           to={`/profile/${id}/friends`}
-          className="profile-link profile-stat"
+          className="profile-link profile-stat friend-count"
           activeClassName="selected"
         >
           Friends
@@ -60,7 +60,7 @@ const Profile = ({
         </NavLink>
         <NavLink
           to={`/profile/${id}/following`}
-          className="profile-link profile-stat"
+          className="profile-link profile-stat following-count"
           activeClassName="selected"
         >
           Following
@@ -70,7 +70,7 @@ const Profile = ({
         </NavLink>
         <NavLink
           to={`/profile/${id}/followers`}
-          className="profile-link profile-stat"
+          className="profile-link profile-stat follower-count"
           activeClassName="selected"
         >
           Followers

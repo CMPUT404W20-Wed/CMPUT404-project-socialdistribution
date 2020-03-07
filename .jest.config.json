@@ -1,0 +1,8 @@
+{
+    "testMatch": [
+        "**/__tests__/**/*.test.js"
+    ],
+    "moduleNameMapper": {
+        "(.*)\\.css": "<rootDir>/social_frontend/__tests__/cssStub.js"
+    }
+}

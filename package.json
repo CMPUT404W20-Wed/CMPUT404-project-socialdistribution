@@ -11,6 +11,7 @@
     "@babel/preset-env": "^7.8.4",
     "@babel/preset-react": "^7.8.3",
     "babel-eslint": "^10.0.3",
+    "babel-jest": "^25.1.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "eslint": "^6.8.0",
@@ -19,10 +20,13 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^1.7.0",
+    "jest": "^25.1.0",
     "parcel-bundler": "^1.12.4"
   },
   "scripts": {
     "start": "parcel watch social_frontend/index.js -d social_backend/static/social_backend --public-url /static/social_backend/",
-    "build": "parcel build social_frontend/index.js -d social_backend/static/social_backend --public-url /static/social_backend/"
-  }
+    "build": "parcel build social_frontend/index.js -d social_backend/static/social_backend --public-url /static/social_backend/",
+    "test": "jest --config .jest.config.json"
+  },
+  "eslintIgnore": ["social_frontend/__tests__/"]
 }
