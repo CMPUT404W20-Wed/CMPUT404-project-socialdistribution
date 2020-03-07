@@ -1,0 +1,19 @@
+
+html.modal-active {
+  overflow: hidden;
+}
+
+.modal {
+    position: fixed;
+    left: 0;
+    top: 53px;
+    width: 100%;
+    height: calc(100% - 53px);
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal > * {
+    margin: auto;
+    background-color: white;
+}

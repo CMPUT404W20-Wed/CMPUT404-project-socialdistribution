@@ -1,0 +1,118 @@
+
+.profile-panel {
+    width: 250px;
+    margin: 40px 20px;
+    justify-self: end;
+    align-self: start;
+    border: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+}
+
+.profile {
+    margin-top: 16px;
+    border-radius: 0 0 5px 5px;
+}
+
+.profile-header {
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 16px;
+}
+
+.profile-header a {
+    text-decoration: none;
+    color: unset;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile .profile-header {
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-header .avatar {
+    width: 140px;
+    height: 140px;
+    background-color: #088;
+    border-radius: 10px;
+    margin: 16px;
+    color: transparent;
+}
+
+.profile-header .user-name {
+    margin: 0;
+    font-weight: normal;
+    font-size: 16pt;
+}
+
+.profile-header .user-id {
+    color: #888;
+    font-size: 10pt;
+    padding-top: 4px;
+}
+
+.profile .profile-nav {
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 16px;
+}
+
+.profile-link {
+    padding: 12px 16px;
+    color: #555;
+    font-size: 11pt;
+    text-decoration: none;
+    display: flex;
+}
+
+.profile .profile-link {
+    padding: 8px 16px;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+}
+
+.profile .profile-stat {
+    text-align: left;
+    background-color: #f0f0f0;
+}
+
+.profile-link.selected {
+    background-color: #fcc;
+    color: black;
+}
+
+.profile-stat:hover {
+    background-color: #f8f8f8;
+}
+
+.profile-value {
+    margin-left: auto;
+}
+
+.profile-panel .profile-link:not(:last-child) {
+    border-bottom: 1px solid #ccc;
+}
+
+.profile .profile-link:not(:last-child) {
+    border-right: 1px solid #ccc;
+}
+
+.profile-panel .profile-link:last-child {
+    border-radius: 0 0 5px 5px;
+}
+
+.profile .profile-link:last-child {
+    border-radius: 0 3px 3px 0;
+}
+
+.profile .profile-link:first-child {
+    border-radius: 3px 0 0 3px;
+}
