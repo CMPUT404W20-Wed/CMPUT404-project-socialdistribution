@@ -1,12 +1,23 @@
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .forms import UserForm
 from .models import User, Post, Comment, Friends
 import json
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
 # TODO: probably should return some status code indicating wrong method instead of pass, other errors
+
+# index
+# We may want to change this to a redirect or something along those lines in future
+# just making this for now to have an index function
+def index(request):
+    method = request.method
+    if method == "GET":
+        users = User.objects.values_list('id')
+        print(users)
+        return redirect("/posts/")
+    pass
 
 # author/posts
 def posts_visible(request):
@@ -124,4 +135,14 @@ def friendship_by_aid(request, aid1, aid2):
         else:
             # TODO: Return the author list with the stripped protocol
             return JsonResponse({"friends":"true"})
+    pass
+
+# Returns a specified profile
+def profile(request, userid):
+    method = request.method
+    if method == "GET":
+        # TODO: Return the specified users profile
+        user = User.objects.get(pk=userid)
+        username = user.username
+        return HttpResponse("You're looking at %s's profile" % username)
     pass
