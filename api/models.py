@@ -14,7 +14,8 @@ class User(AbstractUser):
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
     
-    displayName = models.CharField(max_length=20)
+    # don't need this because this class inherits username
+    # displayName = models.CharField(max_length=20)
     github = models.URLField(max_length=255)
 
 

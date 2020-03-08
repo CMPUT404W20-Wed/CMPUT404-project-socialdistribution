@@ -54,4 +54,4 @@ class EndpointTests(TestCase):
         self.c.post('/posts/', post, content_type="application/json")
         self.c.post('/posts/', post, content_type="application/json")
         response = self.c.get('/posts/')
-        assert(len(response.json()))
+        assert(len(response.json()) == 2)

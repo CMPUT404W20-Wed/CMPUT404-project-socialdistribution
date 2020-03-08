@@ -2,6 +2,7 @@ from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render
 from .models import User, Post, Comment
+from .forms import UserForm
 import json
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
@@ -70,4 +71,31 @@ def comments_by_pid(request, pid):
         comment["post"] = Post.object.get(pk=pid)
         Comment.objects.create(**comment)
         return HttpResponse(status=204)
+    pass
+
+# TODO: render() the front get if its a get
+def register(request):
+    method = request.method
+    if method == "POST":
+        form = UserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # TODO: check wtf this does
+            # user.set_password(user.password)
+            user.save()
+    pass
+
+# referenced login from https://medium.com/@himanshuxd/how-to-create-registration-login-webapp-with-django-2-0-fd33dc7a6c67
+def login(request):
+    method = request.method
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(username=username, password=password)
+        if user:
+            # TODO: serve up some home page - which page?
+            pass
+        else:
+            # TODO: serve some other page - which page?
+            pass
     pass
