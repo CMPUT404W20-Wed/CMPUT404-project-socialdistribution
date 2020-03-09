@@ -1,7 +1,9 @@
+venv/
 /venv/
 /.cache/
 **/__pycache__/
 /node_modules/
 /social_backend/static/
+/db.sqlite3
 /social_backend/db.sqlite3
 .vscode

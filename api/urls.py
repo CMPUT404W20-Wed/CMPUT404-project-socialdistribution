@@ -13,15 +13,20 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import include, path, re_path
-
+from django.urls import include, path
+from django.contrib.auth import login
 from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
-    #catch all, list non react nav first
-    path('', views.app),
-    re_path(r'.*', views.app)
+    path('', views.index),
+    path('author/posts', views.posts_visible),
+    path('author/<uuid:aid>/posts', views.posts_by_aid),
+    path('posts/', views.all_posts),
+    path('posts/<uuid:pid>', views.posts_by_pid),
+    path('posts/<uuid:pid>/comments', views.comments_by_pid),
+    path('register/', views.register),
+    path('login/', login),
+    path('author/<uuid:userid>', views.profile),
+    path('author/<uuid:aid>/friends', views.friends_by_aid),
+    path('author/<uuid:aid1>/friends/<uuid:aid2>', views.friendship_by_aid),
 ]
