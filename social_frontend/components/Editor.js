@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Axios from 'axios';
+
+import { submitPostEndpoint } from '../util/endpoints';
 
 import '../styles/editor.css';
 
@@ -48,12 +51,14 @@ export default class PostForm extends React.Component {
   state = {
     textContent: '',
     canPost: false,
+    errorMessage: null,
   };
 
   constructor(props) {
     super(props);
 
     this.handleTextChange = this.handleTextChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleTextChange(event) {
@@ -64,19 +69,62 @@ export default class PostForm extends React.Component {
     });
   }
 
+  handleSubmit(event) {
+    event.preventDefault();
+
+    this.setState({
+      errorMessage: '',
+    });
+
+    const { submittedCallback } = this.props;
+    const { textContent: content } = this.state;
+    const title = ''; // TODO
+    const visibility = 'PUBLIC'; // TODO
+    const unlisted = false; // TODO
+
+    const post = {
+      title,
+      content,
+      visibility,
+      unlisted,
+      description: '',
+      contentType: 'text/plain',
+      categories: [],
+      visibleTo: [],
+    };
+
+    // Submit the post to the server
+    Axios.post(submitPostEndpoint(), {
+      query: 'createPost',
+      post,
+    }).then(({ returnedPost }) => {
+      this.setState({
+        textContent: '',
+        canPost: false,
+      });
+      submittedCallback(returnedPost);
+    }).catch((error) => {
+      this.setState({
+        errorMessage: error.message,
+      });
+    });
+  }
+
   render() {
     const { isComment } = this.props;
-    const { textContent, canPost } = this.state;
+    const { textContent, canPost, errorMessage } = this.state;
     return (
-      <form className={isComment ? 'post-form comment-form' : 'post-form'}>
+      <form
+        className={isComment ? 'post-form comment-form' : 'post-form'}
+        onSubmit={this.handleSubmit}
+      >
         <textarea
           value={textContent}
           onChange={this.handleTextChange}
-          onFocus={this.handleFocus}
-          onBlur={this.handleBlur}
           className="post-form-text"
           placeholder={isComment ? 'Add a comment' : 'Post to your stream'}
         />
+        { errorMessage && <div className="error-message">{errorMessage}</div> }
         <PostFormControls canPost={canPost} isComment={isComment} />
       </form>
     );
@@ -85,6 +133,7 @@ export default class PostForm extends React.Component {
 
 PostForm.propTypes = {
   isComment: PropTypes.bool,
+  submittedCallback: PropTypes.func.isRequired,
 };
 
 PostForm.defaultProps = {

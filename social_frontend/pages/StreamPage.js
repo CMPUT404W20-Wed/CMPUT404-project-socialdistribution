@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
+import Axios from 'axios';
 
 import Stream from '../components/Stream';
 import Post from '../components/post/Post';
@@ -8,7 +9,11 @@ import Profile from '../components/Profile';
 import Editor from '../components/Editor';
 import Suspender from '../components/common/suspend/Suspender';
 import { userShape, postShape } from '../util/shapes';
-import { streamEndpoint } from '../util/endpoints';
+import {
+  streamEndpoint,
+  userStreamEndpoint,
+  profileEndpoint,
+} from '../util/endpoints';
 
 
 /* Navigation bar for stream filters. */
@@ -47,6 +52,7 @@ export default class StreamPage extends React.Component {
     profile: null,
     postsPending: true,
     error: false,
+    profileError: false,
   };
 
   constructor(props) {
@@ -57,7 +63,9 @@ export default class StreamPage extends React.Component {
 
   componentDidMount() {
     const { profileId, filter } = this.props;
-    this.endpointUrl = `${streamEndpoint}?filter=${filter}`;
+    this.endpointUrl = (filter === 'profile')
+      ? userStreamEndpoint({ profileId })
+      : streamEndpoint({ filter });
 
     this.doLoadMore().then(
       () => { this.setState({ postsPending: false }); },
@@ -71,64 +79,51 @@ export default class StreamPage extends React.Component {
   doLoadMore() {
     const { nextPageUrl } = this.state;
 
-    const req = new Request((nextPageUrl || this.endpointUrl), {
-      method: 'GET',
-    });
+    const url = nextPageUrl || this.endpointUrl;
 
     this.setState({
       error: false,
     });
 
-    return window.fetch(req).then((resp) => {
-      if (resp.status !== 200) throw Error();
-      return resp.json();
-    }).then(
-      ({ next, posts }) => {
-        try {
-          const { posts: currentPosts } = this.state;
-          if (posts === undefined) {
-            throw new Error('Stream response missing "posts"');
-          }
+    return Axios.get(url).then(({ next, posts }) => {
+      const { posts: currentPosts } = this.state;
+      if (posts === undefined) {
+        throw new Error('Stream response missing "posts"');
+      }
 
-          this.setState({
-            posts: currentPosts.concat(posts),
-            nextPageUrl: next,
-          });
-        } catch (error) {
-          this.setState({
-            error: true,
-          });
-        }
-      },
-      () => {
-        this.setState({
-          error: true,
-        });
-      },
-    );
+      this.setState({
+        posts: currentPosts.concat(posts),
+        nextPageUrl: next,
+      });
+    }).catch(() => {
+      this.setState({
+        error: true,
+      });
+    });
   }
 
   doLoadProfile(id) {
-    // TODO loader placeholder
-    return new Promise(
-      (resolve) => {
-        window.setTimeout(
-          () => {
-            this.setState({
-              profile: {
-                id,
-                displayName: 'Profile User',
-                friendCount: 4,
-                followerCount: 12,
-                followingCount: 1234,
-              },
-            });
-            resolve();
-          },
-          1000,
-        );
-      },
-    );
+    const url = profileEndpoint(id);
+
+    this.setState({
+      profileError: false,
+    });
+
+    return Axios.get(url).then((profile) => {
+      this.setState({ profile });
+    }).catch(() => {
+      this.setState({
+        profileError: true,
+      });
+    });
+  }
+
+  handleSubmitPost(post) {
+    const { posts: currentPosts } = this.state;
+
+    this.setState({
+      posts: [post].concat(currentPosts),
+    });
   }
 
   render() {
@@ -138,6 +133,7 @@ export default class StreamPage extends React.Component {
       postsPending,
       nextPageUrl,
       error,
+      profileError,
       profile: loadedProfile,
     } = this.state;
 
@@ -156,12 +152,18 @@ export default class StreamPage extends React.Component {
         {
           (profileId !== null && loadedProfile === null)
             ? <div className="profile profile-placeholder"><Suspender /></div>
-            : <Profile user={displayUser} panel={profileId === null} />
+            : (
+              <Profile
+                user={displayUser}
+                panel={profileId === null}
+                isError={profileError}
+              />
+            )
         }
         {
           profileId === null && (
             <>
-              <Editor />
+              <Editor submittedCallback={this.handleSubmitPost} />
               <StreamFilterNav />
             </>
           )
