@@ -122,7 +122,7 @@ def friends_by_aid(request, aid):
     method = request.method
     # Get the friends of the author
     if method == "GET":
-        authors = Friends.objects.filter(user1=aid)
+        authors = Friend.objects.filter(user1=aid)
         authors_json = serializers.serialize("json", authors)
         return HttpResponse(content=authors_json, content_type="application/json", status=200)
     # Check if anyone in the list is friends with the author
@@ -135,7 +135,7 @@ def friends_by_aid(request, aid):
 def friendship_by_aid(request, aid1, aid2):
     method = request.method
     if method == "GET":
-        friendship = Friends.objects.filter(user1=aid1, user2=aid2) and Friends.objects.filter(user2=aid1, user1=aid2)
+        friendship = Friend.objects.filter(user1=aid1, user2=aid2) and Friend.objects.filter(user2=aid1, user1=aid2)
         if not friendship:
             # TODO: Return the author list with the stripped protocol
             return JsonResponse({"friends":"false"})
