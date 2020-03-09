@@ -18,6 +18,7 @@ from django.contrib.auth import login
 from . import views
 
 urlpatterns = [
+    path('', views.index),
     path('author/posts', views.posts_visible),
     path('author/<uuid:aid>/posts', views.posts_by_aid),
     path('posts/', views.all_posts),
@@ -25,6 +26,7 @@ urlpatterns = [
     path('posts/<uuid:pid>/comments', views.comments_by_pid),
     path('register/', views.register),
     path('login/', login),
+    path('author/<uuid:userid>', views.profile),
     path('author/<uuid:aid>/friends', views.friends_by_aid),
     path('author/<uuid:aid1>/friends/<uuid:aid2>', views.friendship_by_aid),
 ]
