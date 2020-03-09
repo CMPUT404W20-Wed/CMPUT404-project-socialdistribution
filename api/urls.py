@@ -17,6 +17,7 @@ from django.urls import include, path
 from django.contrib.auth import login
 from . import views
 
+#Before adding url, make sure it's not being used by React, in social_frontend/App.js
 urlpatterns = [
     path('author/posts', views.posts_visible),
     path('author/<uuid:aid>/posts', views.posts_by_aid),

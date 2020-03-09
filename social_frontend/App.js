@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -5,6 +6,7 @@ import {
   Route,
   Link,
 } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 import StreamPage from './pages/StreamPage';
 import PostPage from './pages/PostPage';
@@ -12,6 +14,7 @@ import LoginPage from './pages/LoginPage';
 import ModalSwitch from './components/common/modal/ModalSwitch';
 import PopupMenu from './components/common/PopupMenu';
 import { userShape } from './util/shapes';
+import * as actions from './store/actions/auth';
 
 import './styles/page.css';
 
@@ -88,7 +91,9 @@ Header.defaultProps = {
  * handled the case where the user is not logged in.
  * <App> also provides a header; this component only contains "on-page" UI.
  *
- * Routing logic is implemented here:
+ * Make sure to check that url is not being used by api/urls.py, or social_backend/urls.py
+ *
+ * * Routing logic is implemented here:
  * | /            -- "home" stream view, shows everything
  * | /friends     -- stream of posts from the session user's friends
  * | /following   -- stream of posts from users the session user follows
@@ -177,7 +182,7 @@ Main.propTypes = {
  * Delegates to <Main> once the user is logged in, which implements
  * most page logic.
  */
-export default class App extends React.Component {
+class App extends React.Component {
   state = {
     /* The current session. */
     session: window.pageSession,
@@ -188,6 +193,11 @@ export default class App extends React.Component {
 
     this.doLogin = this.doLogin.bind(this);
     this.doLogout = this.doLogout.bind(this);
+    this.autoSignIn = this.autoSignIn.bind(this);
+  }
+
+  componentDidMount() {
+    this.autoSignIn();
   }
 
   /* Attempt to login using the specified username and password.
@@ -245,18 +255,22 @@ export default class App extends React.Component {
     });
   }
 
+  // TODO Remove prop spreading
   render() {
-    const { session } = this.state;
-    const { user } = session;
     return (
       <Router>
-        <Header sessionUser={user} logoutCallback={this.doLogout} />
-        {
-          (user === null)
-            ? <LoginPage loginCallback={this.doLogin} />
-            : <Main sessionUser={user} />
-        }
+        <Header {...this.props} />
       </Router>
     );
   }
 }
+
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.token !== null,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  autoSignIn: () => dispatch(actions.authCheckState()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
