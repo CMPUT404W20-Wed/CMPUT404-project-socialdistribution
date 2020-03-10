@@ -24,7 +24,6 @@ def index(request):
 # author/posts
 def posts_visible(request):
     method = request.method
-    print("HELLO")
     if method == "GET":
         # TODO: posts visible to the currently authenticated user
         posts = Post.objects.all()
@@ -43,6 +42,7 @@ def posts_visible(request):
 # posts by author id
 # author/<uuid:aid>/posts
 def posts_by_aid(request, aid):
+    method = request.method
     if method == "GET":
         # all posts made by author id aid visible to currently authed user
         # TODO: this thing here ignores the visibility thing
