@@ -4,18 +4,12 @@ import Axios from 'axios';
 
 import Stream from './Stream';
 import Suspender from './common/suspend/Suspender';
-import {
-  streamEndpoint,
-  userStreamEndpoint,
-  profileEndpoint,
-} from '../util/endpoints';
 
 export default class StreamLoader extends React.Component {
   state = {
     posts: [],
     pending: true,
     nextPageUrl: undefined,
-    error: false,
   };
 
   constructor(props) {
@@ -28,21 +22,13 @@ export default class StreamLoader extends React.Component {
     this.doLoadMore().then(
       () => { this.setState({ pending: false }); },
     );
-
-    const { profileId, filter } = this.props;
-    this.endpointUrl = (filter === 'profile')
-      ? userStreamEndpoint({ profileId })
-      : streamEndpoint({ filter });
   }
 
   doLoadMore() {
+    const { endpoint } = this.props;
     const { nextPageUrl } = this.state;
 
-    const url = nextPageUrl || this.endpointUrl;
-
-    this.setState({
-      error: false,
-    });
+    const url = nextPageUrl || endpoint;
 
     return Axios.get(url).then(({ next, posts }) => {
       const { posts: currentPosts } = this.state;
@@ -54,10 +40,10 @@ export default class StreamLoader extends React.Component {
         posts: currentPosts.concat(posts),
         nextPageUrl: next,
       });
-    }).catch(() => {
-      this.setState({
-        error: true,
-      });
+    }).catch((error) => {
+      // TODO error?
+      console.log('Failed to load posts:');
+      console.log(error);
     });
   }
 
@@ -82,4 +68,5 @@ export default class StreamLoader extends React.Component {
 
 StreamLoader.propTypes = {
   PostComponent: PropTypes.elementType.isRequired,
+  endpoint: PropTypes.string.isRequired,
 };
