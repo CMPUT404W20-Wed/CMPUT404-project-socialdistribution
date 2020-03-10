@@ -64,7 +64,7 @@ const Header = (props) => (
     <h1><Link to="/">App</Link></h1>
     {
       (props.isAuthenticated)
-        ? <UserMenu />
+        ? <UserMenu {...props} />
         : null
     }
   </header>
@@ -108,7 +108,6 @@ const Main = () => (
         ]}
         render={({ match: { params: { filter, page } } }) => (
           <StreamPage
-            key={filter}
             filter={filter}
             page={page}
           />
