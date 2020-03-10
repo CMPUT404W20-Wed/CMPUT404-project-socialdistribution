@@ -58,6 +58,9 @@ class Post(models.Model):
     # unlisted means it is public if you know the post name
     # use this for images, it's so images don't show up in timelines
     unlisted = models.BooleanField(default=False)
+    
+    def get_comments(self):
+        return Comment.objects.filter(pk=self.id)
 
 
 class Comment(models.Model):

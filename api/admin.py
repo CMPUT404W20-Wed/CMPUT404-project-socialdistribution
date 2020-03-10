@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Post, Comment, Friends
+from .models import User, Post, Comment, Friend
 
 # Register your models here.
 admin.site.register(User)
