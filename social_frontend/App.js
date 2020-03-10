@@ -1,3 +1,7 @@
+// TODO fix to play nice with ESLINT
+/* eslint-disable react/no-this-in-sfc */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -17,11 +21,6 @@ import { userShape } from './util/shapes';
 import * as actions from './store/actions/auth';
 
 import './styles/page.css';
-
-
-// TODO This should be set by Django
-window.pageSession = { user: null };
-
 
 /* User context menu; appears at right of header bar.
  * Contains Profile and Log Out links.
@@ -65,26 +64,16 @@ UserMenu.propTypes = {
  * Renders a <UserMenu> only when the user is logged in;
  * in any case, also renders a home-link / app title.
  */
-const Header = ({ sessionUser, logoutCallback }) => (
+const Header = () => (
   <header className="header">
     <h1><Link to="/">App</Link></h1>
     {
-      (sessionUser !== null)
-        ? <UserMenu user={sessionUser} logoutCallback={logoutCallback} />
+      (this.props.isAuthenticated)
+        ? <UserMenu />
         : null
     }
   </header>
 );
-
-Header.propTypes = {
-  sessionUser: userShape,
-  logoutCallback: PropTypes.func.isRequired,
-};
-
-Header.defaultProps = {
-  sessionUser: null,
-};
-
 
 /* Subsidiary top-level component containing most pages.
  * Everything here assumes the user is logged in; <App> should already have
@@ -105,7 +94,7 @@ Header.defaultProps = {
  * | /profile/###/following -- list of users the specified user follows
  * | /profile/###/followers -- list of users following the specified user
  */
-const Main = ({ sessionUser }) => (
+const Main = () => (
   <ModalSwitch>
     <Route
       path={[
@@ -127,7 +116,6 @@ const Main = ({ sessionUser }) => (
             key={filter}
             filter={filter}
             page={page}
-            sessionUser={sessionUser}
           />
         )}
       />
@@ -137,7 +125,7 @@ const Main = ({ sessionUser }) => (
       exact
       render={
         ({ match: { params: { id } } }) => (
-          <PostPage postId={id} sessionUser={sessionUser} />
+          <PostPage postId={id} />
         )
       }
     />
@@ -150,7 +138,6 @@ const Main = ({ sessionUser }) => (
             key={id}
             filter="profile"
             profileId={id}
-            sessionUser={sessionUser}
           />
         )
       }
@@ -164,17 +151,12 @@ const Main = ({ sessionUser }) => (
   </ModalSwitch>
 );
 
-Main.propTypes = {
-  sessionUser: userShape.isRequired,
-};
-
-
 /* Top-level component.
  * Stores session information
  * (ie. the currently logged-in user ("session user")).
  *
  * This component is directly responsible for everything that exists
- * independenly of whether the user is logged in.
+ * independently of whether the user is logged in.
  *
  * If the user is not logged in they will be presented with a login screen
  * at whatever URL they visit. (There is no explicit login URL.)
@@ -183,21 +165,8 @@ Main.propTypes = {
  * most page logic.
  */
 class App extends React.Component {
-  state = {
-    /* The current session. */
-    session: window.pageSession,
-  };
-
-  constructor(props) {
-    super(props);
-
-    this.doLogin = this.doLogin.bind(this);
-    this.doLogout = this.doLogout.bind(this);
-    this.autoSignIn = this.autoSignIn.bind(this);
-  }
-
   componentDidMount() {
-    this.autoSignIn();
+    this.props.autoSignIn();
   }
 
   /* Attempt to login using the specified username and password.
@@ -208,58 +177,11 @@ class App extends React.Component {
    * called this method before it can react to the result.
    * TODO Local stub
    */
-  doLogin(username, password) {
-    return new Promise((resolve, reject) => {
-      setTimeout(
-        () => {
-          if (username === password) {
-            this.setState({
-              session: {
-                // Demo session data
-                user: {
-                  id: `${username}@example.net`,
-                  displayName: username,
-                  friendCount: 1,
-                  followingCount: 10,
-                  followerCount: 1401,
-                },
-              },
-            });
-            resolve();
-          } else {
-            reject(new Error('Incorrect username or password.'));
-          }
-        },
-        1000,
-      );
-    });
-  }
 
-  /* Logs out the current user.
-   * Returns a Promise.
-   * If logout fails (which can really only be the server's fault), the
-   * promise rejects; if login succeeds, the promise resolves, but this
-   * also updates the current session, which will probably unmount the
-   * component that called this method before it can react to the result.
-   * TODO Local stub
-   */
-  doLogout() {
-    return new Promise((resolve) => {
-      setTimeout(
-        () => {
-          this.setState({ session: { user: null } });
-          resolve();
-        },
-        1000,
-      );
-    });
-  }
-
-  // TODO Remove prop spreading
   render() {
     return (
       <Router>
-        <Header {...this.props} />
+        <LoginPage {...this.props} />
       </Router>
     );
   }

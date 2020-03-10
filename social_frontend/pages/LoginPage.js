@@ -1,30 +1,22 @@
+// TODO fix the ESLINT errors
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 
+import * as actions from '../store/actions/auth';
 import SuspensefulSubmit from '../components/common/suspend/SuspensefulSubmit';
 
 import '../styles/login.css';
 
 
 /* Page displaying a login form. */
-export default class LoginPage extends React.Component {
+class LoginPage extends React.Component {
   state = {
-    /* Current value of the username and password fields. */
     enteredUsername: '',
     enteredPassword: '',
-
-    /* Status of the form:
-     *   'ready' => not submitted
-     * 'pending' => request sent, no response yet
-     *   'error' => server rejected login
-     */
-    loginState: 'ready',
-
-    /* Error message to display on the form;
-     * should generally be null unless loginState is 'error'
-     */
-    errorMessage: null,
   };
 
   constructor(props) {
@@ -55,39 +47,41 @@ export default class LoginPage extends React.Component {
     event.preventDefault();
 
     const { enteredUsername, enteredPassword } = this.state;
-    const { loginCallback } = this.props;
 
-    this.setState({
-      loginState: 'pending',
-      errorMessage: null,
+    return new Promise((resolve, reject) => {
+      setTimeout(
+        () => {
+          try {
+            this.props.onAuth(enteredUsername, enteredPassword);
+            this.props.history.push('/');
+            resolve();
+          } catch {
+            reject(new Error('Incorrect username or password.'));
+          }
+        },
+        1000,
+      );
     });
-
-    // don't need a then() since a successful login
-    // will redirect the user away from this component
-    loginCallback(enteredUsername, enteredPassword).catch(
-      (error) => {
-        this.setState({
-          loginState: 'error',
-          errorMessage: error.message,
-        });
-      },
-    );
   }
 
   render() {
     const {
       enteredUsername,
       enteredPassword,
-      loginState,
-      errorMessage,
     } = this.state;
+
+    let errorMessage = null;
+
+    if (this.props.error) {
+      errorMessage = <p>{this.props.error.message}</p>;
+    }
 
     const enableSubmit = enteredUsername.length > 0
       && enteredPassword.length > 0;
 
     return (
       <div className="login-page-wrapper">
-        <main className={`login-page state-${loginState}`}>
+        <main className="login-page state-ready">
           <form className="login-form" onSubmit={this.handleSubmit}>
             <input
               className="field"
@@ -112,7 +106,7 @@ export default class LoginPage extends React.Component {
             <SuspensefulSubmit
               label="Log in"
               disabled={!enableSubmit}
-              suspended={loginState === 'pending'}
+              suspended={this.props.loading === true}
             />
           </form>
           <Link to="/signup" className="signup-link">Request account</Link>
@@ -122,6 +116,13 @@ export default class LoginPage extends React.Component {
   }
 }
 
-LoginPage.propTypes = {
-  loginCallback: PropTypes.func.isRequired,
-};
+const mapStateToProps = (state) => ({
+  loading: state.loading,
+  error: state.error,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onAuth: (userName, password) => dispatch(actions.authLogin(userName, password)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginPage);

@@ -21,8 +21,8 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
+    path('rest-auth/login', include('rest_auth.urls')),
     #catch all, list non react nav first
     path('', views.app),
     re_path(r'.*', views.app),
-    re_path(r'^rest-auth/login', include('rest_auth.urls'))
 ]

@@ -4,7 +4,7 @@ import * as actionTypes from './actionTypes';
 
 /**
  * Redux tutorial followed
- * https://www.youtube.com/watch?v=BxzO2M7QcZw&t=176s
+ * https://www.youtube.com/watch?v=BxzO2M7QcZw
  * Author: JustDjango
  * https://www.justdjango.com/
  */
@@ -54,6 +54,7 @@ export const authLogin = (username, password) => (
       dispatch(checkAuthTimeout(3600));
     }).catch((err) => {
       dispatch(authFail(err));
+      console.log(err);
     });
   }
 );
