@@ -35,7 +35,17 @@ def posts_visible(request):
             "previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
         })
-        return HttpResponse(content=response_body, content_type="application/json", status=200)
+    if method == "POST":
+        # create a post with some id
+        post = json.loads(request.body)
+        post["author"] = User.objects.get(pk=post["author"])
+        Post.objects.create(**post)
+        response_body = JSONRenderer().render({
+            "query": "posts",
+            "success": True,
+            "message": "Post Created"
+        })
+        return HttpResponse(content=response_body, status=200, content_type="application/json")
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -75,12 +85,6 @@ def all_posts(request):
             "posts": PostSerializer(posts, many=True).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
-    if method == "POST":
-        # create a post with some id
-        post = json.loads(request.body)
-        post["author"] = User.objects.get(pk=post["author"])
-        Post.objects.create(**post)
-        return HttpResponse(status=204)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 

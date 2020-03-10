@@ -39,3 +39,14 @@ class EndpointTests(TestCase):
     
     def test_get_posts_author_id(self):
         response = self.c.get("/api/author/{}/posts/".format(self.user1.id))
+
+    def test_post(self):
+        post = {
+            "title": "1",
+            "description": "2",
+            "content": "c",
+            "author": self.user1.id
+        }
+        response = self.c.post('/api/author/posts/', post, content_type="application/json")
+        assert(response.json()['success'] == True)
+        assert(len(Post.objects.filter(title="1")) == 1)
