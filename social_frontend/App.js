@@ -1,3 +1,9 @@
+// TODO fix to play nice with ESLINT
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/no-this-in-sfc */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -5,6 +11,7 @@ import {
   Route,
   Link,
 } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 import StreamPage from './pages/StreamPage';
 import PostPage from './pages/PostPage';
@@ -12,25 +19,21 @@ import LoginPage from './pages/LoginPage';
 import ModalSwitch from './components/common/modal/ModalSwitch';
 import PopupMenu from './components/common/PopupMenu';
 import { userShape } from './util/shapes';
+import * as actions from './store/actions/auth';
 
 import './styles/page.css';
-
-
-// TODO This should be set by Django
-window.pageSession = { user: null };
-
 
 /* User context menu; appears at right of header bar.
  * Contains Profile and Log Out links.
  */
-const UserMenu = ({ user, logoutCallback }) => {
-  const { id, displayName } = user;
+const UserMenu = (props) => {
+  const { id, username } = props;
   return (
     <div className="current-user">
       <PopupMenu
         handle={(
           <>
-            <div className="current-user-name">{displayName}</div>
+            <div className="current-user-name">{username}</div>
             <img className="current-user-avatar" alt={id} />
           </>
         )}
@@ -43,7 +46,8 @@ const UserMenu = ({ user, logoutCallback }) => {
         </Link>
         <button
           type="button"
-          onClick={() => { logoutCallback(); }}
+          // TODO Call logout
+          onClick={() => alert('WIP, manually delete cookies')}
         >
           Log out
         </button>
@@ -52,43 +56,29 @@ const UserMenu = ({ user, logoutCallback }) => {
   );
 };
 
-UserMenu.propTypes = {
-  user: userShape.isRequired,
-  logoutCallback: PropTypes.func.isRequired,
-};
-
-
 /* Global header; renders at the top of every page.
  * Renders a <UserMenu> only when the user is logged in;
  * in any case, also renders a home-link / app title.
  */
-const Header = ({ sessionUser, logoutCallback }) => (
+const Header = (props) => (
   <header className="header">
     <h1><Link to="/">App</Link></h1>
     {
-      (sessionUser !== null)
-        ? <UserMenu user={sessionUser} logoutCallback={logoutCallback} />
+      (props.isAuthenticated)
+        ? <UserMenu {...props} />
         : null
     }
   </header>
 );
-
-Header.propTypes = {
-  sessionUser: userShape,
-  logoutCallback: PropTypes.func.isRequired,
-};
-
-Header.defaultProps = {
-  sessionUser: null,
-};
-
 
 /* Subsidiary top-level component containing most pages.
  * Everything here assumes the user is logged in; <App> should already have
  * handled the case where the user is not logged in.
  * <App> also provides a header; this component only contains "on-page" UI.
  *
- * Routing logic is implemented here:
+ * Make sure to check that url is not being used by api/urls.py, or social_backend/urls.py
+ *
+ * * Routing logic is implemented here:
  * | /            -- "home" stream view, shows everything
  * | /friends     -- stream of posts from the session user's friends
  * | /following   -- stream of posts from users the session user follows
@@ -100,7 +90,7 @@ Header.defaultProps = {
  * | /profile/###/following -- list of users the specified user follows
  * | /profile/###/followers -- list of users following the specified user
  */
-const Main = ({ sessionUser }) => (
+const Main = () => (
   <ModalSwitch>
     <Route
       path={[
@@ -119,10 +109,8 @@ const Main = ({ sessionUser }) => (
         ]}
         render={({ match: { params: { filter, page } } }) => (
           <StreamPage
-            key={filter}
             filter={filter}
             page={page}
-            sessionUser={sessionUser}
           />
         )}
       />
@@ -132,7 +120,7 @@ const Main = ({ sessionUser }) => (
       exact
       render={
         ({ match: { params: { id } } }) => (
-          <PostPage postId={id} sessionUser={sessionUser} />
+          <PostPage postId={id} />
         )
       }
     />
@@ -145,7 +133,6 @@ const Main = ({ sessionUser }) => (
             key={id}
             filter="profile"
             profileId={id}
-            sessionUser={sessionUser}
           />
         )
       }
@@ -159,17 +146,12 @@ const Main = ({ sessionUser }) => (
   </ModalSwitch>
 );
 
-Main.propTypes = {
-  sessionUser: userShape.isRequired,
-};
-
-
 /* Top-level component.
  * Stores session information
  * (ie. the currently logged-in user ("session user")).
  *
  * This component is directly responsible for everything that exists
- * independenly of whether the user is logged in.
+ * independently of whether the user is logged in.
  *
  * If the user is not logged in they will be presented with a login screen
  * at whatever URL they visit. (There is no explicit login URL.)
@@ -177,17 +159,16 @@ Main.propTypes = {
  * Delegates to <Main> once the user is logged in, which implements
  * most page logic.
  */
-export default class App extends React.Component {
-  state = {
-    /* The current session. */
-    session: window.pageSession,
-  };
+class App extends React.Component {
+  // TODO call getUser Data ONLY WHEN NEEDED
+  componentDidMount() {
+    this.props.autoSignIn();
+    this.props.getUserData();
+  }
 
-  constructor(props) {
-    super(props);
-
-    this.doLogin = this.doLogin.bind(this);
-    this.doLogout = this.doLogout.bind(this);
+  // TODO DELETE
+  componentDidUpdate() {
+    console.log(this.props);
   }
 
   /* Attempt to login using the specified username and password.
@@ -198,65 +179,30 @@ export default class App extends React.Component {
    * called this method before it can react to the result.
    * TODO Local stub
    */
-  doLogin(username, password) {
-    return new Promise((resolve, reject) => {
-      setTimeout(
-        () => {
-          if (username === password) {
-            this.setState({
-              session: {
-                // Demo session data
-                user: {
-                  id: `${username}@example.net`,
-                  displayName: username,
-                  friendCount: 1,
-                  followingCount: 10,
-                  followerCount: 1401,
-                },
-              },
-            });
-            resolve();
-          } else {
-            reject(new Error('Incorrect username or password.'));
-          }
-        },
-        1000,
-      );
-    });
-  }
-
-  /* Logs out the current user.
-   * Returns a Promise.
-   * If logout fails (which can really only be the server's fault), the
-   * promise rejects; if login succeeds, the promise resolves, but this
-   * also updates the current session, which will probably unmount the
-   * component that called this method before it can react to the result.
-   * TODO Local stub
-   */
-  doLogout() {
-    return new Promise((resolve) => {
-      setTimeout(
-        () => {
-          this.setState({ session: { user: null } });
-          resolve();
-        },
-        1000,
-      );
-    });
-  }
 
   render() {
-    const { session } = this.state;
-    const { user } = session;
     return (
       <Router>
-        <Header sessionUser={user} logoutCallback={this.doLogout} />
+        <Header {...this.props} />
         {
-          (user === null)
-            ? <LoginPage loginCallback={this.doLogin} />
-            : <Main sessionUser={user} />
+          (this.props.isAuthenticated)
+            ? <Main {...this.props} />
+            : <LoginPage {...this.props} />
         }
       </Router>
     );
   }
 }
+
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.token !== null,
+  id: state.id,
+  username: state.username,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  autoSignIn: () => dispatch(actions.authCheckState()),
+  getUserData: () => dispatch(actions.getUser()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

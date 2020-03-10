@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import PostHeader from './PostHeader';
 import Comments from './Comments';
 import ModalLink from '../common/modal/ModalLink';
-import { userShape, postShape } from '../../util/shapes';
+import { postShape } from '../../util/shapes';
 
 import '../../styles/post.css';
 
@@ -50,17 +51,16 @@ const Post = ({
     commentCount,
   },
   type,
-  sessionUser,
+  currentUserId,
 }) => {
-  const { id: sessionUserId } = sessionUser;
   const { id: authorId } = author;
-  const isOwnPost = (authorId === sessionUserId);
+  const isOwnPost = (authorId === currentUserId);
 
   let footer;
   let className;
   if (type === 'standalone') {
     const Comment = ({ post }) => (
-      <Post type="comment" post={post} sessionUser={sessionUser} />
+      <Post type="comment" post={post} />
     );
 
     Comment.propTypes = { post: postShape.isRequired };
@@ -96,7 +96,15 @@ const Post = ({
 Post.propTypes = {
   post: postShape.isRequired,
   type: PropTypes.oneOf(['standalone', 'stream', 'comment']).isRequired,
-  sessionUser: userShape.isRequired,
+  currentUserId: PropTypes.string,
 };
 
-export default Post;
+Post.defaultProps = {
+  currentUserId: null,
+};
+
+const mapStateToProps = (state) => ({
+  currentUserId: state.id,
+});
+
+export default connect(mapStateToProps)(Post);
