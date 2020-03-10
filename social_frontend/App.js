@@ -64,11 +64,11 @@ UserMenu.propTypes = {
  * Renders a <UserMenu> only when the user is logged in;
  * in any case, also renders a home-link / app title.
  */
-const Header = () => (
+const Header = (props) => (
   <header className="header">
     <h1><Link to="/">App</Link></h1>
     {
-      (this.props.isAuthenticated)
+      (props.isAuthenticated)
         ? <UserMenu />
         : null
     }
@@ -181,7 +181,12 @@ class App extends React.Component {
   render() {
     return (
       <Router>
-        <LoginPage {...this.props} />
+        <Header {...this.props} />
+        {
+          (this.props.isAuthenticated)
+            ? <Main {...this.props} />
+            : <LoginPage {...this.props} />
+        }
       </Router>
     );
   }

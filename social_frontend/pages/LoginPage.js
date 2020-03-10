@@ -55,8 +55,8 @@ class LoginPage extends React.Component {
             this.props.onAuth(enteredUsername, enteredPassword);
             this.props.history.push('/');
             resolve();
-          } catch {
-            reject(new Error('Incorrect username or password.'));
+          } catch (error) {
+            reject(new Error(error));
           }
         },
         1000,
