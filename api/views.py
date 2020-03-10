@@ -1,8 +1,10 @@
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
+from rest_framework.renderers import JSONRenderer
+from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
 from .forms import UserForm
-from .models import User, Post, Comment, Friends
+from .models import User, Post, Comment, Friend
 import json
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
@@ -25,21 +27,46 @@ def posts_visible(request):
     if method == "GET":
         # TODO: posts visible to the currently authenticated user
         posts = Post.objects.all()
-        posts_json = serializers.serialize("json", posts)
-        return HttpResponse(content=posts_json, content_type="application/json", status=200)
+        response_body = JSONRenderer().render({
+            "query": "posts",
+            "count": "TODO",
+            "size": "TODO",
+            "next": "TODO",
+            "previous": "TODO",
+            "posts": PostSerializer(posts, many=True).data
+        })
+    if method == "POST":
+        # create a post with some id
+        post = json.loads(request.body)
+        post["author"] = User.objects.get(pk=post["author"])
+        Post.objects.create(**post)
+        response_body = JSONRenderer().render({
+            "query": "posts",
+            "success": True,
+            "message": "Post Created"
+        })
+        return HttpResponse(content=response_body, status=200, content_type="application/json")
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
 # posts by author id
 # author/<uuid:aid>/posts
 def posts_by_aid(request, aid):
+    method = request.method
     if method == "GET":
         # all posts made by author id aid visible to currently authed user
         # TODO: this thing here ignores the visibility thing
         user = User.objects.get(pk=aid)
         posts = Post.objects.filter(author=user)
-        posts_json = serializers.serialize(posts)
-        return HttpResponse(content=posts_json, status=200)
+        response_body = JSONRenderer().render({
+            "query": "posts",
+            "count": "TODO",
+            "size": "TODO",
+            "next": "TODO",
+            "previous": "TODO",
+            "posts": PostSerializer(posts, many=True).data
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -49,14 +76,15 @@ def all_posts(request):
     if method == "GET":
         # TODO: only visible posts or something
         posts = Post.objects.all()
-        posts_json = serializers.serialize("json", posts)
-        return HttpResponse(content=posts_json, content_type="application/json", status=200)
-    if method == "POST":
-        # create a post with some id
-        post = json.loads(request.body)
-        post["author"] = User.objects.get(pk=post["author"])
-        Post.objects.create(**post)
-        return HttpResponse(status=204)
+        response_body = JSONRenderer().render({
+            "query": "posts",
+            "count": "TODO",
+            "size": "TODO",
+            "next": "TODO",
+            "previous": "TODO",
+            "posts": PostSerializer(posts, many=True).data
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -66,8 +94,13 @@ def posts_by_pid(request, pid):
     method = request.method
     if method == "GET":
         post = Post.objects.get(pk=pid)
-        post_json = serializers.serialize("json", post)
-        return HttpResponse(content=post_json, status=200)
+        # TODO: please sanity check that this is actually the response format
+        response_body = JSONRenderer().render({
+            "query": "posts",
+            "count": 1,
+            "posts": PostSerializer(post, many=True).data
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -76,16 +109,28 @@ def posts_by_pid(request, pid):
 def comments_by_pid(request, pid):
     method = request.method
     if method == "GET":
-        post = Post.object.get(pk=pid)
+        post = Post.objects.get(pk=pid)
         comments = Comment.objects.filter(post=post)
-        comments_json = serializers.serialize("json", comments)
-        return HttpResponse(content=posts_json, content_type="application/json", status=200)
+        response_body = JSONRenderer().render({
+            "query": "comments",
+            "count": "TODO",
+            "size": "TODO",
+            "next": "TODO",
+            "previous": "TODO",
+            "comments": CommentSerializer(comments, many=True).data
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     elif method == "POST":
         comment = json.loads(request.body)
         comment["author"] = User.objects.get(pk=comment["author"]) # TODO: should actually be authed user (?)
         comment["post"] = Post.object.get(pk=pid)
         Comment.objects.create(**comment)
-        return HttpResponse(status=204)
+        response_body = JSONRenderer().render({
+            "query": "addComment",
+            "success": True,
+            "message": "Comment Added"
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -122,7 +167,7 @@ def friends_by_aid(request, aid):
     method = request.method
     # Get the friends of the author
     if method == "GET":
-        authors = Friends.objects.filter(user1=aid)
+        authors = Friend.objects.filter(user1=aid)
         authors_json = serializers.serialize("json", authors)
         return HttpResponse(content=authors_json, content_type="application/json", status=200)
     # Check if anyone in the list is friends with the author
@@ -135,13 +180,20 @@ def friends_by_aid(request, aid):
 def friendship_by_aid(request, aid1, aid2):
     method = request.method
     if method == "GET":
-        friendship = Friends.objects.filter(user1=aid1, user2=aid2) and Friends.objects.filter(user2=aid1, user1=aid2)
+        friendship = Friend.objects.filter(user1=aid1, user2=aid2) and Friend.objects.filter(user2=aid1, user1=aid2)
         if not friendship:
             # TODO: Return the author list with the stripped protocol
-            return JsonResponse({"friends":"false"})
+            return JsonResponse({
+                "query": "friends",
+                "friends": "false"
+            })
         else:
             # TODO: Return the author list with the stripped protocol
-            return JsonResponse({"friends":"true"})
+            return JsonResponse({
+                "query": "friends",
+                "friends":"true",
+                "authors": [aid1, aid2]
+            })
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
