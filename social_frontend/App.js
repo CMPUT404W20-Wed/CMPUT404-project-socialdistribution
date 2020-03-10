@@ -25,14 +25,14 @@ import './styles/page.css';
 /* User context menu; appears at right of header bar.
  * Contains Profile and Log Out links.
  */
-const UserMenu = ({ user, logoutCallback }) => {
-  const { id, displayName } = user;
+const UserMenu = (props) => {
+  const { id, username } = props;
   return (
     <div className="current-user">
       <PopupMenu
         handle={(
           <>
-            <div className="current-user-name">{displayName}</div>
+            <div className="current-user-name">{username}</div>
             <img className="current-user-avatar" alt={id} />
           </>
         )}
@@ -45,7 +45,8 @@ const UserMenu = ({ user, logoutCallback }) => {
         </Link>
         <button
           type="button"
-          onClick={() => { logoutCallback(); }}
+          // TODO Call logout
+          onClick={() => alert('WIP, manually delete cookies')}
         >
           Log out
         </button>
@@ -53,12 +54,6 @@ const UserMenu = ({ user, logoutCallback }) => {
     </div>
   );
 };
-
-UserMenu.propTypes = {
-  user: userShape.isRequired,
-  logoutCallback: PropTypes.func.isRequired,
-};
-
 
 /* Global header; renders at the top of every page.
  * Renders a <UserMenu> only when the user is logged in;
@@ -165,8 +160,15 @@ const Main = () => (
  * most page logic.
  */
 class App extends React.Component {
+  // TODO call getUser Data ONLY WHEN NEEDED
   componentDidMount() {
     this.props.autoSignIn();
+    this.props.getUserData();
+  }
+
+  // TODO DELETE
+  componentDidUpdate() {
+    console.log(this.props);
   }
 
   /* Attempt to login using the specified username and password.
@@ -194,10 +196,13 @@ class App extends React.Component {
 
 const mapStateToProps = (state) => ({
   isAuthenticated: state.token !== null,
+  id: state.id,
+  username: state.username,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   autoSignIn: () => dispatch(actions.authCheckState()),
+  getUserData: () => dispatch(actions.getUser()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

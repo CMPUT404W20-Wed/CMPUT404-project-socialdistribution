@@ -95,3 +95,17 @@ export const authCheckState = () => (
     }
   }
 );
+
+export const setUserData = (id, username) => ({
+  type: actionTypes.SET_USER,
+  id,
+  username,
+});
+
+export const getUser = () => (
+  (dispatch) => {
+    axios.get('/rest-auth/user/').then((res) => (
+      dispatch(setUserData(res.data.pk, res.data.username))
+    ));
+  }
+);

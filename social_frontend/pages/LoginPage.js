@@ -53,7 +53,6 @@ class LoginPage extends React.Component {
         () => {
           try {
             this.props.onAuth(enteredUsername, enteredPassword);
-            this.props.history.push('/');
             resolve();
           } catch (error) {
             reject(new Error(error));

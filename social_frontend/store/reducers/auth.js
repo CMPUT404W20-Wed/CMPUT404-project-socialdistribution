@@ -5,6 +5,8 @@ const initState = {
   token: null,
   error: null,
   loading: null,
+  id: null,
+  username: null,
 };
 
 const authStart = (state) => (
@@ -33,6 +35,15 @@ const authFail = (state, action) => (
 const authLogout = (state) => (
   updateObject(state, {
     token: null,
+    id: null,
+    username: null,
+  })
+);
+
+const setUserData = (state, action) => (
+  updateObject(state, {
+    id: action.id,
+    username: action.username,
   })
 );
 
@@ -46,6 +57,8 @@ const reducer = (state = initState, action) => {
       return authFail(state, action);
     case actionTypes.AUTH_LOGOUT:
       return authLogout(state, action);
+    case actionTypes.SET_USER:
+      return setUserData(state, action);
     default:
       return state;
   }
