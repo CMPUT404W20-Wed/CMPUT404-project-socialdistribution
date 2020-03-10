@@ -1,7 +1,6 @@
 import React from 'react';
 
 import Post from '../components/post/Post';
-import { userShape } from '../util/shapes';
 
 
 /* Page displaying a single post, including comments.
@@ -23,12 +22,7 @@ export default class PostPage extends React.Component {
   };
 
   render() {
-    const { sessionUser } = this.props;
     const { post } = this.state;
-    return <Post type="standalone" post={post} sessionUser={sessionUser} />;
+    return <Post type="standalone" post={post} />;
   }
 }
-
-PostPage.propTypes = {
-  sessionUser: userShape.isRequired,
-};
