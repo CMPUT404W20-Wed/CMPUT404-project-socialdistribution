@@ -19,6 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
     'social_backend',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -29,7 +30,6 @@ INSTALLED_APPS = [
     'api',
     'rest_auth',
     'rest_framework.authtoken',
-    'rest_framework'
 ]
 
 MIDDLEWARE = [
