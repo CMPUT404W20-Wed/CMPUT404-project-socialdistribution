@@ -20,10 +20,8 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('api.urls')),
-
-    #Let's react handle navigation, list non react urls first
-    #check social_frontend/App.js for urls react uses
+    path('api/', include('api.urls')),
+    #catch all, list non react nav first
     path('', views.app),
     re_path(r'.*', views.app)
 ]

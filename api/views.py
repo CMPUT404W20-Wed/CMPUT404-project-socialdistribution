@@ -1,12 +1,23 @@
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .forms import UserForm
 from .models import User, Post, Comment, Friends
 import json
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
-# TODO: probably should return some status code indicating wrong method instead of pass, other errors
+
+# index
+# We may want to change this to a redirect or something along those lines in future
+# just making this for now to have an index function
+def index(request):
+    method = request.method
+    if method == "POST":
+        users = User.objects.values_list('id')
+        print(users)
+        return redirect("/posts/")
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
 
 # author/posts
 def posts_visible(request):
@@ -16,7 +27,8 @@ def posts_visible(request):
         posts = Post.objects.all()
         posts_json = serializers.serialize("json", posts)
         return HttpResponse(content=posts_json, content_type="application/json", status=200)
-    pass
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
 
 # posts by author id
 # author/<uuid:aid>/posts
@@ -28,7 +40,8 @@ def posts_by_aid(request, aid):
         posts = Post.objects.filter(author=user)
         posts_json = serializers.serialize(posts)
         return HttpResponse(content=posts_json, status=200)
-    pass
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
 
 # posts/
 def all_posts(request):
@@ -44,7 +57,8 @@ def all_posts(request):
         post["author"] = User.objects.get(pk=post["author"])
         Post.objects.create(**post)
         return HttpResponse(status=204)
-    pass
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
 
 # posts by post id
 # posts/<uuid:pid>
@@ -54,7 +68,8 @@ def posts_by_pid(request, pid):
         post = Post.objects.get(pk=pid)
         post_json = serializers.serialize("json", post)
         return HttpResponse(content=post_json, status=200)
-    pass
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
 
 # comments by post id
 # posts/<uuid:pid>/comments
@@ -65,13 +80,14 @@ def comments_by_pid(request, pid):
         comments = Comment.objects.filter(post=post)
         comments_json = serializers.serialize("json", comments)
         return HttpResponse(content=posts_json, content_type="application/json", status=200)
-    if method == "POST":
+    elif method == "POST":
         comment = json.loads(request.body)
         comment["author"] = User.objects.get(pk=comment["author"]) # TODO: should actually be authed user (?)
         comment["post"] = Post.object.get(pk=pid)
         Comment.objects.create(**comment)
         return HttpResponse(status=204)
-    pass
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
 
 # TODO: render() the front get if its a get
 def register(request):
@@ -83,20 +99,21 @@ def register(request):
             # TODO: check wtf this does
             # user.set_password(user.password)
             user.save()
-    pass
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
 
 # referenced login from https://medium.com/@himanshuxd/how-to-create-registration-login-webapp-with-django-2-0-fd33dc7a6c67
 def login(request):
     method = request.method
-    if request.method == "POST":
+    if method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(username=username, password=password)
         if user:
             # TODO: serve up some home page - which page?
-            pass
+            redirect("/posts/")
         else:
-            # TODO: serve some other page - which page?
+            # TODO: serve some other page - which page? Login + error message?
             pass
 
 # Query for FOAF
@@ -112,7 +129,8 @@ def friends_by_aid(request, aid):
     if method == "POST":
         # TODO: Still need to implement, probably save for Part 2
         pass
-    pass
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
 
 def friendship_by_aid(request, aid1, aid2):
     method = request.method
@@ -124,4 +142,18 @@ def friendship_by_aid(request, aid1, aid2):
         else:
             # TODO: Return the author list with the stripped protocol
             return JsonResponse({"friends":"true"})
-    pass
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
+
+# Returns a specified profile
+def profile(request, userid):
+    method = request.method
+    if method == "GET":
+        # Get the user object
+        user = User.objects.get(pk=userid)
+        username = user.username
+        github = user.github
+        host = user.host
+        return HttpResponse("You're looking at %s's profile" % username)
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
