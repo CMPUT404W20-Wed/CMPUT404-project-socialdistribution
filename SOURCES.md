@@ -5,3 +5,8 @@ Sources
     * OBAA
     * https://stackoverflow.com/users/3535935/obaa
         * used to set up React Router and Django
+
+* https://www.youtube.com/watch?v=BxzO2M7QcZw
+    * JustDjango
+    * https://www.justdjango.com/
+        * Used to create redux store
