@@ -11,8 +11,8 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     host = models.URLField(max_length=255)
     # these are not in the spec
-    created = models.DateField(auto_now_add=True)
-    updated = models.DateField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     
     # don't need this because this class inherits username
     # displayName = models.CharField(max_length=20)
@@ -30,9 +30,9 @@ class Post(models.Model):
     # for HTML you will want to strip tags before displaying
     contentType = models.CharField(max_length=18)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    published = models.DateField(auto_now_add=True)
+    published = models.DateTimeField(auto_now_add=True)
     # this one is not in the spec
-    updated = models.DateField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
     
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
@@ -60,7 +60,8 @@ class Post(models.Model):
     unlisted = models.BooleanField(default=False)
     
     def get_comments(self):
-        return Comment.objects.filter(pk=self.id)
+        # return Comment.objects.filter(id=self.id)
+        return Comment.objects.filter(post=self.id)
 
 
 class Comment(models.Model):
@@ -68,13 +69,15 @@ class Comment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    comment = models.CharField(max_length=255)
     # TODO: comments will always be text/markdown? what to do on front end?
     contentType = "text/markdown"
     # these two are not in the spec
-    created = models.DateField(auto_now_add=True)
-    updated = models.DateField(auto_now=True)
+    published = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
-    comment = models.CharField(max_length=255)
+    
 
 class Friend(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

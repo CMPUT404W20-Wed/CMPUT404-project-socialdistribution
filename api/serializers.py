@@ -17,11 +17,12 @@ class CommentSerializer(serializers.Serializer):
     id = serializers.CharField()
     comment = serializers.CharField()
     contentType = serializers.CharField()
-    published = serializers.DateTimeField()
+    published = serializers.DateTimeField(format=None)
     author = UserSerializer()
 
 
 class PostSerializer(serializers.Serializer):
+    id = serializers.CharField()
     title = serializers.CharField()
     description = serializers.CharField()
     contentType = serializers.CharField()
@@ -30,6 +31,6 @@ class PostSerializer(serializers.Serializer):
     origin = serializers.URLField()
     author = UserSerializer()
     comments = CommentSerializer(source='get_comments', many=True)
-    published = serializers.DateTimeField()
+    published = serializers.DateTimeField(format=None)
     visibility = serializers.CharField()
     unlisted = serializers.BooleanField()

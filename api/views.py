@@ -1,5 +1,7 @@
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
+from rest_framework.renderers import JSONRenderer
+from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
 from .forms import UserForm
 from .models import User, Post, Comment, Friend
@@ -32,7 +34,7 @@ def posts_visible(request):
             "size": "TODO",
             "next": "TODO",
             "previous": "TODO",
-            "posts": PostSerializer(posts, many=True)
+            "posts": PostSerializer(posts, many=True).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
@@ -52,7 +54,7 @@ def posts_by_aid(request, aid):
             "size": "TODO",
             "next": "TODO",
             "previous": "TODO",
-            "posts": PostSerializer(posts, many=True)
+            "posts": PostSerializer(posts, many=True).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
@@ -70,7 +72,7 @@ def all_posts(request):
             "size": "TODO",
             "next": "TODO",
             "previous": "TODO",
-            "posts": PostSerializer(posts, many=True)
+            "posts": PostSerializer(posts, many=True).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     if method == "POST":
@@ -92,7 +94,7 @@ def posts_by_pid(request, pid):
         response_body = JSONRenderer().render({
             "query": "posts",
             "count": 1,
-            "posts": PostSerializer(post, many=True)
+            "posts": PostSerializer(post, many=True).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
@@ -103,7 +105,7 @@ def posts_by_pid(request, pid):
 def comments_by_pid(request, pid):
     method = request.method
     if method == "GET":
-        post = Post.object.get(pk=pid)
+        post = Post.objects.get(pk=pid)
         comments = Comment.objects.filter(post=post)
         response_body = JSONRenderer().render({
             "query": "comments",
@@ -111,7 +113,7 @@ def comments_by_pid(request, pid):
             "size": "TODO",
             "next": "TODO",
             "previous": "TODO",
-            "comments": CommentSerializer(comments, many=True)
+            "comments": CommentSerializer(comments, many=True).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     elif method == "POST":
