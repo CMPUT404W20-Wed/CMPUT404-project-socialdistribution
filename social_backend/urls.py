@@ -23,5 +23,6 @@ urlpatterns = [
     path('api/', include('api.urls')),
     #catch all, list non react nav first
     path('', views.app),
-    re_path(r'.*', views.app)
+    re_path(r'.*', views.app),
+    re_path(r'^rest-auth/login', include('rest_auth.urls'))
 ]
