@@ -1,4 +1,5 @@
 // TODO fix to play nice with ESLINT
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/no-this-in-sfc */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/destructuring-assignment */
