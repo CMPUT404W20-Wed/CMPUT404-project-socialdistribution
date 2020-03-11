@@ -4,12 +4,14 @@ import {
   BrowserRouter as Router, // can also use HashRouter
   Route,
   Link,
+  Switch,
 } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import StreamPage from './pages/StreamPage';
 import PostPage from './pages/PostPage';
 import LoginPage from './pages/LoginPage';
+import RegistrationPage from './pages/RegistrationPage';
 import ModalSwitch from './components/common/modal/ModalSwitch';
 import PopupMenu from './components/common/PopupMenu';
 import * as actions from './store/actions/auth';
@@ -167,6 +169,20 @@ const Main = () => (
   </ModalSwitch>
 );
 
+const AuthRoute = () => (
+  <Switch>
+    <Route path="/" exact>
+      <LoginPage />
+    </Route>
+    <Route path="/signup" exact>
+      <RegistrationPage />
+    </Route>
+    <Route path="*">
+      <main className="centered-main">Invalid route!</main>
+    </Route>
+  </Switch>
+);
+
 /* Top-level component.
  * Gets session information
  *
@@ -222,7 +238,7 @@ class App extends React.Component {
             // Too many props to potentially use, eslint exception
             // eslint-disable-next-line react/jsx-props-no-spreading
             ? <Main {...this.props} />
-            : <LoginPage />
+            : <AuthRoute />
         }
       </Router>
     );
