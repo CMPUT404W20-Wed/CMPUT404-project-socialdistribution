@@ -33,6 +33,13 @@ class EndpointTests(TestCase):
         self.post1.save()
         self.comment1 = Comment(comment='d', author=self.user1, post=self.post1)
         self.comment1.save()
+        
+        # register a user with endpoint good and proper like
+        self.c.post('/rest-auth/registration/', {'username':'user123','password1':'12345','password2':'12345'})
+    
+    def test_register_login(self):
+        response = self.c.login(username='user123', password='12345')
+        assert(response) # should be true if we were able to login with the user123
     
     def test_get_posts_visible(self):
         response = self.c.get("/api/author/posts/")
