@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import PostHeader from './PostHeader';
 import Comments from './Comments';
+import PostContent from './PostContent';
 import ModalLink from '../common/modal/ModalLink';
 import { postShape } from '../../util/shapes';
 
@@ -48,6 +49,7 @@ const Post = ({
     id: postId,
     author,
     content,
+    contentType,
     commentCount,
   },
   type,
@@ -85,9 +87,7 @@ const Post = ({
         author={author}
         isOwnPost={isOwnPost}
       />
-      <div className="content-text">
-        {content}
-      </div>
+      <PostContent content={content} contentType={contentType} />
       {footer}
     </article>
   );
