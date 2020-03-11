@@ -15,7 +15,6 @@ const PostFormControls = ({
   canPreview,
   canCancel,
   cancelCallback,
-  isComment,
   isPatching,
   onPreviewToggle,
 }) => {
