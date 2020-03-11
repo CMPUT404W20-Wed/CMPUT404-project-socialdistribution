@@ -72,6 +72,10 @@
     font-size: 11pt;
 }
 
+.content-markdown {
+    padding: 0 1em;
+}
+
 .post-footer a.comments-link {
     display: block;
     padding: 8px 16px;

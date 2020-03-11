@@ -19,6 +19,17 @@
     font-size: 11pt;
 }
 
+.post-form-preview {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 0 1em;
+    font-size: 11pt;
+}
+
+.markdown-mode .post-form-text {
+    font-family: monospace;
+}
+
 .post-form-text::placeholder {
     color: #aaa;
     opacity: 1;
@@ -29,32 +40,44 @@
     display: flex;
 }
 
-.post-form-controls input[type=submit] {
+.post-form-mode-controls {
+    padding-bottom: 8px;
+    display: flex;
+}
+
+.post-form input[type=submit],
+.post-form button {
     width: 100px;
+    margin-right: 8px;
+}
+
+.post-form input[type=submit] {
     font-weight: bold;
 }
 
-.post-form-controls input[type=checkbox] {
+.post-form input[type=checkbox] {
     margin: 0;
     padding: 0;
     width: 35px;
+    height: 35px;
     cursor: pointer;
 }
 
-.post-form-controls input[type=checkbox]:hover {
+.post-form input[type=checkbox]:hover {
     background-color: white;
 }
 
-.post-form-controls input[type=checkbox]:checked {
+.post-form input[type=checkbox]:checked {
     background-color: #fcc;
 }
 
-.post-form-controls input[type=checkbox]:checked:hover {
+.post-form input[type=checkbox]:checked:hover {
     background-color: #ffd4d4;
 }
 
-.post-form-controls input,
-.post-form-controls select {
+.post-form input,
+.post-form select,
+.post-form button {
     padding: 6px;
     border: 1px solid #aaa;
     background-color: inherit;
@@ -62,18 +85,19 @@
     -webkit-appearance: none;
 }
 
-.post-form-controls input:enabled,
-.post-form-controls select:enabled {
+.post-form input:enabled,
+.post-form select:enabled,
+.post-form button:enabled {
     background-color: #f8f8f8;
     color: #555;
 }
 
-.post-form-controls select {
+.post-form select {
     margin-left: auto;
     margin-right: 8px;
 }
 
-.post-form-controls option {
+.post-form option {
     color: red;
 }
 
