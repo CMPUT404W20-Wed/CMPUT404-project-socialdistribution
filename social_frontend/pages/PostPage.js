@@ -1,6 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import Axios from 'axios';
 
 import Post from '../components/post/Post';
+import { singlePostEndpoint } from '../util/endpoints';
 
 
 /* Page displaying a single post, including comments.
@@ -10,19 +13,41 @@ import Post from '../components/post/Post';
  */
 export default class PostPage extends React.Component {
   state = {
-    post: {
-      id: '0',
-      author: {
-        id: 'post.author@example.net',
-        displayName: 'Post Author',
-      },
-      content: 'You\'re looking at an expanded post.',
-      commentCount: 14,
-    },
+    post: null,
   };
+
+  constructor(props) {
+    super(props);
+
+    this.doLoadPost = this.doLoadPost.bind(this);
+  }
+
+  componentDidMount() {
+    this.doLoadPost();
+  }
+
+  doLoadPost() {
+    const { id } = this.props;
+    console.log('$$$ id:', id);
+
+    return Axios.get(singlePostEndpoint(id)).then(({ data }) => {
+      console.log(data);
+      /*this.setState({
+        post,
+      });*/
+    }).catch((error) => {
+      // TODO error?
+      console.log('Failed to load single post:');
+      console.log(error);
+    });
+  }
 
   render() {
     const { post } = this.state;
     return <Post type="standalone" post={post} />;
   }
 }
+
+PostPage.propTypes = {
+  id: PropTypes.string.isRequired,
+};

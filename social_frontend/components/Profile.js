@@ -27,7 +27,7 @@ export default class Profile extends React.Component {
   }
 
   doLoadProfile(id) {
-    return Axios.get(profileEndpoint({ user: id })).then((profile) => {
+    return Axios.get(profileEndpoint(id)).then((profile) => {
       this.setState({
         profile,
       });

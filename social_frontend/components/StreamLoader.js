@@ -29,8 +29,10 @@ export default class StreamLoader extends React.Component {
     const { nextPageUrl } = this.state;
 
     const url = nextPageUrl || endpoint;
+    console.log(url);
 
-    return Axios.get(url).then(({ next, posts }) => {
+    return Axios.get(url).then(({ data: { next, posts } }) => {
+      console.log(next, posts);
       const { posts: currentPosts } = this.state;
       if (posts === undefined) {
         throw new Error('Stream response missing "posts"');

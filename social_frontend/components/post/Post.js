@@ -44,17 +44,16 @@ StreamPostFooter.propTypes = {
  *    'comment' => no footer
  */
 const Post = ({
-  post: {
-    id: postId,
-    author,
-    content,
-    commentCount,
-  },
+  post,
   type,
   currentUserId,
 }) => {
+  if (post === null) return null; // TODO should return placeholder
+  const { id: postId, author, content, comments } = post;
+
   const { id: authorId } = author;
   const isOwnPost = (authorId === currentUserId);
+  const commentCount = comments.length;
 
   let footer;
   let className;

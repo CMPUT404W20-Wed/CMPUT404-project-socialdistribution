@@ -54,8 +54,8 @@ const StreamPage = ({ currentUserId, profileId, filter }) => {
   StreamPost.propTypes = { post: postShape.isRequired };
 
   const endpoint = (filter === 'profile')
-    ? userStreamEndpoint({ profileId })
-    : streamEndpoint({ filter });
+    ? userStreamEndpoint(profileId)
+    : streamEndpoint(filter);
 
   return (
     <main className="main">
