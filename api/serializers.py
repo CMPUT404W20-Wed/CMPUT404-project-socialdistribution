@@ -9,9 +9,10 @@ class UserSerializer(serializers.Serializer):
     host = serializers.URLField()
     github = serializers.URLField()
     
+    """
     def get_id(self, obj):
         return "{}{}".format(obj.host, obj.id)
-
+    """
 
 class CommentSerializer(serializers.Serializer):
     id = serializers.CharField()
