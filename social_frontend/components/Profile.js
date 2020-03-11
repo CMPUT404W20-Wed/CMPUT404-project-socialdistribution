@@ -77,8 +77,9 @@ export default class Profile extends React.Component {
               ? null
               : (
                 <NavLink
+                  exact
                   to={`/profile/${id}`}
-                  className="profile-link"
+                  className="profile-link profile-stat"
                   activeClassName="selected"
                 >
                   Posts
