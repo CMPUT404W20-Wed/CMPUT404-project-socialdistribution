@@ -113,6 +113,8 @@ export const getUser = () => (
   (dispatch) => {
     axios.get('/rest-auth/user/').then((res) => (
       dispatch(setUserData(res.data.pk, res.data.username))
-    ));
+    )).catch((err) => {
+      Error(err);
+    });
   }
 );
