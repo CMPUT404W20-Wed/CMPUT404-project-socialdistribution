@@ -1,9 +1,3 @@
-// TODO fix to play nice with ESLINT
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/no-this-in-sfc */
-/* eslint-disable react/prop-types */
-/* eslint-disable react/destructuring-assignment */
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -18,7 +12,6 @@ import PostPage from './pages/PostPage';
 import LoginPage from './pages/LoginPage';
 import ModalSwitch from './components/common/modal/ModalSwitch';
 import PopupMenu from './components/common/PopupMenu';
-import { userShape } from './util/shapes';
 import * as actions from './store/actions/auth';
 
 import './styles/page.css';
@@ -26,50 +19,78 @@ import './styles/page.css';
 /* User context menu; appears at right of header bar.
  * Contains Profile and Log Out links.
  */
-const UserMenu = (props) => {
-  const { id, username } = props;
-  return (
-    <div className="current-user">
-      <PopupMenu
-        handle={(
-          <>
-            <div className="current-user-name">{username}</div>
-            <img className="current-user-avatar" alt={id} />
-          </>
-        )}
+const UserMenu = ({ id, username, doLogout }) => (
+  <div className="current-user">
+    <PopupMenu
+      handle={(
+        <>
+          <div className="current-user-name">{username}</div>
+          <img className="current-user-avatar" alt={id} />
+        </>
+      )}
+    >
+      <Link
+        to={`/profile/${id}`}
+        onClick={(event) => { event.target.blur(); }}
       >
-        <Link
-          to={`/profile/${id}`}
-          onClick={(event) => { event.target.blur(); }}
-        >
-          Profile
-        </Link>
-        <button
-          type="button"
-          // TODO Call logout
-          onClick={() => alert('WIP, manually delete cookies')}
-        >
-          Log out
-        </button>
-      </PopupMenu>
-    </div>
-  );
+        Profile
+      </Link>
+      <button
+        type="button"
+        onClick={() => doLogout()}
+      >
+        Log out
+      </button>
+    </PopupMenu>
+  </div>
+);
+
+UserMenu.propTypes = {
+  id: PropTypes.string,
+  username: PropTypes.string,
+  doLogout: PropTypes.func,
+};
+
+UserMenu.defaultProps = {
+  id: null,
+  username: null,
+  doLogout: undefined,
 };
 
 /* Global header; renders at the top of every page.
  * Renders a <UserMenu> only when the user is logged in;
  * in any case, also renders a home-link / app title.
  */
-const Header = (props) => (
+const Header = ({
+  isAuthenticated,
+  id,
+  username,
+  doLogout,
+}) => (
   <header className="header">
     <h1><Link to="/">App</Link></h1>
     {
-      (props.isAuthenticated)
-        ? <UserMenu {...props} />
+      (isAuthenticated)
+        ? <UserMenu id={id} username={username} doLogout={doLogout} />
         : null
     }
   </header>
 );
+
+Header.propTypes = {
+  isAuthenticated: PropTypes.bool,
+  id: PropTypes.string,
+  username: PropTypes.string,
+  doLogout: PropTypes.func,
+};
+
+Header.defaultProps = {
+  isAuthenticated: false,
+  id: null,
+  username: null,
+  doLogout: undefined,
+};
+
 
 /* Subsidiary top-level component containing most pages.
  * Everything here assumes the user is logged in; <App> should already have
@@ -147,8 +168,7 @@ const Main = () => (
 );
 
 /* Top-level component.
- * Stores session information
- * (ie. the currently logged-in user ("session user")).
+ * Gets session information
  *
  * This component is directly responsible for everything that exists
  * independently of whether the user is logged in.
@@ -160,39 +180,66 @@ const Main = () => (
  * most page logic.
  */
 class App extends React.Component {
-  // TODO call getUser Data ONLY WHEN NEEDED
-  componentDidMount() {
-    this.props.autoSignIn();
-    this.props.getUserData();
-  }
-
-  // TODO DELETE
-  componentDidUpdate() {
-    console.log(this.props);
-  }
-
-  /* Attempt to login using the specified username and password.
-   * Returns a Promise.
-   * If login fails, the promise rejects; if login succeeds,
-   * the promise resolves, but this also updates the current
-   * session, which will probably unmount the component that
-   * called this method before it can react to the result.
-   * TODO Local stub
+  /**
+   * Will verify that token hasn't expired and still exists every time
+   * component is reloaded. Will logout if not
    */
+  componentDidMount() {
+    const { autoSignIn } = this.props;
+    autoSignIn();
+  }
+
+  /**
+   * If the user is verified and user data doesn't exist in props
+   * will use redux to get the info
+   */
+  componentDidUpdate() {
+    const {
+      isAuthenticated,
+      id,
+      username,
+      getUserData,
+    } = this.props;
+
+    if (isAuthenticated && !id && !username) {
+      getUserData();
+    }
+  }
 
   render() {
+    const {
+      isAuthenticated,
+      id,
+      username,
+      doLogout,
+    } = this.props;
+
     return (
       <Router>
-        <Header {...this.props} />
+        <Header isAuthenticated={isAuthenticated} id={id} username={username} doLogout={doLogout} />
         {
-          (this.props.isAuthenticated)
-            ? <Main {...this.props} />
-            : <LoginPage {...this.props} />
+          (isAuthenticated)
+            ? <Main />
+            : <LoginPage />
         }
       </Router>
     );
   }
 }
+
+App.propTypes = {
+  isAuthenticated: PropTypes.bool.isRequired,
+  id: PropTypes.string,
+  username: PropTypes.string,
+  getUserData: PropTypes.func.isRequired,
+  autoSignIn: PropTypes.func.isRequired,
+  doLogout: PropTypes.func.isRequired,
+};
+
+App.defaultProps = {
+  id: null,
+  username: null,
+};
 
 const mapStateToProps = (state) => ({
   isAuthenticated: state.token !== null,
@@ -201,6 +248,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
+  doLogout: () => dispatch(actions.logout()),
   autoSignIn: () => dispatch(actions.authCheckState()),
   getUserData: () => dispatch(actions.getUser()),
 });

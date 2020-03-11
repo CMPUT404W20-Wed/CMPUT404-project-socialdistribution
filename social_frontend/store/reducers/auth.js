@@ -1,10 +1,20 @@
 import * as actionTypes from '../actions/actionTypes';
 import updateObject from '../utility';
 
+/**
+ * Reducer portion of Redux
+ * Set state that have to accessed globally
+ *
+ * Redux tutorial followed
+ * https://www.youtube.com/watch?v=BxzO2M7QcZw
+ * Author: JustDjango
+ * https://www.justdjango.com/
+ */
+
 const initState = {
   token: null,
   error: null,
-  loading: null,
+  loading: false,
   id: null,
   username: null,
 };
