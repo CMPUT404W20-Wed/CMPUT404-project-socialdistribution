@@ -236,7 +236,7 @@ class App extends React.Component {
         {
           (isAuthenticated)
             ? <Main />
-            : <LoginPage />
+            : <AuthRoute />
         }
       </Router>
     );
