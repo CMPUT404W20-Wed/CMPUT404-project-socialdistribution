@@ -4,19 +4,33 @@ import Axios from 'axios';
 
 import { submitPostEndpoint } from '../util/endpoints';
 
+import Markdown from './Markdown';
+
 import '../styles/editor.css';
 
 
 /* Control cluster at the bottom of the post form.
  * canPost should be set based on whether the post is valid.
  */
-const PostFormControls = ({ canPost, isComment }) => (
+const PostFormControls = ({
+  isComment,
+  isUnlisted,
+  canPost,
+  canPreview,
+  onPreviewToggle,
+  onUnlistedToggle,
+}) => (
   <div className="post-form-controls">
     <input
       type="submit"
       value={isComment ? 'Comment' : 'Post'}
       disabled={!canPost}
     />
+    {
+      canPreview && (
+        <button type="button" onClick={onPreviewToggle}>Preview</button>
+      )
+    }
     {
       isComment
         ? null
@@ -29,7 +43,12 @@ const PostFormControls = ({ canPost, isComment }) => (
               <option>Local friends</option>
               <option>Private</option>
             </select>
-            <input type="checkbox" name="unlisted" />
+            <input
+              type="checkbox"
+              name="unlisted"
+              checked={isUnlisted}
+              onChange={onUnlistedToggle}
+            />
           </>
         )
     }
@@ -37,8 +56,10 @@ const PostFormControls = ({ canPost, isComment }) => (
 );
 
 PostFormControls.propTypes = {
-  canPost: PropTypes.bool.isRequired,
   isComment: PropTypes.bool,
+  canPost: PropTypes.bool.isRequired,
+  canPreview: PropTypes.bool.isRequired,
+  onPreviewToggle: PropTypes.func.isRequired,
 };
 
 PostFormControls.defaultProps = {
@@ -52,6 +73,8 @@ export default class PostForm extends React.Component {
     textContent: '',
     canPost: false,
     errorMessage: null,
+    isMarkdown: false,
+    isUnlisted: false,
   };
 
   constructor(props) {
@@ -59,6 +82,9 @@ export default class PostForm extends React.Component {
 
     this.handleTextChange = this.handleTextChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleMarkdownToggle = this.handleMarkdownToggle.bind(this);
+    this.handlePreviewToggle = this.handlePreviewToggle.bind(this);
+    this.handleUnlistedToggle = this.handleUnlistedToggle.bind(this);
   }
 
   handleTextChange(event) {
@@ -77,18 +103,17 @@ export default class PostForm extends React.Component {
     });
 
     const { submittedCallback } = this.props;
-    const { textContent: content } = this.state;
+    const { textContent: content, isMarkdown, isUnlisted } = this.state;
     const title = ''; // TODO
     const visibility = 'PUBLIC'; // TODO
-    const unlisted = false; // TODO
 
     const post = {
       title,
       content,
       visibility,
-      unlisted,
+      unlisted: isUnlisted,
       description: '',
-      contentType: 'text/plain',
+      contentType: isMarkdown ? 'text/markdown' : 'text/plain',
       categories: [],
       visibleTo: [],
     };
@@ -110,22 +135,77 @@ export default class PostForm extends React.Component {
     });
   }
 
+  handleMarkdownToggle(event) {
+    const value = event.target.checked;
+    this.setState({
+      isMarkdown: value,
+    });
+
+    if (!value) this.setState({ isPreview: false });
+  }
+
+  handlePreviewToggle() {
+    const { isPreview } = this.state;
+    this.setState({
+      isPreview: !isPreview,
+    });
+  }
+
+  handleUnlistedToggle(event) {
+    const value = event.target.checked;
+    this.setState({
+      isUnlisted: value,
+    });
+  }
+
   render() {
     const { isComment } = this.props;
-    const { textContent, canPost, errorMessage } = this.state;
+    const {
+      textContent,
+      canPost,
+      isMarkdown,
+      isPreview,
+      isUnlisted,
+    } = this.state;
+
+    const className = `post-form ${isComment ? 'comment-form' : ''} ${isMarkdown ? 'markdown-mode' : ''}`;
+    const placeholder = isComment ? 'Add a comment' : 'Post to your stream';
     return (
-      <form
-        className={isComment ? 'post-form comment-form' : 'post-form'}
-        onSubmit={this.handleSubmit}
-      >
-        <textarea
-          value={textContent}
-          onChange={this.handleTextChange}
-          className="post-form-text"
-          placeholder={isComment ? 'Add a comment' : 'Post to your stream'}
+      <form className={className}>
+        <div className="post-form-mode-controls">
+          <input
+            type="checkbox"
+            name="markdown"
+            checked={isMarkdown}
+            onChange={this.handleMarkdownToggle}
+          />
+        </div>
+        {
+          isMarkdown && isPreview
+            ? (
+              <div className="post-form-preview">
+                <Markdown source={textContent} />
+              </div>
+            )
+            : (
+              <textarea
+                value={textContent}
+                onChange={this.handleTextChange}
+                onFocus={this.handleFocus}
+                onBlur={this.handleBlur}
+                className="post-form-text"
+                placeholder={placeholder}
+              />
+            )
+        }
+        <PostFormControls
+          canPost={canPost}
+          canPreview={isMarkdown}
+          onPreviewToggle={this.handlePreviewToggle}
+          onUnlistedToggle={this.handleUnlistedToggle}
+          isComment={isComment}
+          isUnlisted={isUnlisted}
         />
-        { errorMessage && <div className="error-message">{errorMessage}</div> }
-        <PostFormControls canPost={canPost} isComment={isComment} />
       </form>
     );
   }

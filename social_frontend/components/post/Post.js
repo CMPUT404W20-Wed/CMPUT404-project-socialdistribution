@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import PostHeader from './PostHeader';
 import Comments from './Comments';
+import PostContent from './PostContent';
 import ModalLink from '../common/modal/ModalLink';
 import { postShape } from '../../util/shapes';
 
@@ -49,7 +50,7 @@ const Post = ({
   currentUserId,
 }) => {
   if (post === null) return null; // TODO should return placeholder
-  const { id: postId, author, content, comments } = post;
+  const { id: postId, author, content, comments, contentType } = post;
 
   const { id: authorId } = author;
   const isOwnPost = (authorId === currentUserId);
@@ -84,9 +85,7 @@ const Post = ({
         author={author}
         isOwnPost={isOwnPost}
       />
-      <div className="content-text">
-        {content}
-      </div>
+      <PostContent content={content} contentType={contentType} />
       {footer}
     </article>
   );
