@@ -80,6 +80,8 @@ export const authSignup = (username, password1, password2) => (
       username,
       password1,
       password2,
+    }).then((res) => {
+      dispatch(authSuccess(null));
     }).catch((err) => {
       dispatch(authFail(err));
     });

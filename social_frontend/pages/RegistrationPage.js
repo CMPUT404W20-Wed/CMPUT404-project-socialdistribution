@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import * as actions from '../store/actions/auth';
@@ -64,16 +64,14 @@ class RegistrationPage extends React.Component {
       enteredPassword1,
       enteredPassword2,
     } = this.state;
-    const { onRegister } = this.props;
+    const { onRegister, history } = this.props;
 
     return new Promise((resolve, reject) => {
       setTimeout(
         () => {
           try {
             onRegister(enteredUsername, enteredPassword1, enteredPassword2);
-            // TODO Add react history redux or similar to get redux to work with router
-            // Must manually redirect
-            alert('Signed up, Redirect manually right now');
+            history.push("/");
             resolve();
           } catch (error) {
             reject(new Error(error));
@@ -152,11 +150,13 @@ RegistrationPage.propTypes = {
   error: PropTypes.object,
   loading: PropTypes.bool,
   onRegister: PropTypes.func.isRequired,
+  history: PropTypes.string
 };
 
 RegistrationPage.defaultProps = {
   error: null,
   loading: false,
+  history: null,
 };
 
 const mapStateToProps = (state) => ({
@@ -169,4 +169,4 @@ const mapDispatchToProps = (dispatch) => ({
   (userName, password1, password2) => dispatch(actions.authSignup(userName, password1, password2)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(RegistrationPage);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(RegistrationPage));
