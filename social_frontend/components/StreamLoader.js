@@ -11,6 +11,7 @@ const demoPosts = [
       id: '5aa49b55-bc42-4fb6-af91-495a52403883',
       displayName: 'Author 1',
     },
+    contentType: 'text/plain',
     content: 'In the end, it didn\'t work, but we discovered several things along the way: first, that whatever you do, you can\'t do anything you thought you maybe couldn\'t do unless you at least tell yourself you can try; second, that whatever you wanted to do, it may or may not already have been done; and third, that writing example text is actually kind of difficult.',
     commentCount: 0,
   },
@@ -20,7 +21,8 @@ const demoPosts = [
       id: 'author2@example.net',
       displayName: 'Author 2',
     },
-    content: 'So what I think is going on here is actually nothing in particular.',
+    contentType: 'text/markdown',
+    content: 'So what I think is going on here is actually **nothing in particular**.\n\nIt\'s all in how you [look at it](http://localhost:8000), after all.\n\nHTML shouldn\'t be interpreted, so these should just render as plain text: <pre>\ntest\n</pre> <a href="http://localhost:8000">test</a>',
     commentCount: 13,
   },
   {
