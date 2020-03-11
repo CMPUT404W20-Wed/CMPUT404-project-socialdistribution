@@ -171,7 +171,7 @@ export default class PostForm extends React.Component {
     const className = `post-form ${isComment ? 'comment-form' : ''} ${isMarkdown ? 'markdown-mode' : ''}`;
     const placeholder = isComment ? 'Add a comment' : 'Post to your stream';
     return (
-      <form className={className}>
+      <form onSubmit={this.handleSubmit} className={className}>
         <div className="post-form-mode-controls">
           <input
             type="checkbox"
