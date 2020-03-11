@@ -16,7 +16,6 @@ def index(request):
     method = request.method
     if method == "POST":
         users = User.objects.values_list('id')
-        print(users)
         return redirect("/posts/")
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
@@ -30,16 +29,15 @@ def posts_visible(request):
         response_body = JSONRenderer().render({
             "query": "posts",
             "count": len(posts),
-            "size": min(50, len(posts)),
-            "next": "TODO",
-            "previous": "TODO",
+            "size": len(posts),
+            #"next": "TODO",
+            #"previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
         })
         return HttpResponse(content=response_body, status=200, content_type="application/json")
     if method == "POST":
-        # create a post with some id
         post = json.loads(request.body)
-        post["author"] = User.objects.get(pk=post["author"])
+        post["author"] = request.user
         Post.objects.create(**post)
         response_body = JSONRenderer().render({
             "query": "posts",
@@ -47,8 +45,7 @@ def posts_visible(request):
             "message": "Post Created"
         })
         return HttpResponse(content=response_body, status=200, content_type="application/json")
-    else:
-        return HttpResponse(status=405, content="Method Not Allowed")
+    return HttpResponse(status=405, content="Method Not Allowed")
 
 # posts by author id
 # author/<uuid:aid>/posts
@@ -62,9 +59,9 @@ def posts_by_aid(request, aid):
         response_body = JSONRenderer().render({
             "query": "posts",
             "count": len(posts),
-            "size": min(50, len(posts)),
-            "next": "TODO",
-            "previous": "TODO",
+            "size": len(posts),
+            #"next": "TODO",
+            #"previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
@@ -80,9 +77,9 @@ def all_posts(request):
         response_body = JSONRenderer().render({
             "query": "posts",
             "count": len(posts),
-            "size": min(50, len(posts)),
-            "next": "TODO",
-            "previous": "TODO",
+            "size": len(posts),
+            #"next": "TODO",
+            #"previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
         })
         print(posts)
@@ -99,11 +96,25 @@ def posts_by_pid(request, pid):
         # TODO: please sanity check that this is actually the response format
         response_body = JSONRenderer().render({
             "query": "getPost",
-            "posts": PostSerializer(post, many=True).data
+            "post": PostSerializer(post).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
-    else:
-        return HttpResponse(status=405, content="Method Not Allowed")
+    elif method == "DELETE":
+        post = Post.objects.get(pk=pid)
+        if post.author == request.user.pk:
+            post.delete()
+            return HttpResponse(status=204)
+        else:
+            return HttpResponse(status=401)
+    elif method == "PUT":
+        post = Post.object.get(pk=pid)
+        if post.author == request.user.pk:
+            post.update(**json.loads(request.body))
+            post.save()
+            return HttpResponse(status=204)
+        else:
+            return HttpResponse(status=401)
+    return HttpResponse(status=405, content="Method Not Allowed")
 
 # comments by post id
 # posts/<uuid:pid>/comments
@@ -115,15 +126,15 @@ def comments_by_pid(request, pid):
         response_body = JSONRenderer().render({
             "query": "comments",
             "count": len(comments),
-            "size": min(50, len(comments)),
-            "next": "TODO",
-            "previous": "TODO",
+            "size": len(comments),
+            #"next": "TODO",
+            #"previous": "TODO",
             "comments": CommentSerializer(comments, many=True).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     elif method == "POST":
         comment = json.loads(request.body)
-        comment["author"] = User.objects.get(pk=comment["author"]) # TODO: should actually be authed user (?)
+        comment["author"] = request.user
         comment["post"] = Post.objects.get(pk=pid)
         Comment.objects.create(**comment)
         response_body = JSONRenderer().render({
@@ -132,8 +143,7 @@ def comments_by_pid(request, pid):
             "message": "Comment Added"
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
-    else:
-        return HttpResponse(status=405, content="Method Not Allowed")
+    return HttpResponse(status=405, content="Method Not Allowed")
 
 # TODO: render() the front get if its a get
 def register(request):
