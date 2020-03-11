@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import StreamPage from './pages/StreamPage';
 import PostPage from './pages/PostPage';
 import LoginPage from './pages/LoginPage';
+import FriendListPage from './pages/FriendListPage';
 import ModalSwitch from './components/common/modal/ModalSwitch';
 import PopupMenu from './components/common/PopupMenu';
 import * as actions from './store/actions/auth';
@@ -158,6 +159,23 @@ const Main = () => (
         )
       }
     />
+    <Route
+      exact
+      path={[
+        '/profile/:id/friends',
+        '/profile/:id/followers',
+        '/profile/:id/following',
+      ]}
+    >
+      <Route
+        path="/profile/:id/:mode"
+        render={
+          ({ match: { params: { id, mode } } }) => (
+            <FriendListPage profileId={id} mode={mode} />
+          )
+        }
+      />
+    </Route>
     <Route
       path="*"
       render={() => (
