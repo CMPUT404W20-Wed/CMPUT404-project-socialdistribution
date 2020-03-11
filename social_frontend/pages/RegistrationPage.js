@@ -71,7 +71,7 @@ class RegistrationPage extends React.Component {
         () => {
           try {
             onRegister(enteredUsername, enteredPassword1, enteredPassword2);
-            history.push("/");
+            history.push('/');
             resolve();
           } catch (error) {
             reject(new Error(error));
@@ -150,7 +150,7 @@ RegistrationPage.propTypes = {
   error: PropTypes.object,
   loading: PropTypes.bool,
   onRegister: PropTypes.func.isRequired,
-  history: PropTypes.string
+  history: PropTypes.string,
 };
 
 RegistrationPage.defaultProps = {

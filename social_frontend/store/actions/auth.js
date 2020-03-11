@@ -35,7 +35,7 @@ export const doLogout = () => (
     axios.post('/rest-auth/logout/').then(() => {
       localStorage.removeItem('token');
       localStorage.removeItem('expirationDate');
-      dispatch(logout())
+      dispatch(logout());
     }).catch((err) => {
       Error(err);
     });
@@ -80,7 +80,7 @@ export const authSignup = (username, password1, password2) => (
       username,
       password1,
       password2,
-    }).then((res) => {
+    }).then(() => {
       dispatch(authSuccess(null));
     }).catch((err) => {
       dispatch(authFail(err));
