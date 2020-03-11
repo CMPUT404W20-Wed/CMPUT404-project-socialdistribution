@@ -58,18 +58,17 @@ class EndpointTests(TestCase):
         post = {
             "title": "1",
             "description": "2",
-            "content": "c",
-            "author": self.user1.id
+            "content": "c"
         }
         response = self.c.post('/api/author/posts/', post, content_type="application/json")
         assert(response.json()['success'] == True)
         assert(len(Post.objects.filter(title="1")) == 1)
+        import pdb; pdb.set_trace()
     
     def test_comments(self):
         assert(len(self.post1.get_comments()) == 1)
         comment = {
             "comment": "a",
-            "author": self.user1.id # should not send this, it should be the authed user
         }
         response = self.c.post('/api/posts/{}/comments/'.format(self.post1.id), comment, content_type="application/json")
         response_body = response.json()
