@@ -219,9 +219,7 @@ class App extends React.Component {
         <Header isAuthenticated={isAuthenticated} id={id} username={username} doLogout={doLogout} />
         {
           (isAuthenticated)
-            // Too many props to potentially use, eslint exception
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            ? <Main {...this.props} />
+            ? <Main />
             : <LoginPage />
         }
       </Router>
