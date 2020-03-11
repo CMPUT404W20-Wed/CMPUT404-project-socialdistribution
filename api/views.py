@@ -35,6 +35,7 @@ def posts_visible(request):
             "previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
         })
+        return HttpResponse(content=response_body, status=200, content_type="application/json")
     if method == "POST":
         # create a post with some id
         post = json.loads(request.body)
