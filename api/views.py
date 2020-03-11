@@ -124,7 +124,7 @@ def comments_by_pid(request, pid):
     elif method == "POST":
         comment = json.loads(request.body)
         comment["author"] = User.objects.get(pk=comment["author"]) # TODO: should actually be authed user (?)
-        comment["post"] = Post.object.get(pk=pid)
+        comment["post"] = Post.objects.get(pk=pid)
         Comment.objects.create(**comment)
         response_body = JSONRenderer().render({
             "query": "addComment",
