@@ -1,7 +1,3 @@
-// TODO fix the ESLINT errors
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
-/* eslint-disable react/destructuring-assignment */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -44,16 +40,23 @@ class LoginPage extends React.Component {
     });
   }
 
+  /**
+   * Calls the reducer to login,
+   * Will automatically re-render the page
+   * @param {*} event
+   */
+
   handleSubmit(event) {
     event.preventDefault();
 
     const { enteredUsername, enteredPassword } = this.state;
+    const { onAuth } = this.props;
 
     return new Promise((resolve, reject) => {
       setTimeout(
         () => {
           try {
-            this.props.onAuth(enteredUsername, enteredPassword);
+            onAuth(enteredUsername, enteredPassword);
             resolve();
           } catch (error) {
             reject(new Error(error));
@@ -70,10 +73,12 @@ class LoginPage extends React.Component {
       enteredPassword,
     } = this.state;
 
+    const { error, loading } = this.props;
+
     let errorMessage = null;
 
-    if (this.props.error) {
-      errorMessage = <p>{this.props.error.message}</p>;
+    if (error) {
+      errorMessage = <p>{error.message}</p>;
     }
 
     const enableSubmit = enteredUsername.length > 0
@@ -106,7 +111,7 @@ class LoginPage extends React.Component {
             <SuspensefulSubmit
               label="Log in"
               disabled={!enableSubmit}
-              suspended={this.props.loading === true}
+              suspended={loading}
             />
           </form>
           <Link to="/signup" className="signup-link">Request account</Link>
@@ -115,6 +120,18 @@ class LoginPage extends React.Component {
     );
   }
 }
+
+LoginPage.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  error: PropTypes.object,
+  loading: PropTypes.bool,
+  onAuth: PropTypes.func.isRequired,
+};
+
+LoginPage.defaultProps = {
+  error: null,
+  loading: false,
+};
 
 const mapStateToProps = (state) => ({
   loading: state.loading,

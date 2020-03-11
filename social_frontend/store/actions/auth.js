@@ -3,6 +3,9 @@ import * as actionTypes from './actionTypes';
 
 
 /**
+ * Actions portion of redux
+ * Functions that change global states
+ *
  * Redux tutorial followed
  * https://www.youtube.com/watch?v=BxzO2M7QcZw
  * Author: JustDjango
@@ -24,7 +27,7 @@ export const authFail = (error) => ({
 });
 
 export const logout = () => {
-  localStorage.removeItem('user');
+  localStorage.removeItem('token');
   localStorage.removeItem('expirationDate');
   return {
     type: actionTypes.AUTH_LOGOUT,
