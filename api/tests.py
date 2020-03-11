@@ -1,28 +1,24 @@
 from django.test import TestCase, Client
 from django.core import serializers
-from .models import Post, User
+from .models import Post, User, Comment
 from unittest import skip
 import json
+from .serializers import *
+from rest_framework.renderers import JSONRenderer
 
-"""
-# not a real test case, just figuring out the deserialization business
-class DeserializationTests(TestCase):
-    def setUp(self):
-        self.user = User()
-        self.user.save()
-        post = {
-            "author": str(self.user.id),
-            "title": "whatever",
-            "description": "test post",
-            "content": "lol"
-        }
-        self.post = json.dumps(post)
+
+class SerializerTests(TestCase):
     
-    def test_serialize(self):
-        post = json.loads(self.post)
-        post["author"] = User.objects.get(pk=post["author"])
-        Post.objects.create(**post)
-"""
+    @skip("just an example how to use the serializers now, remove me later")
+    def test_post(self):
+        user1 = User(username='1', github="http://www.github.com/1")
+        user1.save()
+        post_object = Post(author=user1, title="1", description="2", content="3")
+        post_serialized = PostSerializer(post_object)
+        print(JSONRenderer().render(post_serialized.data))
+        post_serialized = PostSerializer([post_object], many=True)
+        print(JSONRenderer().render(post_serialized.data))
+        
 
 # these will only work while endpoints are not checking auth!!!
 class EndpointTests(TestCase):
@@ -32,29 +28,25 @@ class EndpointTests(TestCase):
         self.user2 = User(username='2')
         self.user1.save()
         self.user2.save()
+        
+        self.post1 = Post(title='a', description='b', content='c', author=self.user1)
+        self.post1.save()
+        self.comment1 = Comment(comment='d', author=self.user1, post=self.post1)
+        self.comment1.save()
     
-    @skip("update this")
-    def test_create_and_get_post(self):
+    def test_get_posts_visible(self):
+        response = self.c.get("/api/author/posts/")
+    
+    def test_get_posts_author_id(self):
+        response = self.c.get("/api/author/{}/posts/".format(self.user1.id))
+
+    def test_post(self):
         post = {
-            "author": str(self.user1.id),
             "title": "1",
             "description": "2",
-            "content": "3"
+            "content": "c",
+            "author": self.user1.id
         }
-        response = self.c.post("/posts/", post, content_type="application/json")
-        assert(response.status_code == 204)
-        # TODO: retrieve by id
-    
-    @skip("update this")
-    def test_get_all_posts(self):
-        post = {
-            "author": str(self.user1.id),
-            "title": "1",
-            "description": "2",
-            "content": "3"
-        }
-        # post the same post twice, it will have different ids though
-        self.c.post('/posts/', post, content_type="application/json")
-        self.c.post('/posts/', post, content_type="application/json")
-        response = self.c.get('/posts/')
-        assert(len(response.json()) == 2)
+        response = self.c.post('/api/author/posts/', post, content_type="application/json")
+        assert(response.json()['success'] == True)
+        assert(len(Post.objects.filter(title="1")) == 1)
