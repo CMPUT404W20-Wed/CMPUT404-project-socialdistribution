@@ -76,6 +76,7 @@ class Post extends React.Component {
         author,
         content,
         commentCount,
+        contentType,
       },
       type,
       currentUserId,

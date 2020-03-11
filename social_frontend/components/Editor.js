@@ -27,7 +27,7 @@ const PostFormControls = ({
     <div className="post-form-controls">
       <input
         type="submit"
-        value={isComment ? 'Comment' : 'Post'}
+        value={submitLabel}
         disabled={!canPost}
       />
       {
@@ -55,9 +55,8 @@ const PostFormControls = ({
               <input type="checkbox" name="unlisted" />
             </>
           )
-        }
-      </div>
-    )
+      }
+    </div>
   );
 };
 
