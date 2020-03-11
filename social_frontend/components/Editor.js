@@ -7,35 +7,56 @@ import '../styles/editor.css';
 /* Control cluster at the bottom of the post form.
  * canPost should be set based on whether the post is valid.
  */
-const PostFormControls = ({ canPost, isComment }) => (
-  <div className="post-form-controls">
-    <input
-      type="submit"
-      value={isComment ? 'Comment' : 'Post'}
-      disabled={!canPost}
-    />
-    {
-      isComment
-        ? null
-        : (
-          <>
-            <select className="post-form-visibility">
-              <option>Public</option>
-              <option>Friends of friends</option>
-              <option>All friends</option>
-              <option>Local friends</option>
-              <option>Private</option>
-            </select>
-            <input type="checkbox" name="unlisted" />
-          </>
+const PostFormControls = ({
+  canPost,
+  canCancel,
+  cancelCallback,
+  isComment,
+  isPatching,
+}) => {
+  let submitLabel;
+  if (isPatching) submitLabel = 'Save changes';
+  else if (isComment) submitLabel = 'Comment';
+  else submitLabel = 'Post';
+
+  return (
+    <div className="post-form-controls">
+      <input
+        type="submit"
+        value={submitLabel}
+        disabled={!canPost}
+      />
+      {
+        canCancel && (
+          <button type="button" onClick={cancelCallback}>Cancel</button>
         )
-    }
-  </div>
-);
+      }
+      {
+        isComment
+          ? null
+          : (
+            <>
+              <select className="post-form-visibility">
+                <option>Public</option>
+                <option>Friends of friends</option>
+                <option>All friends</option>
+                <option>Local friends</option>
+                <option>Private</option>
+              </select>
+              <input type="checkbox" name="unlisted" />
+            </>
+          )
+      }
+    </div>
+  );
+};
 
 PostFormControls.propTypes = {
-  canPost: PropTypes.bool.isRequired,
   isComment: PropTypes.bool,
+  canPost: PropTypes.bool.isRequired,
+  canCancel: PropTypes.bool.isRequired,
+  isPatching: PropTypes.bool.isRequired,
+  cancelCallback: PropTypes.func.isRequired,
 };
 
 PostFormControls.defaultProps = {
@@ -56,6 +77,15 @@ export default class PostForm extends React.Component {
     this.handleTextChange = this.handleTextChange.bind(this);
   }
 
+  componentDidMount() {
+    const { defaultContent } = this.props;
+
+    this.setState({
+      textContent: defaultContent,
+      canPost: (defaultContent.length > 0),
+    });
+  }
+
   handleTextChange(event) {
     const textContent = event.target.value;
     this.setState({
@@ -65,7 +95,7 @@ export default class PostForm extends React.Component {
   }
 
   render() {
-    const { isComment } = this.props;
+    const { isComment, onCancel, onSubmit } = this.props;
     const { textContent, canPost } = this.state;
     return (
       <form className={isComment ? 'post-form comment-form' : 'post-form'}>
@@ -77,7 +107,13 @@ export default class PostForm extends React.Component {
           className="post-form-text"
           placeholder={isComment ? 'Add a comment' : 'Post to your stream'}
         />
-        <PostFormControls canPost={canPost} isComment={isComment} />
+        <PostFormControls
+          canPost={canPost}
+          canCancel={onCancel !== undefined}
+          cancelCallback={onCancel}
+          isComment={isComment}
+          isPatching={onSubmit !== undefined}
+        />
       </form>
     );
   }
@@ -85,8 +121,14 @@ export default class PostForm extends React.Component {
 
 PostForm.propTypes = {
   isComment: PropTypes.bool,
+  defaultContent: PropTypes.string,
+  onCancel: PropTypes.func,
+  onSubmit: PropTypes.func,
 };
 
 PostForm.defaultProps = {
   isComment: false,
+  defaultContent: '',
+  onCancel: undefined,
+  onSubmit: undefined,
 };

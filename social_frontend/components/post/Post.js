@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import PostHeader from './PostHeader';
 import Comments from './Comments';
+import Editor from '../Editor';
 import ModalLink from '../common/modal/ModalLink';
 import { postShape } from '../../util/shapes';
 
@@ -43,59 +44,106 @@ StreamPostFooter.propTypes = {
  *     'stream' => link to expand post in footer
  *    'comment' => no footer
  */
-const Post = ({
-  post: {
-    id: postId,
-    author,
-    content,
-    commentCount,
-  },
-  type,
-  currentUserId,
-}) => {
-  const { id: authorId } = author;
-  const isOwnPost = (authorId === currentUserId);
+class Post extends React.Component {
+  state = {
+    isEditing: false,
+  };
 
-  let footer;
-  let className;
-  if (type === 'standalone') {
-    const Comment = ({ post }) => (
-      <Post type="comment" post={post} />
-    );
+  constructor(props) {
+    super(props);
 
-    Comment.propTypes = { post: postShape.isRequired };
-
-    footer = <Comments PostComponent={Comment} postId={postId} />;
-    className = 'standalone-post';
-  } else if (type === 'stream') {
-    footer = <StreamPostFooter postId={postId} commentCount={commentCount} />;
-    className = 'stream-post';
-  } else if (type === 'comment') {
-    footer = null;
-    className = 'stream-post comment';
+    this.doEdit = this.doEdit.bind(this);
+    this.doCancelEdit = this.doCancelEdit.bind(this);
   }
 
-  if (isOwnPost) className += ' own';
+  doEdit() {
+    this.setState({
+      isEditing: true,
+    });
+  }
 
-  // TODO Pasting the content directly into the HTML is not the
-  // correct way to handle actual posts from the server!
-  return (
-    <article className={`post ${className}`}>
-      <PostHeader
-        author={author}
-        isOwnPost={isOwnPost}
-      />
-      <div className="content-text">
-        {content}
-      </div>
-      {footer}
-    </article>
-  );
-};
+  doCancelEdit() {
+    this.setState({
+      isEditing: false,
+    });
+  }
+
+  render() {
+    const {
+      post: {
+        id: postId,
+        author,
+        content,
+        commentCount,
+      },
+      type,
+      currentUserId,
+      deleteCallback,
+      patchCallback,
+    } = this.props;
+    const { isEditing } = this.state;
+
+    const { id: authorId } = author;
+    const isOwnPost = (authorId === currentUserId);
+
+    let footer;
+    let className;
+    if (type === 'standalone') {
+      const Comment = ({ post }) => (
+        <Post type="comment" post={post} />
+      );
+
+      Comment.propTypes = { post: postShape.isRequired };
+
+      footer = <Comments PostComponent={Comment} postId={postId} />;
+      className = 'standalone-post';
+    } else if (type === 'stream') {
+      footer = <StreamPostFooter postId={postId} commentCount={commentCount} />;
+      className = 'stream-post';
+    } else if (type === 'comment') {
+      footer = null;
+      className = 'stream-post comment';
+    }
+
+    if (isOwnPost) className += ' own';
+
+    // TODO Pasting the content directly into the HTML is not the
+    // correct way to handle actual posts from the server!
+    return (
+      <article className={`post ${className}`}>
+        <PostHeader
+          author={author}
+          isOwnPost={isOwnPost}
+          onEditClick={this.doEdit}
+          onDeleteClick={deleteCallback}
+        />
+        {
+          isEditing
+            ? (
+              <Editor
+                inline
+                onCancel={this.doCancelEdit}
+                onSubmit={patchCallback}
+                defaultContent={content}
+              />
+            )
+            : (
+              <div className="content-text">
+                {content}
+              </div>
+            )
+        }
+        {footer}
+      </article>
+    );
+  }
+}
 
 Post.propTypes = {
   post: postShape.isRequired,
   type: PropTypes.oneOf(['standalone', 'stream', 'comment']).isRequired,
+  deleteCallback: PropTypes.func.isRequired,
+  patchCallback: PropTypes.func.isRequired,
   currentUserId: PropTypes.string,
 };
 
