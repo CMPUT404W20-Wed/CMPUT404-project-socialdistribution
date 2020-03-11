@@ -1,12 +1,7 @@
-/* eslint-disable react/no-danger */
-/* Passing raw HTML is more or less necessary to implement Markdown
- * (at least without a React-aware Markdown engine,
- *  which commonMark alone is not) */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import parseMarkdown from '../Markdown';
+import Markdown from '../Markdown';
 
 
 const PostContent = ({ contentType, content }) => {
@@ -16,10 +11,9 @@ const PostContent = ({ contentType, content }) => {
 
   if (contentType === 'text/markdown') {
     return (
-      <div
-        className="content-text content-markdown"
-        dangerouslySetInnerHTML={parseMarkdown(content)}
-      />
+      <div className="content-text content-markdown">
+        <Markdown source={content} />
+      </div>
     );
   }
 
