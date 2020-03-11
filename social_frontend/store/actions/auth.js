@@ -26,13 +26,21 @@ export const authFail = (error) => ({
   error,
 });
 
-export const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('expirationDate');
-  return {
-    type: actionTypes.AUTH_LOGOUT,
-  };
-};
+export const logout = () => ({
+  type: actionTypes.AUTH_LOGOUT,
+});
+
+export const doLogout = () => (
+  (dispatch) => {
+    axios.post('/rest-auth/logout/').then(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('expirationDate');
+      dispatch(logout());
+    }).catch((err) => {
+      Error(err);
+    });
+  }
+);
 
 /**
  * Expiration time set to 1hour, can change it later
@@ -41,7 +49,7 @@ export const logout = () => {
 export const checkAuthTimeout = (expirationTime) => (
   (dispatch) => {
     setTimeout(() => {
-      dispatch(logout());
+      dispatch(doLogout());
     }, expirationTime * 1000);
   }
 );
@@ -65,21 +73,15 @@ export const authLogin = (username, password) => (
   }
 );
 
-export const authSignup = (username, email, password1, password2) => (
+export const authSignup = (username, password1, password2) => (
   (dispatch) => {
     dispatch(authStart());
     axios.post('/rest-auth/registration/', {
       username,
-      email,
       password1,
       password2,
-    }).then((res) => {
-      const token = res.data.key;
-      const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-      localStorage.setItem('token', token);
-      localStorage.setItem('expirationDate', expirationDate);
-      dispatch(authSuccess(token));
-      dispatch(checkAuthTimeout(3600));
+    }).then(() => {
+      dispatch(authSuccess(null));
     }).catch((err) => {
       dispatch(authFail(err));
     });
@@ -90,11 +92,11 @@ export const authCheckState = () => (
   (dispatch) => {
     const token = localStorage.getItem('token');
     if (!token) {
-      dispatch(logout());
+      dispatch(doLogout());
     } else {
       const expirationDate = new Date(localStorage.getItem('expirationDate'));
       if (expirationDate <= new Date()) {
-        dispatch(logout());
+        dispatch(doLogout());
       } else {
         dispatch(authSuccess(token));
         dispatch(checkAuthTimeout((expirationDate.getTime() - new Date().getTime()) / 1000));

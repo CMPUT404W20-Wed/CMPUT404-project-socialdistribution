@@ -4,9 +4,11 @@ import { connect } from 'react-redux';
 
 import PostHeader from './PostHeader';
 import Comments from './Comments';
+import Editor from '../Editor';
 import PostContent from './PostContent';
 import ModalLink from '../common/modal/ModalLink';
 import { postShape } from '../../util/shapes';
+import safeFormat from '../../util/safeFormat';
 
 import '../../styles/post.css';
 
@@ -23,7 +25,7 @@ const StreamPostFooter = ({ commentCount, postId }) => (
         commentCount === 0
           ? 'No comments'
           : (
-            commentCount.toLocaleString()
+            safeFormat(commentCount)
             + (commentCount !== 1 ? ' comments' : ' comment')
           )
       }
@@ -44,56 +46,106 @@ StreamPostFooter.propTypes = {
  *     'stream' => link to expand post in footer
  *    'comment' => no footer
  */
-const Post = ({
-  post,
-  type,
-  currentUserId,
-}) => {
-  if (post === null) return null; // TODO should return placeholder
-  const { id: postId, author, content, comments, contentType } = post;
+class Post extends React.Component {
+  state = {
+    isEditing: false,
+  };
 
-  const { id: authorId } = author;
-  const isOwnPost = (authorId === currentUserId);
-  const commentCount = comments.length;
+  constructor(props) {
+    super(props);
 
-  let footer;
-  let className;
-  if (type === 'standalone') {
-    const Comment = ({ post }) => (
-      <Post type="comment" post={post} />
-    );
-
-    Comment.propTypes = { post: postShape.isRequired };
-
-    footer = <Comments PostComponent={Comment} postId={postId} />;
-    className = 'standalone-post';
-  } else if (type === 'stream') {
-    footer = <StreamPostFooter postId={postId} commentCount={commentCount} />;
-    className = 'stream-post';
-  } else if (type === 'comment') {
-    footer = null;
-    className = 'stream-post comment';
+    this.doEdit = this.doEdit.bind(this);
+    this.doCancelEdit = this.doCancelEdit.bind(this);
   }
 
-  if (isOwnPost) className += ' own';
+  doEdit() {
+    this.setState({
+      isEditing: true,
+    });
+  }
 
-  // TODO Pasting the content directly into the HTML is not the
-  // correct way to handle actual posts from the server!
-  return (
-    <article className={`post ${className}`}>
-      <PostHeader
-        author={author}
-        isOwnPost={isOwnPost}
-      />
-      <PostContent content={content} contentType={contentType} />
-      {footer}
-    </article>
-  );
-};
+  doCancelEdit() {
+    this.setState({
+      isEditing: false,
+    });
+  }
+
+  render() {
+    const {
+      post,
+      type,
+      currentUserId,
+      deleteCallback,
+      patchCallback,
+    } = this.props;
+    const { isEditing } = this.state;
+
+    if (post === null) return null;
+    const {
+      id: postId,
+      author,
+      content,
+      commentCount,
+      contentType,
+    } = post;
+
+    const { id: authorId } = author;
+    const isOwnPost = (authorId === currentUserId);
+
+    let footer;
+    let className;
+    if (type === 'standalone') {
+      const Comment = ({ post: commentPost }) => (
+        <Post type="comment" post={commentPost} />
+      );
+
+      Comment.propTypes = { post: postShape.isRequired };
+
+      footer = <Comments PostComponent={Comment} postId={postId} />;
+      className = 'standalone-post';
+    } else if (type === 'stream') {
+      footer = <StreamPostFooter postId={postId} commentCount={commentCount} />;
+      className = 'stream-post';
+    } else if (type === 'comment') {
+      footer = null;
+      className = 'stream-post comment';
+    }
+
+    if (isOwnPost) className += ' own';
+
+    // TODO Pasting the content directly into the HTML is not the
+    // correct way to handle actual posts from the server!
+    return (
+      <article className={`post ${className}`}>
+        <PostHeader
+          author={author}
+          isOwnPost={isOwnPost}
+          onEditClick={this.doEdit}
+          onDeleteClick={deleteCallback}
+        />
+        {
+          isEditing
+            ? (
+              <Editor
+                inline
+                onCancel={this.doCancelEdit}
+                onSubmit={patchCallback}
+                defaultContent={content}
+              />
+            )
+            : <PostContent content={content} contentType={contentType} />
+        }
+        {footer}
+      </article>
+    );
+  }
+}
 
 Post.propTypes = {
   post: postShape.isRequired,
   type: PropTypes.oneOf(['standalone', 'stream', 'comment']).isRequired,
+  deleteCallback: PropTypes.func.isRequired,
+  patchCallback: PropTypes.func.isRequired,
   currentUserId: PropTypes.string,
 };
 

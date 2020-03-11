@@ -17,49 +17,69 @@ const PostFormControls = ({
   isUnlisted,
   canPost,
   canPreview,
+  canCancel,
+  cancelCallback,
+  isPatching,
   onPreviewToggle,
   onUnlistedToggle,
-}) => (
-  <div className="post-form-controls">
-    <input
-      type="submit"
-      value={isComment ? 'Comment' : 'Post'}
-      disabled={!canPost}
-    />
-    {
-      canPreview && (
-        <button type="button" onClick={onPreviewToggle}>Preview</button>
-      )
-    }
-    {
-      isComment
-        ? null
-        : (
-          <>
-            <select className="post-form-visibility">
-              <option>Public</option>
-              <option>Friends of friends</option>
-              <option>All friends</option>
-              <option>Local friends</option>
-              <option>Private</option>
-            </select>
-            <input
-              type="checkbox"
-              name="unlisted"
-              checked={isUnlisted}
-              onChange={onUnlistedToggle}
-            />
-          </>
+}) => {
+  let submitLabel;
+  if (isPatching) submitLabel = 'Save changes';
+  else if (isComment) submitLabel = 'Comment';
+  else submitLabel = 'Post';
+
+  return (
+    <div className="post-form-controls">
+      <input
+        type="submit"
+        value={submitLabel}
+        disabled={!canPost}
+      />
+      {
+        canPreview && (
+          <button type="button" onClick={onPreviewToggle}>Preview</button>
         )
-    }
-  </div>
-);
+      }
+      {
+        canCancel && (
+          <button type="button" onClick={cancelCallback}>Cancel</button>
+        )
+      }
+      {
+        isComment
+          ? null
+          : (
+            <>
+              <select className="post-form-visibility">
+                <option>Public</option>
+                <option>Friends of friends</option>
+                <option>All friends</option>
+                <option>Local friends</option>
+                <option>Private</option>
+              </select>
+              <input
+                type="checkbox"
+                name="unlisted"
+                checked={isUnlisted}
+                onClick={onUnlistedToggle}
+              />
+            </>
+          )
+      }
+    </div>
+  );
+};
 
 PostFormControls.propTypes = {
   isComment: PropTypes.bool,
+  isUnlisted: PropTypes.bool.isRequired,
   canPost: PropTypes.bool.isRequired,
+  canCancel: PropTypes.bool.isRequired,
+  isPatching: PropTypes.bool.isRequired,
+  cancelCallback: PropTypes.func.isRequired,
   canPreview: PropTypes.bool.isRequired,
   onPreviewToggle: PropTypes.func.isRequired,
+  onUnlistedToggle: PropTypes.func.isRequired,
 };
 
 PostFormControls.defaultProps = {
@@ -72,7 +92,7 @@ export default class PostForm extends React.Component {
   state = {
     textContent: '',
     canPost: false,
-    errorMessage: null,
+    // errorMessage: null,
     isMarkdown: false,
     isUnlisted: false,
   };
@@ -87,6 +107,15 @@ export default class PostForm extends React.Component {
     this.handleUnlistedToggle = this.handleUnlistedToggle.bind(this);
   }
 
+  componentDidMount() {
+    const { defaultContent } = this.props;
+
+    this.setState({
+      textContent: defaultContent,
+      canPost: (defaultContent.length > 0),
+    });
+  }
+
   handleTextChange(event) {
     const textContent = event.target.value;
     this.setState({
@@ -98,9 +127,9 @@ export default class PostForm extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
 
-    this.setState({
+    /* this.setState({
       errorMessage: '',
-    });
+    }); */
 
     const { submittedCallback } = this.props;
     const { textContent: content, isMarkdown, isUnlisted } = this.state;
@@ -114,24 +143,23 @@ export default class PostForm extends React.Component {
       unlisted: isUnlisted,
       description: '',
       contentType: isMarkdown ? 'text/markdown' : 'text/plain',
-      categories: [],
-      visibleTo: [],
+      // categories: [],
+      // visibleTo: [],
     };
 
     // Submit the post to the server
-    Axios.post(submitPostEndpoint(), {
-      query: 'createPost',
-      post,
-    }).then(({ returnedPost }) => {
+    Axios.post(submitPostEndpoint(), post).then(({
+      returnedPost,
+    }) => {
       this.setState({
         textContent: '',
         canPost: false,
       });
       submittedCallback(returnedPost);
-    }).catch((error) => {
-      this.setState({
+    }).catch((/* error */) => {
+      /* this.setState({
         errorMessage: error.message,
-      });
+      }); */
     });
   }
 
@@ -159,7 +187,7 @@ export default class PostForm extends React.Component {
   }
 
   render() {
-    const { isComment } = this.props;
+    const { isComment, onCancel, onSubmit } = this.props;
     const {
       textContent,
       canPost,
@@ -205,6 +233,9 @@ export default class PostForm extends React.Component {
           onUnlistedToggle={this.handleUnlistedToggle}
           isComment={isComment}
           isUnlisted={isUnlisted}
+          canCancel={onCancel !== undefined}
+          cancelCallback={onCancel}
+          isPatching={onSubmit !== undefined}
         />
       </form>
     );
@@ -214,8 +245,14 @@ export default class PostForm extends React.Component {
 PostForm.propTypes = {
   isComment: PropTypes.bool,
   submittedCallback: PropTypes.func.isRequired,
+  defaultContent: PropTypes.string,
+  onCancel: PropTypes.func,
+  onSubmit: PropTypes.func,
 };
 
 PostForm.defaultProps = {
   isComment: false,
+  defaultContent: '',
+  onCancel: undefined,
+  onSubmit: undefined,
 };

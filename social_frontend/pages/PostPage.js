@@ -30,11 +30,10 @@ export default class PostPage extends React.Component {
     const { id } = this.props;
     console.log('$$$ id:', id);
 
-    return Axios.get(singlePostEndpoint(id)).then(({ data }) => {
-      console.log(data);
-      /*this.setState({
+    return Axios.get(singlePostEndpoint(id)).then(({ data: { post } }) => {
+      this.setState({
         post,
-      });*/
+      });
     }).catch((error) => {
       // TODO error?
       console.log('Failed to load single post:');
