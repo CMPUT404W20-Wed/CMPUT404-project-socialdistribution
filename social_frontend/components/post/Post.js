@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import PostHeader from './PostHeader';
 import Comments from './Comments';
 import Editor from '../Editor';
+import PostContent from './PostContent';
 import ModalLink from '../common/modal/ModalLink';
 import { postShape } from '../../util/shapes';
 
@@ -127,11 +128,7 @@ class Post extends React.Component {
                 defaultContent={content}
               />
             )
-            : (
-              <div className="content-text">
-                {content}
-              </div>
-            )
+            : <PostContent content={content} contentType={contentType} />
         }
         {footer}
       </article>
