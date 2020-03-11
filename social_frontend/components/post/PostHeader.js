@@ -10,7 +10,12 @@ import PopupMenu from '../common/PopupMenu';
  *
  * TODO use actual icon for menu
  */
-const PostHeader = ({ author: { id, displayName }, isOwnPost }) => (
+const PostHeader = ({
+  author: { id, displayName },
+  isOwnPost,
+  onEditClick,
+  onDeleteClick,
+}) => (
   <header className="post-header">
     <Link
       className="post-author"
@@ -23,10 +28,17 @@ const PostHeader = ({ author: { id, displayName }, isOwnPost }) => (
     {
       isOwnPost && (
         <PopupMenu className="post-menu" handle="⁝">
-          <button type="button" className="post-edit-button">Edit</button>
+          <button
+            type="button"
+            className="post-edit-button"
+            onClick={(event) => { event.target.blur(); onEditClick(); }}
+          >
+            Edit
+          </button>
           <button
             type="button"
             className="post-delete-button popup-red-button"
+            onClick={onDeleteClick}
           >
             Delete
           </button>
@@ -42,6 +54,8 @@ PostHeader.propTypes = {
     displayName: PropTypes.string.isRequired,
   }).isRequired,
   isOwnPost: PropTypes.bool.isRequired,
+  onEditClick: PropTypes.func.isRequired,
+  onDeleteClick: PropTypes.func.isRequired,
 };
 
 export default PostHeader;
