@@ -1,8 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Axios from 'axios';
 import { Link, NavLink } from 'react-router-dom';
 
 import Suspender from './common/suspend/Suspender';
+import { profileEndpoint } from '../util/endpoints';
+import safeFormat from '../util/safeFormat';
 
 import '../styles/profile.css';
 
@@ -19,30 +22,20 @@ export default class Profile extends React.Component {
 
   componentDidMount() {
     const { id } = this.props;
-    this.doLoadProfile(id);
+    console.log(id);
+    if (id !== null) this.doLoadProfile(id);
   }
 
   doLoadProfile(id) {
-    // TODO loader placeholder
-    return new Promise(
-      (resolve) => {
-        window.setTimeout(
-          () => {
-            this.setState({
-              profile: {
-                id,
-                displayName: 'Profile User',
-                friendCount: 4,
-                followerCount: 12,
-                followingCount: 1234,
-              },
-            });
-            resolve();
-          },
-          1000,
-        );
-      },
-    );
+    return Axios.get(profileEndpoint(id)).then(({ data: profile }) => {
+      this.setState({
+        profile,
+      });
+    }).catch((error) => {
+      // TODO error?
+      console.log('Failed to load profile:');
+      console.log(error);
+    });
   }
 
   render() {
@@ -99,7 +92,7 @@ export default class Profile extends React.Component {
           >
             Friends
             <div className="profile-value">
-              {friendCount.toLocaleString()}
+              {safeFormat(friendCount)}
             </div>
           </NavLink>
           <NavLink
@@ -109,7 +102,7 @@ export default class Profile extends React.Component {
           >
             Following
             <div className="profile-value">
-              {followingCount.toLocaleString()}
+              {safeFormat(followingCount)}
             </div>
           </NavLink>
           <NavLink
@@ -119,7 +112,7 @@ export default class Profile extends React.Component {
           >
             Followers
             <div className="profile-value">
-              {followerCount.toLocaleString()}
+              {safeFormat(followerCount)}
             </div>
           </NavLink>
         </nav>

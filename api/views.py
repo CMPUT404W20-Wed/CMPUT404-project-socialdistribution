@@ -218,7 +218,7 @@ def profile(request, userid):
         user = User.objects.get(pk=userid)
         username = user.username
         host = user.host
-        url = host + "/author/" + user.id
+        url = host + "/author/" + str(user.id)
         
         friends = Friend.objects.filter(user1=userid)
         friends_list = []
@@ -232,7 +232,7 @@ def profile(request, userid):
             })
 
 
-        response_body = JSONRenderer.render({
+        response_body = JSONRenderer().render({
             "id":"TODO",
             "host":host,
             "displayName": username,

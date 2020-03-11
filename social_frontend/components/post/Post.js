@@ -8,6 +8,7 @@ import Editor from '../Editor';
 import PostContent from './PostContent';
 import ModalLink from '../common/modal/ModalLink';
 import { postShape } from '../../util/shapes';
+import safeFormat from '../../util/safeFormat';
 
 import '../../styles/post.css';
 
@@ -24,7 +25,7 @@ const StreamPostFooter = ({ commentCount, postId }) => (
         commentCount === 0
           ? 'No comments'
           : (
-            commentCount.toLocaleString()
+            safeFormat(commentCount)
             + (commentCount !== 1 ? ' comments' : ' comment')
           )
       }
@@ -71,13 +72,7 @@ class Post extends React.Component {
 
   render() {
     const {
-      post: {
-        id: postId,
-        author,
-        content,
-        commentCount,
-        contentType,
-      },
+      post,
       type,
       currentUserId,
       deleteCallback,
@@ -85,14 +80,23 @@ class Post extends React.Component {
     } = this.props;
     const { isEditing } = this.state;
 
+    if (post === null) return null;
+    const {
+      id: postId,
+      author,
+      content,
+      commentCount,
+      contentType,
+    } = post;
+
     const { id: authorId } = author;
     const isOwnPost = (authorId === currentUserId);
 
     let footer;
     let className;
     if (type === 'standalone') {
-      const Comment = ({ post }) => (
-        <Post type="comment" post={post} />
+      const Comment = ({ post: commentPost }) => (
+        <Post type="comment" post={commentPost} />
       );
 
       Comment.propTypes = { post: postShape.isRequired };

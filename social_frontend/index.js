@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Axios from 'axios';
 import {
   createStore,
   compose,
@@ -7,7 +8,6 @@ import {
 } from 'redux';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
-import Axios from 'axios';
 import App from './App';
 import reducer from './store/reducers/auth';
 

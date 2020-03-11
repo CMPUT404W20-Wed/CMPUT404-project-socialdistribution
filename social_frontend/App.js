@@ -143,7 +143,7 @@ const Main = () => (
       exact
       render={
         ({ match: { params: { id } } }) => (
-          <PostPage postId={id} />
+          <PostPage key={id} id={id} />
         )
       }
     />

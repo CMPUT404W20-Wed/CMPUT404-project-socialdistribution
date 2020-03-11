@@ -8,6 +8,10 @@ import StreamLoader from '../components/StreamLoader';
 import Profile from '../components/Profile';
 import Editor from '../components/Editor';
 import { postShape } from '../util/shapes';
+import {
+  streamEndpoint,
+  userStreamEndpoint,
+} from '../util/endpoints';
 
 /* Navigation bar for stream filters. */
 const StreamFilterNav = () => (
@@ -49,9 +53,17 @@ const StreamPage = ({ currentUserId, profileId, filter }) => {
 
   StreamPost.propTypes = { post: postShape.isRequired };
 
+  const endpoint = (filter === 'profile')
+    ? userStreamEndpoint(profileId)
+    : streamEndpoint(filter);
+
   return (
     <main className="main">
-      <Profile id={displayUserId} panel={profileId === null} />
+      <Profile
+        key={displayUserId}
+        id={displayUserId}
+        panel={profileId === null}
+      />
       {
         profileId === null && (
           <>
@@ -62,6 +74,7 @@ const StreamPage = ({ currentUserId, profileId, filter }) => {
       }
       <StreamLoader
         key={filter}
+        endpoint={endpoint}
         PostComponent={StreamPost}
       />
     </main>
