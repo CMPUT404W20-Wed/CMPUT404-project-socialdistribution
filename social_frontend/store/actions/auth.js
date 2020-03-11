@@ -34,6 +34,10 @@ export const logout = () => {
   };
 };
 
+/**
+ * Expiration time set to 1hour, can change it later
+ * @param {*} expirationTime
+ */
 export const checkAuthTimeout = (expirationTime) => (
   (dispatch) => {
     setTimeout(() => {
