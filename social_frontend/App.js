@@ -264,7 +264,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  doLogout: () => dispatch(actions.logout()),
+  doLogout: () => dispatch(actions.doLogout()),
   autoSignIn: () => dispatch(actions.authCheckState()),
   getUserData: () => dispatch(actions.getUser()),
 });
