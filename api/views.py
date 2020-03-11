@@ -29,8 +29,8 @@ def posts_visible(request):
         posts = Post.objects.all()
         response_body = JSONRenderer().render({
             "query": "posts",
-            "count": "TODO",
-            "size": "TODO",
+            "count": len(posts),
+            "size": min(50, len(posts)),
             "next": "TODO",
             "previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
@@ -60,8 +60,8 @@ def posts_by_aid(request, aid):
         posts = Post.objects.filter(author=user)
         response_body = JSONRenderer().render({
             "query": "posts",
-            "count": "TODO",
-            "size": "TODO",
+            "count": len(posts),
+            "size": min(50, len(posts)),
             "next": "TODO",
             "previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
@@ -78,12 +78,13 @@ def all_posts(request):
         posts = Post.objects.all()
         response_body = JSONRenderer().render({
             "query": "posts",
-            "count": "TODO",
-            "size": "TODO",
+            "count": len(posts),
+            "size": min(50, len(posts)),
             "next": "TODO",
             "previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
         })
+        print(posts)
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
@@ -112,8 +113,8 @@ def comments_by_pid(request, pid):
         comments = Comment.objects.filter(post=post)
         response_body = JSONRenderer().render({
             "query": "comments",
-            "count": "TODO",
-            "size": "TODO",
+            "count": len(comments),
+            "size": min(50, len(comments)),
             "next": "TODO",
             "previous": "TODO",
             "comments": CommentSerializer(comments, many=True).data
@@ -158,7 +159,8 @@ def login(request):
             redirect("/posts/")
         else:
             # TODO: serve some other page - which page? Login + error message?
-            pass
+            # We probably want to include more in the response than just status code
+            return HttpResponse(status=401)
 
 # Query for FOAF
 # author/<uuid:aid>/friends
@@ -206,6 +208,17 @@ def profile(request, userid):
         username = user.username
         host = user.host
         url = host + "/author/" + user.id
+        
+        friends = Friend.objects.filter(user1=userid)
+        friends_list = []
+        for friend in friends:
+            # Put each friend in json format
+            friends_list.append({
+                "id": "TODO",
+                "host": "TODO",
+                "displayName": "TODO",
+                "url": "TODO"
+            })
 
 
         response_body = JSONRenderer.render({
@@ -213,9 +226,7 @@ def profile(request, userid):
             "host":host,
             "displayName": username,
             "url": url,
-            "friends": [
-                {}
-            ],
+            "friends": friends_list
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
