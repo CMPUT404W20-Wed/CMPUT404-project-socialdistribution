@@ -9,6 +9,7 @@ from django.db import models
 # https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    approved = models.BooleanField(default=False)
     host = models.URLField(max_length=255)
     # these are not in the spec
     created = models.DateTimeField(auto_now_add=True)

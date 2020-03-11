@@ -29,8 +29,8 @@ def posts_visible(request):
         posts = Post.objects.all()
         response_body = JSONRenderer().render({
             "query": "posts",
-            "count": "TODO",
-            "size": "TODO",
+            "count": len(posts),
+            "size": min(50, len(posts)),
             "next": "TODO",
             "previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
@@ -61,8 +61,8 @@ def posts_by_aid(request, aid):
         posts = Post.objects.filter(author=user)
         response_body = JSONRenderer().render({
             "query": "posts",
-            "count": "TODO",
-            "size": "TODO",
+            "count": len(posts),
+            "size": min(50, len(posts)),
             "next": "TODO",
             "previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
@@ -79,12 +79,13 @@ def all_posts(request):
         posts = Post.objects.all()
         response_body = JSONRenderer().render({
             "query": "posts",
-            "count": "TODO",
-            "size": "TODO",
+            "count": len(posts),
+            "size": min(50, len(posts)),
             "next": "TODO",
             "previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
         })
+        print(posts)
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
@@ -97,8 +98,7 @@ def posts_by_pid(request, pid):
         post = Post.objects.get(pk=pid)
         # TODO: please sanity check that this is actually the response format
         response_body = JSONRenderer().render({
-            "query": "posts",
-            "count": 1,
+            "query": "getPost",
             "posts": PostSerializer(post, many=True).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
@@ -114,8 +114,8 @@ def comments_by_pid(request, pid):
         comments = Comment.objects.filter(post=post)
         response_body = JSONRenderer().render({
             "query": "comments",
-            "count": "TODO",
-            "size": "TODO",
+            "count": len(comments),
+            "size": min(50, len(comments)),
             "next": "TODO",
             "previous": "TODO",
             "comments": CommentSerializer(comments, many=True).data
@@ -160,7 +160,8 @@ def login(request):
             redirect("/posts/")
         else:
             # TODO: serve some other page - which page? Login + error message?
-            pass
+            # We probably want to include more in the response than just status code
+            return HttpResponse(status=401)
 
 # Query for FOAF
 # author/<uuid:aid>/friends
@@ -199,14 +200,35 @@ def friendship_by_aid(request, aid1, aid2):
         return HttpResponse(status=405, content="Method Not Allowed")
 
 # Returns a specified profile
+# author/<uuid:userid>/
 def profile(request, userid):
     method = request.method
     if method == "GET":
         # Get the user object
         user = User.objects.get(pk=userid)
         username = user.username
-        github = user.github
         host = user.host
-        return HttpResponse("You're looking at %s's profile" % username)
+        url = host + "/author/" + user.id
+        
+        friends = Friend.objects.filter(user1=userid)
+        friends_list = []
+        for friend in friends:
+            # Put each friend in json format
+            friends_list.append({
+                "id": "TODO",
+                "host": "TODO",
+                "displayName": "TODO",
+                "url": "TODO"
+            })
+
+
+        response_body = JSONRenderer.render({
+            "id":"TODO",
+            "host":host,
+            "displayName": username,
+            "url": url,
+            "friends": friends_list
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
