@@ -155,6 +155,7 @@ def register(request):
             # TODO: check wtf this does
             # user.set_password(user.password)
             user.save()
+    # TODO: Implement a response for when the user already exists with the same name
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -174,14 +175,23 @@ def login(request):
             return HttpResponse(status=401)
 
 # Query for FOAF
-# author/<uuid:aid>/friends
+# author/<uuid:aid>/friends/
 def friends_by_aid(request, aid):
     method = request.method
     # Get the friends of the author
     if method == "GET":
-        authors = Friend.objects.filter(user1=aid)
-        authors_json = serializers.serialize("json", authors)
-        return HttpResponse(content=authors_json, content_type="application/json", status=200)
+        author_friends = Friend.objects.filter(user1=aid)
+        friend_list = []
+        for a in author_friends:
+            friend_profile = User.objects.get(id=a.user2)
+            friend_list.append(friend_profile.host+'/author/'+a.user2)
+        # authors_json = serializers.serialize("json", author_friends)
+        response_body = JSONRenderer().render({
+            "query": "friends",
+            "author": friend_list,
+            "count": len(author_friends)
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     # Check if anyone in the list is friends with the author
     if method == "POST":
         # TODO: Still need to implement, probably save for Part 2
@@ -189,6 +199,7 @@ def friends_by_aid(request, aid):
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
+# author/<authorid>/friends/<authorid2>/
 def friendship_by_aid(request, aid1, aid2):
     method = request.method
     if method == "GET":
