@@ -1,7 +1,8 @@
 
 export default function safeFormat(number) {
-  if (number !== undefined
-    && Object.keys(number).indexOf('toLocaleString') >= 0
+  if (
+    number !== undefined && number !== null
+    && number.toLocaleString !== undefined
   ) {
     return number.toLocaleString();
   }

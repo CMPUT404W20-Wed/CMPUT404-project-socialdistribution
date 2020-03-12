@@ -42,8 +42,13 @@ export default class PostPage extends React.Component {
   }
 
   render() {
+    const { id } = this.props;
     const { post } = this.state;
-    return <Post type="standalone" post={post} />;
+    return <Post
+      type="standalone"
+      post={post}
+      endpoint={singlePostEndpoint(id)}
+    />;
   }
 }
 

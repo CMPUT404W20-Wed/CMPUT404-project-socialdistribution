@@ -4,6 +4,7 @@ import Axios from 'axios';
 
 import Stream from './Stream';
 import Suspender from './common/suspend/Suspender';
+import { singlePostEndpoint, singleCommentEndpoint } from '../util/endpoints';
 
 export default class StreamLoader extends React.Component {
   state = {
@@ -16,6 +17,7 @@ export default class StreamLoader extends React.Component {
     super(props);
 
     this.doLoadMore = this.doLoadMore.bind(this);
+    this.afterDeletePost = this.afterDeletePost.bind(this);
   }
 
   componentDidMount() {
@@ -24,22 +26,64 @@ export default class StreamLoader extends React.Component {
     );
   }
 
+  afterDeletePost(post) {
+    const { id } = post;
+
+    const { posts: currentPosts } = this.state;
+    this.setState({
+      posts: currentPosts.filter((eachPost) => (eachPost !== post)),
+    });
+  }
+
+  afterPatchPost(post) {
+    const { id } = post;
+
+    const { posts: currentPosts } = this.state;
+    this.setState({
+      posts: [ ...currentPosts, post ],
+    });
+  }
+
   doLoadMore() {
-    const { endpoint } = this.props;
+    const { getEndpoint, itemEndpointPatterm } = this.props;
     const { nextPageUrl } = this.state;
 
-    const url = nextPageUrl || endpoint;
+    const url = nextPageUrl || getEndpoint;
     console.log(url);
 
-    return Axios.get(url).then(({ data: { next, posts } }) => {
-      console.log(next, posts);
+    return Axios.get(url).then(({ data }) => {
+      const { next } = data;
       const { posts: currentPosts } = this.state;
-      if (posts === undefined) {
-        throw new Error('Stream response missing "posts"');
+
+      const isComments = (data.comments !== undefined);
+      let content;
+      if (isComments) {
+        content = data.comments.map(
+          ({
+            id,
+            author,
+            published,
+            contentType,
+            comment,
+          }) => ({
+            id,
+            author,
+            published,
+            contentType,
+            content: comment,
+            comments: [],
+          }),
+        )
+      } else {
+        content = data.posts;
+      }
+
+      if (content === undefined) {
+        throw new Error('Stream response missing content');
       }
 
       this.setState({
-        posts: currentPosts.concat(posts),
+        posts: currentPosts.concat(content),
         nextPageUrl: next,
       });
     }).catch((error) => {
@@ -50,7 +94,7 @@ export default class StreamLoader extends React.Component {
   }
 
   render() {
-    const { PostComponent } = this.props;
+    const { PostComponent, itemEndpointPattern } = this.props;
     const { posts, pending, nextPageUrl } = this.state;
 
     return (
@@ -59,6 +103,9 @@ export default class StreamLoader extends React.Component {
         : (
           <Stream
             PostComponent={PostComponent}
+            afterDelete={this.afterDeletePost}
+            afterPatch={this.afterPatchPost}
+            itemEndpointPattern={itemEndpointPattern}
             posts={posts}
             hasMore={nextPageUrl !== undefined}
             loadMoreCallback={this.doLoadMore}
@@ -70,5 +117,6 @@ export default class StreamLoader extends React.Component {
 
 StreamLoader.propTypes = {
   PostComponent: PropTypes.elementType.isRequired,
-  endpoint: PropTypes.string.isRequired,
+  getEndpoint: PropTypes.string.isRequired,
+  itemEndpoint: PropTypes.func.isRequired,
 };

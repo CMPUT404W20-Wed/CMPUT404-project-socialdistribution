@@ -34,11 +34,28 @@ export default class Stream extends React.Component {
   }
 
   render() {
-    const { PostComponent, posts, hasMore } = this.props;
+    const {
+      PostComponent,
+      posts,
+      hasMore,
+      afterDelete,
+      afterPatch,
+      itemEndpointPattern,
+    } = this.props;
     const { pending } = this.state;
     return (
       <div className="stream">
-        {posts.map((post) => <PostComponent key={post.id} post={post} />)}
+        {
+          posts.map((post) => (
+            <PostComponent
+              key={post.id}
+              post={post}
+              afterDelete={afterDelete}
+              afterPatch={afterPatch}
+              endpoint={itemEndpointPattern(post.id)}
+            />
+          ))
+        }
         {
           hasMore && (
             <form className="load-more" onSubmit={this.handleLoadMore}>

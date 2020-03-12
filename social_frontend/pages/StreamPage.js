@@ -10,7 +10,9 @@ import Editor from '../components/Editor';
 import { postShape } from '../util/shapes';
 import {
   streamEndpoint,
+  submitPostEndpoint,
   userStreamEndpoint,
+  singlePostEndpoint,
 } from '../util/endpoints';
 
 /* Navigation bar for stream filters. */
@@ -47,11 +49,9 @@ const StreamPage = ({ currentUserId, profileId, filter }) => {
 
   // Specify "stream" type for posts in the stream.
   // (This sets their appearance appropriately)
-  const StreamPost = ({ post }) => (
-    <Post type="stream" post={post} />
+  const StreamPost = (props) => (
+    <Post type="stream" {...props} />
   );
-
-  StreamPost.propTypes = { post: postShape.isRequired };
 
   const endpoint = (filter === 'profile')
     ? userStreamEndpoint(profileId)
@@ -67,14 +67,15 @@ const StreamPage = ({ currentUserId, profileId, filter }) => {
       {
         profileId === null && (
           <>
-            <Editor />
+            <Editor endpoint={submitPostEndpoint()} />
             <StreamFilterNav />
           </>
         )
       }
       <StreamLoader
         key={filter}
-        endpoint={endpoint}
+        getEndpoint={endpoint}
+        itemEndpointPattern={singlePostEndpoint}
         PostComponent={StreamPost}
       />
     </main>

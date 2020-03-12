@@ -131,24 +131,32 @@ export default class PostForm extends React.Component {
       errorMessage: '',
     }); */
 
-    const { submittedCallback } = this.props;
+    const { afterSubmit, isPatching, endpoint, isComment } = this.props;
     const { textContent: content, isMarkdown, isUnlisted } = this.state;
     const title = ''; // TODO
     const visibility = 'PUBLIC'; // TODO
+    const contentType = isMarkdown ? 'text/markdown' : 'text/plain';
 
-    const post = {
-      title,
-      content,
-      visibility,
-      unlisted: isUnlisted,
-      description: '',
-      contentType: isMarkdown ? 'text/markdown' : 'text/plain',
-      // categories: [],
-      // visibleTo: [],
-    };
+    const post = isComment
+      ? {
+        contentType,
+        comment: content,
+      }
+      : {
+        title,
+        contentType,
+        content,
+        visibility,
+        unlisted: isUnlisted,
+        description: '',
+        // categories: [],
+        // visibleTo: [],
+      };
+
+    let method = isPatching ? 'put' : 'post';
 
     // Submit the post to the server
-    Axios.post(submitPostEndpoint(), post).then(({
+    Axios[method](endpoint, post).then(({
       returnedPost,
     }) => {
       this.setState({
@@ -187,7 +195,12 @@ export default class PostForm extends React.Component {
   }
 
   render() {
-    const { isComment, onCancel, onSubmit } = this.props;
+    const {
+      isComment,
+      isPatching,
+      onCancel,
+      endpoint,
+    } = this.props;
     const {
       textContent,
       canPost,
@@ -235,7 +248,7 @@ export default class PostForm extends React.Component {
           isUnlisted={isUnlisted}
           canCancel={onCancel !== undefined}
           cancelCallback={onCancel}
-          isPatching={onSubmit !== undefined}
+          isPatching={isPatching}
         />
       </form>
     );

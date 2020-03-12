@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Axios from 'axios';
 import { connect } from 'react-redux';
 
 import PostHeader from './PostHeader';
@@ -55,7 +56,14 @@ class Post extends React.Component {
     super(props);
 
     this.doEdit = this.doEdit.bind(this);
+    this.doDelete = this.doDelete.bind(this);
     this.doCancelEdit = this.doCancelEdit.bind(this);
+  }
+
+  doDelete() {
+    const { endpoint, afterDelete, post } = this.props;
+
+    Axios.delete(endpoint).then(() => { afterDelete(post) });
   }
 
   doEdit() {
@@ -77,6 +85,7 @@ class Post extends React.Component {
       currentUserId,
       deleteCallback,
       patchCallback,
+      endpoint,
     } = this.props;
     const { isEditing } = this.state;
 
@@ -85,18 +94,19 @@ class Post extends React.Component {
       id: postId,
       author,
       content,
-      commentCount,
+      comments,
       contentType,
     } = post;
 
     const { id: authorId } = author;
     const isOwnPost = (authorId === currentUserId);
+    const commentCount = comments ? comments.length : 0;
 
     let footer;
     let className;
     if (type === 'standalone') {
-      const Comment = ({ post: commentPost }) => (
-        <Post type="comment" post={commentPost} />
+      const Comment = (props) => (
+        <Post type="comment" currentUserId={currentUserId} {...props} />
       );
 
       Comment.propTypes = { post: postShape.isRequired };
@@ -113,23 +123,22 @@ class Post extends React.Component {
 
     if (isOwnPost) className += ' own';
 
-    // TODO Pasting the content directly into the HTML is not the
-    // correct way to handle actual posts from the server!
     return (
       <article className={`post ${className}`}>
         <PostHeader
           author={author}
           isOwnPost={isOwnPost}
           onEditClick={this.doEdit}
-          onDeleteClick={deleteCallback}
+          onDeleteClick={this.doDelete}
         />
         {
           isEditing
             ? (
               <Editor
-                inline
+                isPatching
                 onCancel={this.doCancelEdit}
                 onSubmit={patchCallback}
+                endpoint={endpoint}
                 defaultContent={content}
               />
             )
@@ -146,6 +155,7 @@ Post.propTypes = {
   type: PropTypes.oneOf(['standalone', 'stream', 'comment']).isRequired,
   deleteCallback: PropTypes.func.isRequired,
   patchCallback: PropTypes.func.isRequired,
+  patchUrl: PropTypes.string.isRequired,
   currentUserId: PropTypes.string,
 };
 

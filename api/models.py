@@ -73,7 +73,7 @@ class Comment(models.Model):
     
     comment = models.CharField(max_length=255)
     # TODO: comments will always be text/markdown? what to do on front end?
-    contentType = "text/markdown"
+    contentType = models.CharField(max_length=18, default="text/plain")
     # these two are not in the spec
     published = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
