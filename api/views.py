@@ -188,14 +188,29 @@ def friends_by_aid(request, aid):
         # authors_json = serializers.serialize("json", author_friends)
         response_body = JSONRenderer().render({
             "query": "friends",
-            "author": friend_list,
+            "authors": friend_list,
             "count": len(author_friends)
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     # Check if anyone in the list is friends with the author
     if method == "POST":
         # TODO: Still need to implement, probably save for Part 2
-        pass
+        body = json.loads(request.body)
+        # List of authors we are checking against
+        author_list = body["authors"]
+        author_profile = User.objects.get(id=aid)
+        friend_list = []
+        for a in author_list:
+            # friend_profile = User.objects.get(id=a.split('/')[-1])
+            friendship = Friend.objects.filter(user1=aid, user2=a.split('/')[-1]) and Friend.objects.filter(user2=aid, user1=a.split('/')[-1])
+            if friendship:
+                friend_list.append(a)
+        response_body = JSONRenderer().render({
+            "query": "friends",
+            "author": author_profile.host+"/author/"+str(aid),
+            "authors": friend_list
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -206,17 +221,29 @@ def friendship_by_aid(request, aid1, aid2):
         friendship = Friend.objects.filter(user1=aid1, user2=aid2) and Friend.objects.filter(user2=aid1, user1=aid2)
         if not friendship:
             # TODO: Return the author list with the stripped protocol
-            return JsonResponse({
+            user1_profile = User.objects.get(id=aid1)
+            user2_profile = User.objects.get(id=aid2)
+            response_body = JSONRenderer().render({
                 "query": "friends",
-                "friends": "false"
+                "friends": "false",
+                "authors": [
+                    user1_profile.host+"/author/"+str(aid1),
+                    user2_profile.host+"/author/"+str(aid2)
+                ]
             })
         else:
             # TODO: Return the author list with the stripped protocol
-            return JsonResponse({
+            user1_profile = User.objects.get(id=aid1)
+            user2_profile = User.objects.get(id=aid2)
+            response_body = JSONRenderer().render({
                 "query": "friends",
                 "friends":"true",
-                "authors": [aid1, aid2]
+                "authors": [
+                    user1_profile.host+"/author/"+str(aid1),
+                    user2_profile.host+"/author/"+str(aid2)
+                ]
             })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
