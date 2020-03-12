@@ -52,10 +52,14 @@ class EndpointTests(TestCase):
             "content": "c"
         }
         response = self.c.post('/api/author/posts/', post, content_type="application/json")
-        assert(response.json()['success'] == True)
+        response_json = response.json()
+        assert(response_json['success'] == True)
         assert(len(Post.objects.filter(title="1")) == 1)
         post_object = Post.objects.filter(title="1")[0]
         assert(str(post_object.author.pk) == client.session["_auth_user_id"])
+        assert(response_json['post']['title'] == '1')
+        assert(response_json['post']['description'] == '2')
+        assert(response_json['post']['id'] == str(post_object.pk))
     
     def test_delete_post(self):
         response = self.c.delete('/api/posts/{}/'.format(str(self.post1.id)))
@@ -92,3 +96,18 @@ class EndpointTests(TestCase):
         response = self.c.get('/api/posts/{}/comments/'.format(self.post1.id))
         response_body = response.json()
         assert(len(response_body['comments']) == 2)
+    
+    def test_delete_post(self):
+        self.client.login(username='1', password='123')
+        post = {
+            "title": "deleteme",
+            "description": "deleteme",
+            "content": "deleteme"
+        }
+        response1 = self.client.post('/api/author/posts/', post, content_type="application/json")
+        post_id = response1.json()['post']['id']
+        assert(len(Post.objects.filter(pk=post_id)) == 1)
+        response2 = self.client.delete('/api/posts/{}/'.format(post_id))
+        #import pdb; pdb.set_trace()
+        assert(response2.status_code == 204)
+        assert(len(Post.objects.filter(pk=post_id)) == 0)

@@ -38,11 +38,12 @@ def posts_visible(request):
     if method == "POST":
         post = json.loads(request.body)
         post["author"] = request.user
-        Post.objects.create(**post)
+        post = Post.objects.create(**post)
         response_body = JSONRenderer().render({
             "query": "posts",
             "success": True,
-            "message": "Post Created"
+            "message": "Post Created",
+            "post": PostSerializer(post).data
         })
         return HttpResponse(content=response_body, status=200, content_type="application/json")
     return HttpResponse(status=405, content="Method Not Allowed")
@@ -101,14 +102,14 @@ def posts_by_pid(request, pid):
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     elif method == "DELETE":
         post = Post.objects.get(pk=pid)
-        if post.author == request.user.pk:
+        if post.author.id == request.user.pk:
             post.delete()
             return HttpResponse(status=204)
         else:
             return HttpResponse(status=401)
     elif method == "PUT":
         post = Post.object.get(pk=pid)
-        if post.author == request.user.pk:
+        if post.author.id == request.user.pk:
             post.update(**json.loads(request.body))
             post.save()
             return HttpResponse(status=204)
