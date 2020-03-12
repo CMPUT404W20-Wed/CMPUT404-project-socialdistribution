@@ -209,6 +209,40 @@ def friendship_by_aid(request, aid1, aid2):
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
+def followers(request, aid):
+    method = request.method
+    if method == "GET":
+        friends = Friend.objects.filter(user2=aid)
+
+        authors = []
+        for friend in friends:
+            authors.append(str(friend.user1))
+
+        response_body = JSONRenderer().render({
+            "query": "followers",
+            "authors": authors
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
+
+def following(request, aid):
+    method = request.method
+    if method == "GET":
+        friends = Friend.objects.filter(user1=aid)
+
+        authors = []
+        for friend in friends:
+            authors.append(str(friend.user2))
+
+        response_body = JSONRenderer().render({
+            "query": "following",
+            "authors": authors
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
+
 # Returns a specified profile
 # author/<uuid:userid>/
 def profile(request, userid):

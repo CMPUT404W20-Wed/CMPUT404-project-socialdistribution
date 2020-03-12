@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.core import serializers
-from .models import Post, User, Comment
+from .models import Post, User, Comment, Friend
 from unittest import skip
 import json
 from .serializers import *
@@ -29,6 +29,10 @@ class EndpointTests(TestCase):
         self.user2 = User(username='2')
         self.user1.save()
         self.user2.save()
+
+        # user1 follows user2
+        self.friend = Friend(user1=self.user1.id, user2=self.user2.id)
+        self.friend.save()
         
         self.post1 = Post(title='a', description='b', content='c', author=self.user1)
         self.post1.save()
@@ -92,3 +96,19 @@ class EndpointTests(TestCase):
         response = self.c.get('/api/posts/{}/comments/'.format(self.post1.id))
         response_body = response.json()
         assert(len(response_body['comments']) == 2)
+
+    def test_followers(self):
+        response = self.c.get('/api/author/{}/followers/'.format(self.user1.id))
+        response_body = response.json()
+        assert(len(response_body["authors"]) == 0)
+        response = self.c.get('/api/author/{}/followers/'.format(self.user2.id))
+        response_body = response.json()
+        assert(len(response_body["authors"]) == 1)
+
+    def test_following(self):
+        response = self.c.get('/api/author/{}/following/'.format(self.user1.id))
+        response_body = response.json()
+        assert(len(response_body["authors"]) == 1)
+        response = self.c.get('/api/author/{}/following/'.format(self.user2.id))
+        response_body = response.json()
+        assert(len(response_body["authors"]) == 0)
