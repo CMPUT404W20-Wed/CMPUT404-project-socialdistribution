@@ -52,10 +52,14 @@ class EndpointTests(TestCase):
             "content": "c"
         }
         response = self.c.post('/api/author/posts/', post, content_type="application/json")
-        assert(response.json()['success'] == True)
+        response_json = response.json()
+        assert(response_json['success'] == True)
         assert(len(Post.objects.filter(title="1")) == 1)
         post_object = Post.objects.filter(title="1")[0]
         assert(str(post_object.author.pk) == client.session["_auth_user_id"])
+        assert(response_json['post']['title'] == '1')
+        assert(response_json['post']['description'] == '2')
+        assert(response_json['post']['id'] == str(post_object.pk))
     
     def test_delete_post(self):
         response = self.c.delete('/api/posts/{}/'.format(str(self.post1.id)))

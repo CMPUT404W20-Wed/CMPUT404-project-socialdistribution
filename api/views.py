@@ -38,11 +38,12 @@ def posts_visible(request):
     if method == "POST":
         post = json.loads(request.body)
         post["author"] = request.user
-        Post.objects.create(**post)
+        post = Post.objects.create(**post)
         response_body = JSONRenderer().render({
             "query": "posts",
             "success": True,
-            "message": "Post Created"
+            "message": "Post Created",
+            "post": PostSerializer(post).data
         })
         return HttpResponse(content=response_body, status=200, content_type="application/json")
     return HttpResponse(status=405, content="Method Not Allowed")
