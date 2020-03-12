@@ -63,6 +63,9 @@ class Post(models.Model):
     def get_comments(self):
         # return Comment.objects.filter(id=self.id)
         return Comment.objects.filter(post=self.id)
+    
+    class Meta:
+        ordering = ['-updated']
 
 
 class Comment(models.Model):
@@ -77,7 +80,9 @@ class Comment(models.Model):
     # these two are not in the spec
     published = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-
+    
+    class Meta:
+        ordering = ['-updated']
     
 
 class Friend(models.Model):

@@ -92,3 +92,7 @@ class EndpointTests(TestCase):
         response = self.c.get('/api/posts/{}/comments/'.format(self.post1.id))
         response_body = response.json()
         assert(len(response_body['comments']) == 2)
+    
+    def test_get_with_params(self):
+        response = self.c.get('/api/author/posts/?page=1&size=50')
+        assert(response.status_code == 200)

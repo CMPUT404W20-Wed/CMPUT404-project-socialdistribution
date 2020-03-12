@@ -5,6 +5,8 @@ from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
 from .forms import UserForm
 from .models import User, Post, Comment, Friend
+from django.core.paginator import Paginator
+from .utils import *
 import json
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
@@ -24,17 +26,18 @@ def index(request):
 def posts_visible(request):
     method = request.method
     if method == "GET":
+        page, size, filter_ = get_post_query_params(request)
         # TODO: posts visible to the currently authenticated user
         posts = Post.objects.all()
-        response_body = JSONRenderer().render({
+        posts_pages = Paginator(posts, size)
+        response_body = {
             "query": "posts",
             "count": len(posts),
-            "size": len(posts),
-            #"next": "TODO",
-            #"previous": "TODO",
-            "posts": PostSerializer(posts, many=True).data
-        })
-        return HttpResponse(content=response_body, status=200, content_type="application/json")
+            "size": size,
+            "posts": PostSerializer(posts_pages.page(page), many=True).data
+        }
+        response_body.update(create_pagination_info(request, posts_pages, page, size, filter_))
+        return HttpResponse(content=JSONRenderer().render(response_body), status=200, content_type="application/json")
     if method == "POST":
         post = json.loads(request.body)
         post["author"] = request.user
@@ -52,19 +55,20 @@ def posts_visible(request):
 def posts_by_aid(request, aid):
     method = request.method
     if method == "GET":
+        page, size, filter_ = get_post_query_params(request)
         # all posts made by author id aid visible to currently authed user
         # TODO: this thing here ignores the visibility thing
         user = User.objects.get(pk=aid)
         posts = Post.objects.filter(author=user)
-        response_body = JSONRenderer().render({
+        posts_pages = Paginator(posts, size)
+        response_body = {
             "query": "posts",
             "count": len(posts),
-            "size": len(posts),
-            #"next": "TODO",
-            #"previous": "TODO",
-            "posts": PostSerializer(posts, many=True).data
-        })
-        return HttpResponse(content=response_body, content_type="application/json", status=200)
+            "size": size,
+            "posts": PostSerializer(posts_pages.page(page), many=True).data
+        }
+        response_body.update(create_pagination_info(request, posts_pages, page, size, filter_))
+        return HttpResponse(content=JSONRenderer().render(response_body), content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -73,17 +77,17 @@ def all_posts(request):
     method = request.method
     if method == "GET":
         # TODO: only visible posts or something
+        page, size, filter_ = get_post_query_params(request)
         posts = Post.objects.all()
-        response_body = JSONRenderer().render({
+        posts_pages = Paginator(posts, size)
+        response_body = {
             "query": "posts",
             "count": len(posts),
-            "size": len(posts),
-            #"next": "TODO",
-            #"previous": "TODO",
-            "posts": PostSerializer(posts, many=True).data
-        })
-        print(posts)
-        return HttpResponse(content=response_body, content_type="application/json", status=200)
+            "size": size,
+            "posts": PostSerializer(posts_pages.page(page), many=True).data
+        }
+        response_body.update(create_pagination_info(request, posts_pages, page, size, filter_))
+        return HttpResponse(content=JSONRenderer().render(response_body), content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
