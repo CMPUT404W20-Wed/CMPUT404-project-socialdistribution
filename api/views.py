@@ -74,8 +74,8 @@ def posts_by_aid(request, aid):
 def all_posts(request):
     method = request.method
     if method == "GET":
-        # TODO: Filter posts
-        posts = Post.objects.all()
+        # TODO: Filter posts properly
+        posts = apply_filter(request, "PUBLIC")
 
         response_body = JSONRenderer().render({
             "query": "posts",
@@ -96,7 +96,6 @@ def posts_by_pid(request, pid):
     method = request.method
     if method == "GET":
         post = Post.objects.get(pk=pid)
-        # TODO: please sanity check that this is actually the response format
         response_body = JSONRenderer().render({
             "query": "getPost",
             "post": PostSerializer(post).data
