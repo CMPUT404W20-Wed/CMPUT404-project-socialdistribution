@@ -30,3 +30,11 @@ export const mutualFriendsEndpoint = (user) => (
 export const followersEndpoint = (user) => (
   `/api/author/${user}/followers/`
 );
+
+export const friendRequestEndpoint = () => (
+  '/api/friendrequest/'
+);
+
+export const friendshipEndpoint = (follower, target) => (
+  `/api/author/${follower}/friends/${target}/`
+);
