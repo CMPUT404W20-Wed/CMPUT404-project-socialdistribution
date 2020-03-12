@@ -11,21 +11,49 @@ import {
 
 
 /* Footer containing post comments. */
-const Comments = ({ postId, PostComponent }) => (
-  <div className="post-footer">
-    <StreamLoader
-      PostComponent={PostComponent}
-      getEndpoint={commentsEndpoint(postId)}
-      itemEndpointPattern={
-        (commentId) => singleCommentEndpoint(postId, commentId)
-      }
-    />
-    <Editor isComment endpoint={submitCommentEndpoint(postId)} />
-  </div>
-);
+export default class Comments extends React.Component {
+  state = {
+    pushedPosts: [],
+  };
+
+  constructor(props) {
+    super(props);
+
+    this.afterSubmitPost = this.afterSubmitPost.bind(this);
+  }
+
+  afterSubmitPost(post) {
+    const { pushedPosts: currentPushedPosts } = this.state;
+    this.setState({
+      pushedPosts: [post, ...currentPushedPosts],
+    });
+  }
+
+  render() {
+    const { postId, PostComponent } = this.props;
+    const { pushedPosts } = this.state;
+
+    return (
+      <div className="post-footer">
+        <StreamLoader
+          PostComponent={PostComponent}
+          getEndpoint={commentsEndpoint(postId)}
+          itemEndpointPattern={
+            (commentId) => singleCommentEndpoint(postId, commentId)
+          }
+          pushedPosts={pushedPosts}
+        />
+        <Editor
+          isComment
+          endpoint={submitCommentEndpoint(postId)}
+          submittedCallback={this.afterSubmitPost}
+        />
+      </div>
+    );
+  }
+}
 
 Comments.propTypes = {
   PostComponent: PropTypes.elementType.isRequired,
+  postId: PropTypes.string.isRequired,
 };
-
-export default Comments;

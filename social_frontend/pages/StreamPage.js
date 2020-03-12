@@ -7,7 +7,6 @@ import Post from '../components/post/Post';
 import StreamLoader from '../components/StreamLoader';
 import Profile from '../components/Profile';
 import Editor from '../components/Editor';
-import { postShape } from '../util/shapes';
 import {
   streamEndpoint,
   submitPostEndpoint,
@@ -44,43 +43,71 @@ const StreamFilterNav = () => (
  * If profileId is set, displays profile page for that id
  * Otherwise if filter is set, display posts matching the filter
  */
-const StreamPage = ({ currentUserId, profileId, filter }) => {
-  const displayUserId = profileId || currentUserId;
+class StreamPage extends React.Component {
+  state = {
+    pushedPosts: [],
+  };
 
-  // Specify "stream" type for posts in the stream.
-  // (This sets their appearance appropriately)
-  const StreamPost = (props) => (
-    <Post type="stream" {...props} />
-  );
+  constructor(props) {
+    super(props);
 
-  const endpoint = (filter === 'profile')
-    ? userStreamEndpoint(profileId)
-    : streamEndpoint(filter);
+    this.afterSubmitPost = this.afterSubmitPost.bind(this);
+  }
 
-  return (
-    <main className="main">
-      <Profile
-        key={displayUserId}
-        id={displayUserId}
-        panel={profileId === null}
-      />
-      {
-        profileId === null && (
-          <>
-            <Editor endpoint={submitPostEndpoint()} />
-            <StreamFilterNav />
-          </>
-        )
-      }
-      <StreamLoader
-        key={filter}
-        getEndpoint={endpoint}
-        itemEndpointPattern={singlePostEndpoint}
-        PostComponent={StreamPost}
-      />
-    </main>
-  );
-};
+  afterSubmitPost(post) {
+    const { pushedPosts: currentPushedPosts } = this.state;
+    this.setState({
+      pushedPosts: [post, ...currentPushedPosts],
+    });
+  }
+
+  render() {
+    const { currentUserId, profileId, filter } = this.props;
+    const { pushedPosts } = this.state;
+
+    const displayUserId = profileId || currentUserId;
+
+    // Specify "stream" type for posts in the stream.
+    // (This sets their appearance appropriately)
+    const StreamPost = (props) => (
+      /* (This is meant to be a transparent wrapper.) */
+      /* eslint-disable-next-line react/jsx-props-no-spreading */
+      <Post type="stream" {...props} />
+    );
+
+    const endpoint = (filter === 'profile')
+      ? userStreamEndpoint(profileId)
+      : streamEndpoint(filter);
+
+    return (
+      <main className="main">
+        <Profile
+          key={displayUserId}
+          id={displayUserId}
+          panel={profileId === null}
+        />
+        {
+          profileId === null && (
+            <>
+              <Editor
+                endpoint={submitPostEndpoint()}
+                submittedCallback={this.afterSubmitPost}
+              />
+              <StreamFilterNav />
+            </>
+          )
+        }
+        <StreamLoader
+          key={filter}
+          pushedPosts={pushedPosts}
+          getEndpoint={endpoint}
+          itemEndpointPattern={singlePostEndpoint}
+          PostComponent={StreamPost}
+        />
+      </main>
+    );
+  }
+}
 
 StreamPage.propTypes = {
   filter: PropTypes.oneOf([

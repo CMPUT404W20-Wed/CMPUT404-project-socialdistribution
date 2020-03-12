@@ -26,9 +26,16 @@ export default class PostPage extends React.Component {
     this.doLoadPost();
   }
 
+  handlePostPatch(post) {
+    this.setState({ post });
+  }
+
+  handlePostDelete() {
+    this.setState({ post: null });
+  }
+
   doLoadPost() {
     const { id } = this.props;
-    console.log('$$$ id:', id);
 
     return Axios.get(singlePostEndpoint(id)).then(({ data: { post } }) => {
       this.setState({
@@ -44,11 +51,15 @@ export default class PostPage extends React.Component {
   render() {
     const { id } = this.props;
     const { post } = this.state;
-    return <Post
-      type="standalone"
-      post={post}
-      endpoint={singlePostEndpoint(id)}
-    />;
+    return (
+      <Post
+        type="standalone"
+        post={post}
+        endpoint={singlePostEndpoint(id)}
+        afterPatch={this.handlePostPatch}
+        afterDelete={this.handlePostDelete}
+      />
+    );
   }
 }
 

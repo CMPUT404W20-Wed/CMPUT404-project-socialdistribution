@@ -76,8 +76,13 @@ Stream.propTypes = {
   posts: PropTypes.arrayOf(postShape).isRequired,
   hasMore: PropTypes.bool,
   loadMoreCallback: PropTypes.func.isRequired,
+  afterDelete: PropTypes.func,
+  afterPatch: PropTypes.func,
+  itemEndpointPattern: PropTypes.func.isRequired,
 };
 
 Stream.defaultProps = {
   hasMore: false,
+  afterDelete: undefined,
+  afterPatch: undefined,
 };

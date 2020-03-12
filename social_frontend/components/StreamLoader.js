@@ -4,7 +4,7 @@ import Axios from 'axios';
 
 import Stream from './Stream';
 import Suspender from './common/suspend/Suspender';
-import { singlePostEndpoint, singleCommentEndpoint } from '../util/endpoints';
+import { postShape } from '../util/shapes';
 
 export default class StreamLoader extends React.Component {
   state = {
@@ -18,6 +18,7 @@ export default class StreamLoader extends React.Component {
 
     this.doLoadMore = this.doLoadMore.bind(this);
     this.afterDeletePost = this.afterDeletePost.bind(this);
+    this.afterPatchPost = this.afterPatchPost.bind(this);
   }
 
   componentDidMount() {
@@ -27,8 +28,6 @@ export default class StreamLoader extends React.Component {
   }
 
   afterDeletePost(post) {
-    const { id } = post;
-
     const { posts: currentPosts } = this.state;
     this.setState({
       posts: currentPosts.filter((eachPost) => (eachPost !== post)),
@@ -36,20 +35,17 @@ export default class StreamLoader extends React.Component {
   }
 
   afterPatchPost(post) {
-    const { id } = post;
-
     const { posts: currentPosts } = this.state;
     this.setState({
-      posts: [ ...currentPosts, post ],
+      posts: [...currentPosts, post],
     });
   }
 
   doLoadMore() {
-    const { getEndpoint, itemEndpointPatterm } = this.props;
+    const { getEndpoint } = this.props;
     const { nextPageUrl } = this.state;
 
     const url = nextPageUrl || getEndpoint;
-    console.log(url);
 
     return Axios.get(url).then(({ data }) => {
       const { next } = data;
@@ -73,7 +69,7 @@ export default class StreamLoader extends React.Component {
             content: comment,
             comments: [],
           }),
-        )
+        );
       } else {
         content = data.posts;
       }
@@ -94,8 +90,17 @@ export default class StreamLoader extends React.Component {
   }
 
   render() {
-    const { PostComponent, itemEndpointPattern } = this.props;
+    const {
+      pushedPosts,
+      PostComponent,
+      itemEndpointPattern,
+      pushedPostsAtBottom,
+    } = this.props;
     const { posts, pending, nextPageUrl } = this.state;
+
+    const allPosts = pushedPostsAtBottom
+      ? [...posts, ...pushedPosts]
+      : [...pushedPosts, ...posts];
 
     return (
       pending
@@ -106,7 +111,7 @@ export default class StreamLoader extends React.Component {
             afterDelete={this.afterDeletePost}
             afterPatch={this.afterPatchPost}
             itemEndpointPattern={itemEndpointPattern}
-            posts={posts}
+            posts={allPosts}
             hasMore={nextPageUrl !== undefined}
             loadMoreCallback={this.doLoadMore}
           />
@@ -118,5 +123,11 @@ export default class StreamLoader extends React.Component {
 StreamLoader.propTypes = {
   PostComponent: PropTypes.elementType.isRequired,
   getEndpoint: PropTypes.string.isRequired,
-  itemEndpoint: PropTypes.func.isRequired,
+  itemEndpointPattern: PropTypes.func.isRequired,
+  pushedPosts: PropTypes.arrayOf(postShape).isRequired,
+  pushedPostsAtBottom: PropTypes.bool,
+};
+
+StreamLoader.defaultProps = {
+  pushedPostsAtBottom: false,
 };

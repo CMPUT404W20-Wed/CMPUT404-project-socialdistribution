@@ -22,7 +22,6 @@ export default class Profile extends React.Component {
 
   componentDidMount() {
     const { id } = this.props;
-    console.log(id);
     if (id !== null) this.doLoadProfile(id);
   }
 

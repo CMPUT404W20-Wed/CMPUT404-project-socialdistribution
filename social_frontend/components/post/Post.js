@@ -63,7 +63,7 @@ class Post extends React.Component {
   doDelete() {
     const { endpoint, afterDelete, post } = this.props;
 
-    Axios.delete(endpoint).then(() => { afterDelete(post) });
+    Axios.delete(endpoint).then(() => { afterDelete(post); });
   }
 
   doEdit() {
@@ -83,8 +83,7 @@ class Post extends React.Component {
       post,
       type,
       currentUserId,
-      deleteCallback,
-      patchCallback,
+      afterPatch,
       endpoint,
     } = this.props;
     const { isEditing } = this.state;
@@ -106,6 +105,8 @@ class Post extends React.Component {
     let className;
     if (type === 'standalone') {
       const Comment = (props) => (
+        /* (This is meant to be a transparent wrapper.) */
+        /* eslint-disable-next-line react/jsx-props-no-spreading */
         <Post type="comment" currentUserId={currentUserId} {...props} />
       );
 
@@ -137,7 +138,7 @@ class Post extends React.Component {
               <Editor
                 isPatching
                 onCancel={this.doCancelEdit}
-                onSubmit={patchCallback}
+                submittedCallback={afterPatch}
                 endpoint={endpoint}
                 defaultContent={content}
               />
@@ -151,15 +152,16 @@ class Post extends React.Component {
 }
 
 Post.propTypes = {
-  post: postShape.isRequired,
+  post: postShape,
   type: PropTypes.oneOf(['standalone', 'stream', 'comment']).isRequired,
-  deleteCallback: PropTypes.func.isRequired,
-  patchCallback: PropTypes.func.isRequired,
-  patchUrl: PropTypes.string.isRequired,
+  afterDelete: PropTypes.func.isRequired,
+  afterPatch: PropTypes.func.isRequired,
+  endpoint: PropTypes.string.isRequired,
   currentUserId: PropTypes.string,
 };
 
 Post.defaultProps = {
+  post: null,
   currentUserId: null,
 };
 
