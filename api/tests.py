@@ -30,6 +30,7 @@ class EndpointTests(TestCase):
         self.user2.host = "http://localhost:8000"
         self.user1.save()
         self.user2.save()
+
         self.user3 = User(username='3')
         self.user3.host = "http://localhost:8000"
         self.user3.save()
@@ -44,8 +45,11 @@ class EndpointTests(TestCase):
 
         self.friend1 = Friend(user1=self.user1.id, user2=self.user2.id)
         self.friend2 = Friend(user1=self.user2.id, user2=self.user1.id)
+        self.friend3 = Friend(user1=self.user1.id, user2=self.user3.id)
         self.friend1.save()
         self.friend2.save()
+        self.friend3.save()
+
         
         # register a user with endpoint good and proper like
         self.c.post('/rest-auth/registration/', {'username':'user123','password1':'12345','password2':'12345'})
@@ -111,6 +115,21 @@ class EndpointTests(TestCase):
         response_body = response.json()
         assert(len(response_body['comments']) == 2)
 
+    def test_followers(self):
+        response = self.c.get('/api/author/{}/followers/'.format(self.user1.id))
+        response_body = response.json()
+        assert(len(response_body["authors"]) == 1)
+        response = self.c.get('/api/author/{}/followers/'.format(self.user2.id))
+        response_body = response.json()
+        assert(len(response_body["authors"]) == 1)
+
+    def test_following(self):
+        response = self.c.get('/api/author/{}/following/'.format(self.user1.id))
+        response_body = response.json()
+        assert(len(response_body["authors"]) == 2)
+        response = self.c.get('/api/author/{}/following/'.format(self.user2.id))
+        response_body = response.json()
+        assert(len(response_body["authors"]) == 1)
 
     def test_post_friends(self):
         client = Client()
@@ -146,10 +165,8 @@ class EndpointTests(TestCase):
             }
         }
         response = self.c.post('/api/friendrequest/', post, content_type="application/json")
-        assert(len(Friend.objects.all()) == 3)
+        assert(len(Friend.objects.all()) == 4)
         assert(Friend.objects.get(user1=self.user3.id).user1)
-
-
     
     def test_get_with_params(self):
         response = self.c.get('/api/author/posts/?page=1&size=50')
