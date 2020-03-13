@@ -118,18 +118,18 @@ class EndpointTests(TestCase):
     def test_followers(self):
         response = self.c.get('/api/author/{}/followers/'.format(self.user1.id))
         response_body = response.json()
-        assert(len(response_body["authors"]) == 1)
-        response = self.c.get('/api/author/{}/followers/'.format(self.user2.id))
+        assert(len(response_body["authors"]) == 0)
+        response = self.c.get('/api/author/{}/followers/'.format(self.user3.id))
         response_body = response.json()
         assert(len(response_body["authors"]) == 1)
 
     def test_following(self):
         response = self.c.get('/api/author/{}/following/'.format(self.user1.id))
         response_body = response.json()
-        assert(len(response_body["authors"]) == 2)
+        assert(len(response_body["authors"]) == 1)
         response = self.c.get('/api/author/{}/following/'.format(self.user2.id))
         response_body = response.json()
-        assert(len(response_body["authors"]) == 1)
+        assert(len(response_body["authors"]) == 0)
 
     def test_post_friends(self):
         client = Client()
