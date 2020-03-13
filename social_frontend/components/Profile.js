@@ -162,7 +162,7 @@ class Profile extends React.Component {
           <HeaderMaybeLink to={`/profile/${id}`}>
             <img className="avatar" alt={id} />
             <h2 className="user-name">{displayName}</h2>
-            <div className="user-id">{id}</div>
+            {/* <div className="user-id">{id}</div> */}
           </HeaderMaybeLink>
           {
             !(panel || id === currentUserId) && (
