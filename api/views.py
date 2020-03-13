@@ -5,6 +5,8 @@ from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
 from .forms import UserForm
 from .models import User, Post, Comment, Friend
+from django.core.paginator import Paginator
+from .utils import *
 from .filters import apply_filter
 import json
 
@@ -25,18 +27,18 @@ def index(request):
 def posts_visible(request):
     method = request.method
     if method == "GET":
-        # Filter posts by PUBLIC, PRIVATE, FRIENDS, or FOAF
-        posts = apply_filter(request, "PUBLIC")
-
-        response_body = JSONRenderer().render({
+        page, size, filter_ = get_post_query_params(request)
+        # TODO: posts visible to the currently authenticated user
+        posts = apply_filter(request, filter_)
+        posts_pages = Paginator(posts, size)
+        response_body = {
             "query": "posts",
             "count": len(posts),
-            "size": len(posts),
-            #"next": "TODO",
-            #"previous": "TODO",
-            "posts": PostSerializer(posts, many=True).data
-        })
-        return HttpResponse(content=response_body, status=200, content_type="application/json")
+            "size": size,
+            "posts": PostSerializer(posts_pages.page(page), many=True).data
+        }
+        response_body.update(create_pagination_info(request, posts_pages, page, size, filter_))
+        return HttpResponse(content=JSONRenderer().render(response_body), status=200, content_type="application/json")
     if method == "POST":
         post = json.loads(request.body)
         post["author"] = request.user
@@ -55,19 +57,20 @@ def posts_visible(request):
 def posts_by_aid(request, aid):
     method = request.method
     if method == "GET":
+        page, size, filter_ = get_post_query_params(request)
         # all posts made by author id aid visible to currently authed user
         # TODO: this thing here ignores the visibility thing
         user = User.objects.get(pk=aid)
         posts = Post.objects.filter(author=user)
-        response_body = JSONRenderer().render({
+        posts_pages = Paginator(posts, size)
+        response_body = {
             "query": "posts",
             "count": len(posts),
-            "size": len(posts),
-            #"next": "TODO",
-            #"previous": "TODO",
-            "posts": PostSerializer(posts, many=True).data
-        })
-        return HttpResponse(content=response_body, content_type="application/json", status=200)
+            "size": size,
+            "posts": PostSerializer(posts_pages.page(page), many=True).data
+        }
+        response_body.update(create_pagination_info(request, posts_pages, page, size, filter_))
+        return HttpResponse(content=JSONRenderer().render(response_body), content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -75,19 +78,18 @@ def posts_by_aid(request, aid):
 def all_posts(request):
     method = request.method
     if method == "GET":
-        # TODO: Filter posts properly
-        posts = apply_filter(request, "PUBLIC")
-
-        response_body = JSONRenderer().render({
+        # TODO: only visible posts or something
+        page, size, filter_ = get_post_query_params(request)
+        posts = apply_filter(request, _filter)
+        posts_pages = Paginator(posts, size)
+        response_body = {
             "query": "posts",
             "count": len(posts),
-            "size": len(posts),
-            #"next": "TODO",
-            #"previous": "TODO",
-            "posts": PostSerializer(posts, many=True).data
-        })
-
-        return HttpResponse(content=response_body, content_type="application/json", status=200)
+            "size": size,
+            "posts": PostSerializer(posts_pages.page(page), many=True).data
+        }
+        response_body.update(create_pagination_info(request, posts_pages, page, size, filter_))
+        return HttpResponse(content=JSONRenderer().render(response_body), content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -110,8 +112,8 @@ def posts_by_pid(request, pid):
         else:
             return HttpResponse(status=401)
     elif method == "PUT":
-        post = Post.object.get(pk=pid)
-        if post.author.id == request.user.pk:
+        post = Post.objects.get(pk=pid)
+        if post.author == request.user.pk:
             post.update(**json.loads(request.body))
             post.save()
             return HttpResponse(status=204)
