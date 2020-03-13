@@ -211,3 +211,18 @@ class EndpointTests(TestCase):
         response2_json = response2.json()
         assert(response2_json['post']['title'] == "edited")
         assert(Post.objects.get(pk=response2_json['post']['id']).title == "edited")
+
+    def test_unfriend(self):
+        self.user4 = User(username='4')
+        self.user4.save()
+        self.user5 = User(username='5')
+        self.user5.save()
+        self.friend4 = Friend(user1=self.user4.id, user2=self.user5.id)
+        self.friend4.save()
+        client = Client()
+        client.login(username='user123', password='12345')
+        assert(len(Friend.objects.all()) == 4)
+        response = self.client.delete('/api/author/{}/friends/{}/'.format(self.user4.id, self.user5.id))
+        # print("\nResponse: ", response.content[0], '\n', response.content[1])
+        assert(len(Friend.objects.all()) == 3)
+
