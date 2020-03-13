@@ -156,6 +156,28 @@ def comments_by_pid(request, pid):
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     return HttpResponse(status=405, content="Method Not Allowed")
 
+# TODO: pid not actually needed, but we can check cid is a comment of pid if we want
+# TODO: test this
+def comments_by_cid(request, pid, cid):
+    method = request.method
+    comment = Comment.objects.get(pk=cid)
+    if comment.author.id == request.user.pk:
+        if method == "DELETE":
+            comment.delete()
+            return HttpResponse(status=204)
+        elif method == "PUT":
+            comment.__dict__.update(**json.loads(request.body))
+            comment.save()
+            response_body = JSONRenderer().render({
+                "query": "putComment",
+                "comment": CommentSerializer(comment).data
+            })
+            return HttpResponse(content=response_body, content_type="application/json", status=200)
+        else:
+            return HttpResponse(status=405, content="Method Not Allowed")
+    else:
+        return HttpResponse(stauts=401)
+
 # TODO: render() the front get if its a get
 def register(request):
     method = request.method
