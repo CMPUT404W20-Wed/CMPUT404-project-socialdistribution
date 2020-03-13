@@ -80,7 +80,7 @@ def all_posts(request):
     if method == "GET":
         # TODO: only visible posts or something
         page, size, filter_ = get_post_query_params(request)
-        posts = apply_filter(request, _filter)
+        posts = apply_filter(request, filter_)
         posts_pages = Paginator(posts, size)
         response_body = {
             "query": "posts",
@@ -113,10 +113,14 @@ def posts_by_pid(request, pid):
             return HttpResponse(status=401)
     elif method == "PUT":
         post = Post.objects.get(pk=pid)
-        if post.author == request.user.pk:
-            post.update(**json.loads(request.body))
+        if post.author.id == request.user.pk:
+            post.__dict__.update(**json.loads(request.body))
             post.save()
-            return HttpResponse(status=204)
+            response_body = JSONRenderer().render({
+                "query": "putPost",
+                "post": PostSerializer(post).data
+            })
+            return HttpResponse(content=response_body, content_type="application/json", status=200)
         else:
             return HttpResponse(status=401)
     return HttpResponse(status=405, content="Method Not Allowed")
@@ -126,26 +130,28 @@ def posts_by_pid(request, pid):
 def comments_by_pid(request, pid):
     method = request.method
     if method == "GET":
+        page, size, filter_ = get_post_query_params(request)
         post = Post.objects.get(pk=pid)
         comments = Comment.objects.filter(post=post)
-        response_body = JSONRenderer().render({
+        comments_pages = Paginator(comments, size)
+        response_body = {
             "query": "comments",
             "count": len(comments),
-            "size": len(comments),
-            #"next": "TODO",
-            #"previous": "TODO",
-            "comments": CommentSerializer(comments, many=True).data
-        })
-        return HttpResponse(content=response_body, content_type="application/json", status=200)
+            "size": size,
+            "comments": CommentSerializer(comments_pages.page(page), many=True).data
+        }
+        response_body.update(create_pagination_info(request, comments_pages, page, size, filter_))
+        return HttpResponse(content=JSONRenderer().render(response_body), content_type="application/json", status=200)
     elif method == "POST":
         comment = json.loads(request.body)
         comment["author"] = request.user
         comment["post"] = Post.objects.get(pk=pid)
-        Comment.objects.create(**comment)
+        comment = Comment.objects.create(**comment)
         response_body = JSONRenderer().render({
             "query": "addComment",
             "success": True,
-            "message": "Comment Added"
+            "message": "Comment Added",
+            "comment": CommentSerializer(comment).data
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     return HttpResponse(status=405, content="Method Not Allowed")
