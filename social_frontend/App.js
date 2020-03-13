@@ -189,14 +189,11 @@ const Main = () => (
 
 const AuthRoute = () => (
   <Switch>
-    <Route path="/" exact>
-      <LoginPage />
-    </Route>
     <Route path="/signup" exact>
       <RegistrationPage />
     </Route>
-    <Route path="*">
-      <main className="centered-main">Invalid route!</main>
+    <Route path="/">
+      <LoginPage />
     </Route>
   </Switch>
 );

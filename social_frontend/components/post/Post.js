@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Axios from 'axios';
 import { connect } from 'react-redux';
 
 import PostHeader from './PostHeader';
@@ -55,7 +56,15 @@ class Post extends React.Component {
     super(props);
 
     this.doEdit = this.doEdit.bind(this);
+    this.doDelete = this.doDelete.bind(this);
     this.doCancelEdit = this.doCancelEdit.bind(this);
+    this.doAfterPatch = this.doAfterPatch.bind(this);
+  }
+
+  doDelete() {
+    const { endpoint, afterDelete, post } = this.props;
+
+    Axios.delete(endpoint).then(() => { afterDelete(post); });
   }
 
   doEdit() {
@@ -70,13 +79,20 @@ class Post extends React.Component {
     });
   }
 
+  doAfterPatch(post) {
+    const { afterPatch } = this.props;
+    this.setState({
+      isEditing: false,
+    });
+    if (afterPatch) afterPatch(post);
+  }
+
   render() {
     const {
       post,
       type,
       currentUserId,
-      deleteCallback,
-      patchCallback,
+      endpoint,
     } = this.props;
     const { isEditing } = this.state;
 
@@ -85,18 +101,21 @@ class Post extends React.Component {
       id: postId,
       author,
       content,
-      commentCount,
+      comments,
       contentType,
     } = post;
 
     const { id: authorId } = author;
     const isOwnPost = (authorId === currentUserId);
+    const commentCount = comments ? comments.length : 0;
 
     let footer;
     let className;
     if (type === 'standalone') {
-      const Comment = ({ post: commentPost }) => (
-        <Post type="comment" post={commentPost} />
+      const Comment = (props) => (
+        /* (This is meant to be a transparent wrapper.) */
+        /* eslint-disable-next-line react/jsx-props-no-spreading */
+        <Post type="comment" currentUserId={currentUserId} {...props} />
       );
 
       Comment.propTypes = { post: postShape.isRequired };
@@ -113,23 +132,23 @@ class Post extends React.Component {
 
     if (isOwnPost) className += ' own';
 
-    // TODO Pasting the content directly into the HTML is not the
-    // correct way to handle actual posts from the server!
     return (
       <article className={`post ${className}`}>
         <PostHeader
           author={author}
           isOwnPost={isOwnPost}
           onEditClick={this.doEdit}
-          onDeleteClick={deleteCallback}
+          onDeleteClick={this.doDelete}
         />
         {
           isEditing
             ? (
               <Editor
-                inline
+                isPatching
+                isComment={type === 'comment'}
                 onCancel={this.doCancelEdit}
-                onSubmit={patchCallback}
+                submittedCallback={this.doAfterPatch}
+                endpoint={endpoint}
                 defaultContent={content}
               />
             )
@@ -142,14 +161,16 @@ class Post extends React.Component {
 }
 
 Post.propTypes = {
-  post: postShape.isRequired,
+  post: postShape,
   type: PropTypes.oneOf(['standalone', 'stream', 'comment']).isRequired,
-  deleteCallback: PropTypes.func.isRequired,
-  patchCallback: PropTypes.func.isRequired,
+  afterDelete: PropTypes.func.isRequired,
+  afterPatch: PropTypes.func.isRequired,
+  endpoint: PropTypes.string.isRequired,
   currentUserId: PropTypes.string,
 };
 
 Post.defaultProps = {
+  post: null,
   currentUserId: null,
 };
 

@@ -66,20 +66,13 @@ class RegistrationPage extends React.Component {
     } = this.state;
     const { onRegister, history } = this.props;
 
-    return new Promise((resolve, reject) => {
-      setTimeout(
-        () => {
-          try {
-            onRegister(enteredUsername, enteredPassword1, enteredPassword2);
-            history.push('/');
-            resolve();
-          } catch (error) {
-            reject(new Error(error));
-          }
-        },
-        1000,
-      );
-    });
+    const rst = onRegister(
+      enteredUsername,
+      enteredPassword1,
+      enteredPassword2,
+    );
+    history.push('/');
+    return rst;
   }
 
   render() {
@@ -89,13 +82,7 @@ class RegistrationPage extends React.Component {
       enteredPassword2,
     } = this.state;
 
-    const { error, loading } = this.props;
-
-    let errorMessage = null;
-
-    if (error) {
-      errorMessage = <p>{error.message}</p>;
-    }
+    const { errorMessage, loading } = this.props;
 
     const enableSubmit = enteredUsername.length > 0
       && enteredPassword1.length > 0 && enteredPassword2.length;
@@ -146,22 +133,22 @@ class RegistrationPage extends React.Component {
 }
 
 RegistrationPage.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  error: PropTypes.object,
+  errorMessage: PropTypes.string,
   loading: PropTypes.bool,
   onRegister: PropTypes.func.isRequired,
-  history: PropTypes.string,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 RegistrationPage.defaultProps = {
-  error: null,
+  errorMessage: null,
   loading: false,
-  history: null,
 };
 
-const mapStateToProps = (state) => ({
-  loading: state.loading,
-  error: state.error,
+const mapStateToProps = ({ loading, errorMessage }) => ({
+  loading,
+  errorMessage,
 });
 
 const mapDispatchToProps = (dispatch) => ({

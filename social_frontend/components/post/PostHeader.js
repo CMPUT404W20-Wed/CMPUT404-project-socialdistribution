@@ -23,7 +23,7 @@ const PostHeader = ({
     >
       <img className="avatar" alt={id} />
       <div className="author-name">{displayName}</div>
-      <div className="author-id">{id}</div>
+      {/* <div className="author-id">{id}</div> */}
     </Link>
     {
       isOwnPost && (

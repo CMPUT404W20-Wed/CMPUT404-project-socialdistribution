@@ -38,9 +38,16 @@ export default class Modal extends React.Component {
   }
 
   render() {
-    const { children } = this.props;
+    const { children, onCancel } = this.props;
     return (
       <div className="modal">
+        <button
+          type="button"
+          className="modal-closer"
+          onClick={onCancel}
+        >
+          ×
+        </button>
         {children}
       </div>
     );

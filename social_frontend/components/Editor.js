@@ -2,8 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Axios from 'axios';
 
-import { submitPostEndpoint } from '../util/endpoints';
-
 import Markdown from './Markdown';
 
 import '../styles/editor.css';
@@ -20,8 +18,10 @@ const PostFormControls = ({
   canCancel,
   cancelCallback,
   isPatching,
+  visibility,
   onPreviewToggle,
   onUnlistedToggle,
+  onVisibilityChange,
 }) => {
   let submitLabel;
   if (isPatching) submitLabel = 'Save changes';
@@ -50,18 +50,23 @@ const PostFormControls = ({
           ? null
           : (
             <>
-              <select className="post-form-visibility">
-                <option>Public</option>
-                <option>Friends of friends</option>
-                <option>All friends</option>
-                <option>Local friends</option>
-                <option>Private</option>
+              <select
+                className="post-form-visibility"
+                value={visibility}
+                onChange={onVisibilityChange}
+              >
+                <option value="PUBLIC">Public</option>
+                <option value="FOAF">Friends of friends</option>
+                <option value="FRIENDS">All friends</option>
+                <option value="SERVERONLY">Local friends</option>
+                <option value="PRIVATE">Private</option>
               </select>
               <input
                 type="checkbox"
                 name="unlisted"
+                title={`Unlisted: ${isUnlisted ? 'yes' : 'no'}`}
                 checked={isUnlisted}
-                onClick={onUnlistedToggle}
+                onChange={onUnlistedToggle}
               />
             </>
           )
@@ -76,14 +81,23 @@ PostFormControls.propTypes = {
   canPost: PropTypes.bool.isRequired,
   canCancel: PropTypes.bool.isRequired,
   isPatching: PropTypes.bool.isRequired,
-  cancelCallback: PropTypes.func.isRequired,
+  visibility: PropTypes.oneOf([
+    'PUBLIC',
+    'FOAF',
+    'FRIENDS',
+    'SERVERONLY',
+    'PRIVATE',
+  ]).isRequired,
+  cancelCallback: PropTypes.func,
   canPreview: PropTypes.bool.isRequired,
   onPreviewToggle: PropTypes.func.isRequired,
   onUnlistedToggle: PropTypes.func.isRequired,
+  onVisibilityChange: PropTypes.func.isRequired,
 };
 
 PostFormControls.defaultProps = {
   isComment: false,
+  cancelCallback: undefined,
 };
 
 
@@ -92,15 +106,18 @@ export default class PostForm extends React.Component {
   state = {
     textContent: '',
     canPost: false,
-    // errorMessage: null,
+    visibility: 'PUBLIC',
+    errorMessage: null,
     isMarkdown: false,
     isUnlisted: false,
+    isPreview: false,
   };
 
   constructor(props) {
     super(props);
 
     this.handleTextChange = this.handleTextChange.bind(this);
+    this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMarkdownToggle = this.handleMarkdownToggle.bind(this);
     this.handlePreviewToggle = this.handlePreviewToggle.bind(this);
@@ -124,42 +141,91 @@ export default class PostForm extends React.Component {
     });
   }
 
+  handleVisibilityChange(event) {
+    const { value } = event.target;
+    this.setState({
+      visibility: value,
+    });
+  }
+
   handleSubmit(event) {
     event.preventDefault();
 
-    /* this.setState({
+    this.setState({
       errorMessage: '',
-    }); */
+    });
 
-    const { submittedCallback } = this.props;
-    const { textContent: content, isMarkdown, isUnlisted } = this.state;
-    const title = ''; // TODO
-    const visibility = 'PUBLIC'; // TODO
-
-    const post = {
-      title,
-      content,
+    const {
+      submittedCallback,
+      isPatching,
+      endpoint,
+      isComment,
+    } = this.props;
+    const {
+      textContent: content,
+      isMarkdown,
+      isUnlisted,
       visibility,
-      unlisted: isUnlisted,
-      description: '',
-      contentType: isMarkdown ? 'text/markdown' : 'text/plain',
-      // categories: [],
-      // visibleTo: [],
-    };
+    } = this.state;
+    const title = ''; // TODO
+    const contentType = isMarkdown ? 'text/markdown' : 'text/plain';
+
+    console.log('isComment?', isComment);
+    const post = isComment
+      ? {
+        contentType,
+        comment: content,
+      }
+      : {
+        title,
+        contentType,
+        content,
+        visibility,
+        unlisted: isUnlisted,
+        description: '',
+        // categories: [],
+        // visibleTo: [],
+      };
+
+    const method = isPatching ? 'put' : 'post';
 
     // Submit the post to the server
-    Axios.post(submitPostEndpoint(), post).then(({
-      returnedPost,
+    Axios[method](endpoint, post).then(({
+      data: { post: returnedPost, comment: returnedComment },
     }) => {
       this.setState({
         textContent: '',
         canPost: false,
+        isPreview: false,
       });
-      submittedCallback(returnedPost);
-    }).catch((/* error */) => {
-      /* this.setState({
+
+      let returnedContent;
+      if (returnedComment) {
+        const {
+          published,
+          id,
+          author,
+          contentType: commentContentType,
+          comment,
+        } = returnedComment;
+        returnedContent = {
+          published,
+          id,
+          author,
+          contentType: commentContentType,
+          content: comment,
+          comments: [],
+        };
+      } else {
+        returnedContent = returnedPost;
+      }
+
+
+      submittedCallback(returnedContent);
+    }).catch((error) => {
+      this.setState({
         errorMessage: error.message,
-      }); */
+      });
     });
   }
 
@@ -187,13 +253,19 @@ export default class PostForm extends React.Component {
   }
 
   render() {
-    const { isComment, onCancel, onSubmit } = this.props;
+    const {
+      isComment,
+      isPatching,
+      onCancel,
+    } = this.props;
     const {
       textContent,
       canPost,
       isMarkdown,
       isPreview,
       isUnlisted,
+      visibility,
+      errorMessage,
     } = this.state;
 
     const className = `post-form ${isComment ? 'comment-form' : ''} ${isMarkdown ? 'markdown-mode' : ''}`;
@@ -204,6 +276,7 @@ export default class PostForm extends React.Component {
           <input
             type="checkbox"
             name="markdown"
+            title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}
             checked={isMarkdown}
             onChange={this.handleMarkdownToggle}
           />
@@ -226,16 +299,19 @@ export default class PostForm extends React.Component {
               />
             )
         }
+        {errorMessage}
         <PostFormControls
           canPost={canPost}
           canPreview={isMarkdown}
           onPreviewToggle={this.handlePreviewToggle}
           onUnlistedToggle={this.handleUnlistedToggle}
+          onVisibilityChange={this.handleVisibilityChange}
           isComment={isComment}
           isUnlisted={isUnlisted}
           canCancel={onCancel !== undefined}
           cancelCallback={onCancel}
-          isPatching={onSubmit !== undefined}
+          isPatching={isPatching}
+          visibility={visibility}
         />
       </form>
     );
@@ -244,15 +320,17 @@ export default class PostForm extends React.Component {
 
 PostForm.propTypes = {
   isComment: PropTypes.bool,
-  submittedCallback: PropTypes.func.isRequired,
+  isPatching: PropTypes.bool,
+  submittedCallback: PropTypes.func,
   defaultContent: PropTypes.string,
+  endpoint: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
-  onSubmit: PropTypes.func,
 };
 
 PostForm.defaultProps = {
   isComment: false,
+  isPatching: false,
+  submittedCallback: undefined,
   defaultContent: '',
   onCancel: undefined,
-  onSubmit: undefined,
 };

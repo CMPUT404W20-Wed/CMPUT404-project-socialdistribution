@@ -11,5 +11,5 @@ export const postShape = PropTypes.shape({
   id: PropTypes.string.isRequired,
   author: userShape.isRequired,
   content: PropTypes.string.isRequired,
-  commentCount: PropTypes.number.isRequired,
+  comments: PropTypes.arrayOf(PropTypes.any).isRequired,
 });

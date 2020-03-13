@@ -90,7 +90,7 @@ html {
 }
 
 .profile-panel {
-    grid-area: 1 / 1 / span 3 / span 1;
+    grid-area: 1 / 1 / span 4 / span 1;
 }
 
 .post-form, .profile {

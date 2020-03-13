@@ -13,7 +13,7 @@ import updateObject from '../utility';
 
 const initState = {
   token: null,
-  error: null,
+  errorMessage: null,
   loading: false,
   id: null,
   username: null,
@@ -21,7 +21,7 @@ const initState = {
 
 const authStart = (state) => (
   updateObject(state, {
-    error: null,
+    errorMessage: null,
     loading: true,
   })
 );
@@ -30,14 +30,14 @@ const authStart = (state) => (
 const authSuccess = (state, action) => (
   updateObject(state, {
     token: action.token,
-    error: null,
+    errorMessage: null,
     loading: false,
   })
 );
 
 const authFail = (state, action) => (
   updateObject(state, {
-    error: action.error,
+    errorMessage: action.errorMessage,
     loading: false,
   })
 );

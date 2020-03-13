@@ -7,21 +7,32 @@ import Post from '../components/post/Post';
 import StreamLoader from '../components/StreamLoader';
 import Profile from '../components/Profile';
 import Editor from '../components/Editor';
-import { postShape } from '../util/shapes';
 import {
   streamEndpoint,
+  submitPostEndpoint,
   userStreamEndpoint,
+  singlePostEndpoint,
 } from '../util/endpoints';
+
+
+const filterToQueryMap = {
+  all: 'public',
+  following: 'following',
+  related: 'foaf',
+  friends: 'friends',
+  personal: 'private',
+};
+
 
 /* Navigation bar for stream filters. */
 const StreamFilterNav = () => (
   <nav className="stream-nav">
     <NavLink to="/" exact activeClassName="active">
-      Everything
+      Public
     </NavLink>
-    <NavLink to="/following" activeClassName="active">
+    {/* <NavLink to="/following" activeClassName="active">
       Following
-    </NavLink>
+    </NavLink> */}
     <NavLink to="/related" activeClassName="active">
       Related
     </NavLink>
@@ -42,44 +53,66 @@ const StreamFilterNav = () => (
  * If profileId is set, displays profile page for that id
  * Otherwise if filter is set, display posts matching the filter
  */
-const StreamPage = ({ currentUserId, profileId, filter }) => {
-  const displayUserId = profileId || currentUserId;
+class StreamPage extends React.Component {
+  constructor(props) {
+    super(props);
 
-  // Specify "stream" type for posts in the stream.
-  // (This sets their appearance appropriately)
-  const StreamPost = ({ post }) => (
-    <Post type="stream" post={post} />
-  );
+    this.streamRef = React.createRef();
 
-  StreamPost.propTypes = { post: postShape.isRequired };
+    this.afterSubmitPost = this.afterSubmitPost.bind(this);
+  }
 
-  const endpoint = (filter === 'profile')
-    ? userStreamEndpoint(profileId)
-    : streamEndpoint(filter);
+  afterSubmitPost(post) {
+    // TODO can this be made declarative?
+    this.streamRef.current.pushPostToTop(post);
+  }
 
-  return (
-    <main className="main">
-      <Profile
-        key={displayUserId}
-        id={displayUserId}
-        panel={profileId === null}
-      />
-      {
-        profileId === null && (
-          <>
-            <Editor />
-            <StreamFilterNav />
-          </>
-        )
-      }
-      <StreamLoader
-        key={filter}
-        endpoint={endpoint}
-        PostComponent={StreamPost}
-      />
-    </main>
-  );
-};
+  render() {
+    const { currentUserId, profileId, filter } = this.props;
+
+    const displayUserId = profileId || currentUserId;
+
+    // Specify "stream" type for posts in the stream.
+    // (This sets their appearance appropriately)
+    const StreamPost = (props) => (
+      /* (This is meant to be a transparent wrapper.) */
+      /* eslint-disable-next-line react/jsx-props-no-spreading */
+      <Post type="stream" {...props} />
+    );
+
+    const endpoint = (filter === 'profile')
+      ? userStreamEndpoint(profileId)
+      : streamEndpoint(filterToQueryMap[filter]);
+
+    return (
+      <main className="main">
+        <Profile
+          key={displayUserId}
+          id={displayUserId}
+          panel={profileId === null}
+        />
+        {
+          profileId === null && (
+            <>
+              <Editor
+                endpoint={submitPostEndpoint()}
+                submittedCallback={this.afterSubmitPost}
+              />
+              <StreamFilterNav />
+            </>
+          )
+        }
+        <StreamLoader
+          key={filter}
+          ref={this.streamRef}
+          getEndpoint={endpoint}
+          itemEndpointPattern={singlePostEndpoint}
+          PostComponent={StreamPost}
+        />
+      </main>
+    );
+  }
+}
 
 StreamPage.propTypes = {
   filter: PropTypes.oneOf([
