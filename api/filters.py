@@ -7,7 +7,6 @@ def apply_filter(request, filter_status):
     filter_status = filter_status.upper()
     posts = filter_on_status(all_posts, filter_status)
 
-    print(filter_status)
     if filter_status == "PUBLIC" or filter_status == "":
         return posts
     elif filter_status == "PRIVATE":
