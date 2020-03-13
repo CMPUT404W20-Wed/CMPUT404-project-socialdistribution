@@ -20,7 +20,7 @@ export const commentsEndpoint = (post) => `/api/posts/${post}/comments/`;
 export const submitCommentEndpoint = (post) => `/api/posts/${post}/comments/`;
 
 export const singleCommentEndpoint = (post, comment) => (
-  `/api/posts/${post}/comments/${comment}/`
+  `/api/posts/${post}/comments/${comment}`
 );
 
 export const followingEndpoint = (user) => `/api/author/${user}/following/`;

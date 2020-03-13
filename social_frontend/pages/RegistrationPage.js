@@ -64,9 +64,15 @@ class RegistrationPage extends React.Component {
       enteredPassword1,
       enteredPassword2,
     } = this.state;
-    const { onRegister } = this.props;
+    const { onRegister, history } = this.props;
 
-    return onRegister(enteredUsername, enteredPassword1, enteredPassword2);
+    const rst = onRegister(
+      enteredUsername,
+      enteredPassword1,
+      enteredPassword2,
+    );
+    history.push('/');
+    return rst;
   }
 
   render() {
@@ -130,6 +136,9 @@ RegistrationPage.propTypes = {
   errorMessage: PropTypes.string,
   loading: PropTypes.bool,
   onRegister: PropTypes.func.isRequired,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 RegistrationPage.defaultProps = {

@@ -170,6 +170,7 @@ export default class PostForm extends React.Component {
     const title = ''; // TODO
     const contentType = isMarkdown ? 'text/markdown' : 'text/plain';
 
+    console.log('isComment?', isComment);
     const post = isComment
       ? {
         contentType,

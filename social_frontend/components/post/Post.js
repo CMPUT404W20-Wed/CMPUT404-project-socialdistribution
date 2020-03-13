@@ -145,6 +145,7 @@ class Post extends React.Component {
             ? (
               <Editor
                 isPatching
+                isComment={type === 'comment'}
                 onCancel={this.doCancelEdit}
                 submittedCallback={this.doAfterPatch}
                 endpoint={endpoint}
