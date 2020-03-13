@@ -65,7 +65,7 @@ class Post(models.Model):
         return Comment.objects.filter(post=self.id)
     
     class Meta:
-        ordering = ['-updated']
+        ordering = ['-created']
 
 
 class Comment(models.Model):
@@ -82,7 +82,7 @@ class Comment(models.Model):
     updated = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['-updated']
+        ordering = ['-created']
     
 
 class Friend(models.Model):
