@@ -226,3 +226,25 @@ class EndpointTests(TestCase):
         # print("\nResponse: ", response.content[0], '\n', response.content[1])
         assert(len(Friend.objects.all()) == 3)
 
+    
+    def test_edit_delete_comment(self):
+        self.client.login(username='1', password='123')
+        comment = {
+            "comment": "no u"
+        }
+        response1 = self.client.post('/api/posts/{}/comments/'.format(self.post1.id), comment, content_type="application/json")
+        assert(response1.status_code == 200)
+        comment_id = response1.json()['comment']['id']
+        
+        new_comment = {
+            "comment": "k"
+        }
+        response2 = self.client.put("/api/posts/{}/comments/{}".format(self.post1.id, comment_id), new_comment, content_type="application/json")
+        assert(response2.status_code == 200)
+        assert(Comment.objects.get(pk=comment_id).comment == "k")
+        assert(response2.json()['comment']['id'] == comment_id)
+        assert(response2.json()['comment']['comment'] == "k")
+        
+        response3 = self.client.delete('/api/posts/{}/comments/{}'.format(self.post1.id, comment_id))
+        assert(response3.status_code == 204)
+

@@ -25,6 +25,7 @@ urlpatterns = [
     path('posts/', views.all_posts),
     path('posts/<uuid:pid>/', views.posts_by_pid),
     path('posts/<uuid:pid>/comments/', views.comments_by_pid),
+    path('posts/<uuid:pid>/comments/<uuid:cid>', views.comments_by_cid),
     path('register/', views.register),
     path('login/', login),
     path('author/<uuid:userid>/', views.profile),
