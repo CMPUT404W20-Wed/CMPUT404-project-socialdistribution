@@ -251,6 +251,7 @@ def friendship_by_aid(request, aid1, aid2):
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
+# friendrequest/
 def friendrequest(request):
     method = request.method
     if method == "POST":
@@ -270,35 +271,43 @@ def friendrequest(request):
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
+# author/<authorid>/followers/
 def followers(request, aid):
     method = request.method
     if method == "GET":
-        friends = Friend.objects.filter(user2=aid)
-
-        authors = []
-        for friend in friends:
-            authors.append(str(friend.user1))
+        followers = Friend.objects.filter(user2=aid)
+        
+        follower_list = []
+        for f in followers:
+            friend = Friend.objects.filter(user1=aid, user2=f.user1) and Friend.objects.filter(user2=aid, user1=f.user1)
+            if not friend:
+                follower_list.append(f.user1)
 
         response_body = JSONRenderer().render({
             "query": "followers",
-            "authors": authors
+            "authors": follower_list,
+            "count": len(follower_list)
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
+# author/<authorid>/following/
 def following(request, aid):
     method = request.method
     if method == "GET":
-        friends = Friend.objects.filter(user1=aid)
+        following = Friend.objects.filter(user1=aid)
 
-        authors = []
-        for friend in friends:
-            authors.append(str(friend.user2))
+        following_list = []
+        for f in following:
+            friend = Friend.objects.filter(user1=aid, user2=f.user2) and Friend.objects.filter(user2=aid, user1=f.user2)
+            if not friend:
+                following_list.append(f.user2)
 
         response_body = JSONRenderer().render({
             "query": "following",
-            "authors": authors
+            "authors": following_list,
+            "count": len(following_list),
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
