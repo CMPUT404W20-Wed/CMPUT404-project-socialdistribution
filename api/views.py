@@ -7,6 +7,7 @@ from .forms import UserForm
 from .models import User, Post, Comment, Friend
 from django.core.paginator import Paginator
 from .utils import *
+from .filters import apply_filter
 import json
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
@@ -28,7 +29,7 @@ def posts_visible(request):
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
         # TODO: posts visible to the currently authenticated user
-        posts = Post.objects.all()
+        posts = apply_filter(request, filter_)
         posts_pages = Paginator(posts, size)
         response_body = {
             "query": "posts",
@@ -78,7 +79,7 @@ def all_posts(request):
     if method == "GET":
         # TODO: only visible posts or something
         page, size, filter_ = get_post_query_params(request)
-        posts = Post.objects.all()
+        posts = apply_filter(request, _filter)
         posts_pages = Paginator(posts, size)
         response_body = {
             "query": "posts",
@@ -97,7 +98,6 @@ def posts_by_pid(request, pid):
     method = request.method
     if method == "GET":
         post = Post.objects.get(pk=pid)
-        # TODO: please sanity check that this is actually the response format
         response_body = JSONRenderer().render({
             "query": "getPost",
             "post": PostSerializer(post).data
@@ -111,7 +111,7 @@ def posts_by_pid(request, pid):
         else:
             return HttpResponse(status=401)
     elif method == "PUT":
-        post = Post.object.get(pk=pid)
+        post = Post.objects.get(pk=pid)
         if post.author == request.user.pk:
             post.update(**json.loads(request.body))
             post.save()
@@ -229,10 +229,10 @@ def profile(request, userid):
         for friend in friends:
             # Put each friend in json format
             friends_list.append({
-                "id": "TODO",
-                "host": "TODO",
-                "displayName": "TODO",
-                "url": "TODO"
+                # "id": "TODO",
+                # "host": "TODO",
+                # "displayName": "TODO",
+                # "url": "TODO"
             })
 
 
