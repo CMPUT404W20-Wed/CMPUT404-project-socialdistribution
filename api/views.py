@@ -278,13 +278,13 @@ def friendship_by_aid(request, aid1, aid2):
     if method == "DELETE":
         user1_profile = User.objects.get(id=aid1)
         # return JsonResponse({"User": aid1, "PK ": request.user.pk})
-        # if aid1 == request.user.pk:
-        #     friend = Friend.objects.get(user1=aid1, user2=aid2).delete()
-        #     return HttpResponse(status=200)
-        Friend.objects.get(user1=aid1, user2=aid2).delete()
-        return HttpResponse(status=200)
-        # else:
-        #     return HttpResponse(status=401, content="Unauthorized")
+        if aid1 == request.user.pk:
+            friend = Friend.objects.get(user1=aid1, user2=aid2).delete()
+            return HttpResponse(status=200)
+        #Friend.objects.get(user1=aid1, user2=aid2).delete()
+        #return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=401, content="Unauthorized")
 
     
     else:

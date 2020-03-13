@@ -214,15 +214,16 @@ class EndpointTests(TestCase):
 
     def test_unfriend(self):
         self.user4 = User(username='4')
+        self.user4.set_password('123')
         self.user4.save()
         self.user5 = User(username='5')
         self.user5.save()
         self.friend4 = Friend(user1=self.user4.id, user2=self.user5.id)
         self.friend4.save()
         client = Client()
-        client.login(username='user123', password='12345')
+        client.login(username='4', password='123')
         assert(len(Friend.objects.all()) == 4)
-        response = self.client.delete('/api/author/{}/friends/{}/'.format(self.user4.id, self.user5.id))
+        response = client.delete('/api/author/{}/friends/{}/'.format(self.user4.id, self.user5.id))
         # print("\nResponse: ", response.content[0], '\n', response.content[1])
         assert(len(Friend.objects.all()) == 3)
 
