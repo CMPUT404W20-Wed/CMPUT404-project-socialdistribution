@@ -18,8 +18,10 @@ const PostFormControls = ({
   canCancel,
   cancelCallback,
   isPatching,
+  visibility,
   onPreviewToggle,
   onUnlistedToggle,
+  onVisibilityChange,
 }) => {
   let submitLabel;
   if (isPatching) submitLabel = 'Save changes';
@@ -48,12 +50,16 @@ const PostFormControls = ({
           ? null
           : (
             <>
-              <select className="post-form-visibility">
-                <option>Public</option>
-                <option>Friends of friends</option>
-                <option>All friends</option>
-                <option>Local friends</option>
-                <option>Private</option>
+              <select
+                className="post-form-visibility"
+                value={visibility}
+                onChange={onVisibilityChange}
+              >
+                <option value="PUBLIC">Public</option>
+                <option value="FOAF">Friends of friends</option>
+                <option value="FRIENDS">All friends</option>
+                <option value="SERVERONLY">Local friends</option>
+                <option value="PRIVATE">Private</option>
               </select>
               <input
                 type="checkbox"
@@ -74,10 +80,18 @@ PostFormControls.propTypes = {
   canPost: PropTypes.bool.isRequired,
   canCancel: PropTypes.bool.isRequired,
   isPatching: PropTypes.bool.isRequired,
+  visibility: PropTypes.oneOf([
+    'PUBLIC',
+    'FOAF',
+    'FRIENDS',
+    'SERVERONLY',
+    'PRIVATE',
+  ]).isRequired,
   cancelCallback: PropTypes.func,
   canPreview: PropTypes.bool.isRequired,
   onPreviewToggle: PropTypes.func.isRequired,
   onUnlistedToggle: PropTypes.func.isRequired,
+  onVisibilityChange: PropTypes.func.isRequired,
 };
 
 PostFormControls.defaultProps = {
@@ -91,6 +105,7 @@ export default class PostForm extends React.Component {
   state = {
     textContent: '',
     canPost: false,
+    visibility: 'PUBLIC',
     errorMessage: null,
     isMarkdown: false,
     isUnlisted: false,
@@ -100,6 +115,7 @@ export default class PostForm extends React.Component {
     super(props);
 
     this.handleTextChange = this.handleTextChange.bind(this);
+    this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMarkdownToggle = this.handleMarkdownToggle.bind(this);
     this.handlePreviewToggle = this.handlePreviewToggle.bind(this);
@@ -123,6 +139,13 @@ export default class PostForm extends React.Component {
     });
   }
 
+  handleVisibilityChange(event) {
+    const { value } = event.target;
+    this.setState({
+      visibility: value,
+    });
+  }
+
   handleSubmit(event) {
     event.preventDefault();
 
@@ -136,9 +159,13 @@ export default class PostForm extends React.Component {
       endpoint,
       isComment,
     } = this.props;
-    const { textContent: content, isMarkdown, isUnlisted } = this.state;
+    const {
+      textContent: content,
+      isMarkdown,
+      isUnlisted,
+      visibility,
+    } = this.state;
     const title = ''; // TODO
-    const visibility = 'PUBLIC'; // TODO
     const contentType = isMarkdown ? 'text/markdown' : 'text/plain';
 
     const post = isComment
@@ -211,6 +238,7 @@ export default class PostForm extends React.Component {
       isMarkdown,
       isPreview,
       isUnlisted,
+      visibility,
       errorMessage,
     } = this.state;
 
@@ -250,11 +278,13 @@ export default class PostForm extends React.Component {
           canPreview={isMarkdown}
           onPreviewToggle={this.handlePreviewToggle}
           onUnlistedToggle={this.handleUnlistedToggle}
+          onVisibilityChange={this.handleVisibilityChange}
           isComment={isComment}
           isUnlisted={isUnlisted}
           canCancel={onCancel !== undefined}
           cancelCallback={onCancel}
           isPatching={isPatching}
+          visibility={visibility}
         />
       </form>
     );
