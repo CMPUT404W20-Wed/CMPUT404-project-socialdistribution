@@ -28,7 +28,7 @@ urlpatterns = [
     path('posts/<uuid:pid>/comments/<uuid:cid>', views.comments_by_cid),
     path('register/', views.register),
     path('login/', login),
-    path('author/<uuid:userid>/', views.profile),
+    path('author/<uuid:aid>/', views.profile),
     path('author/<uuid:aid>/friends/', views.friends_by_aid),
     path('author/<uuid:aid1>/friends/<uuid:aid2>/', views.friendship_by_aid),
     path('author/<uuid:aid>/followers/', views.followers),
