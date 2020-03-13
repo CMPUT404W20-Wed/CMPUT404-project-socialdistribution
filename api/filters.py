@@ -7,7 +7,8 @@ def apply_filter(request, filter_status):
     filter_status = filter_status.upper()
     posts = filter_on_status(all_posts, filter_status)
 
-    if filter_status == "PUBLIC":
+    print(filter_status)
+    if filter_status == "PUBLIC" or filter_status == "":
         return posts
     elif filter_status == "PRIVATE":
         return private_filter(request, posts)
@@ -30,7 +31,7 @@ def filter_on_status(all_posts, filter_status):
 # Return all my private posts
 def private_filter(request, posts):
     for post in posts:
-        if request.user.id != post.author:
+        if request.user.id != post.author.id:
             posts.remove(post)
 
     return posts
