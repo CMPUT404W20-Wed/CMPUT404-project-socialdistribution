@@ -58,6 +58,7 @@ class Post extends React.Component {
     this.doEdit = this.doEdit.bind(this);
     this.doDelete = this.doDelete.bind(this);
     this.doCancelEdit = this.doCancelEdit.bind(this);
+    this.doAfterPatch = this.doAfterPatch.bind(this);
   }
 
   doDelete() {
@@ -78,12 +79,19 @@ class Post extends React.Component {
     });
   }
 
+  doAfterPatch(post) {
+    const { afterPatch } = this.props;
+    this.setState({
+      isEditing: false,
+    });
+    if (afterPatch) afterPatch(post);
+  }
+
   render() {
     const {
       post,
       type,
       currentUserId,
-      afterPatch,
       endpoint,
     } = this.props;
     const { isEditing } = this.state;
@@ -138,7 +146,7 @@ class Post extends React.Component {
               <Editor
                 isPatching
                 onCancel={this.doCancelEdit}
-                submittedCallback={afterPatch}
+                submittedCallback={this.doAfterPatch}
                 endpoint={endpoint}
                 defaultContent={content}
               />

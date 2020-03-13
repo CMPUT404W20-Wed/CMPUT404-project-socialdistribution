@@ -109,6 +109,7 @@ export default class PostForm extends React.Component {
     errorMessage: null,
     isMarkdown: false,
     isUnlisted: false,
+    isPreview: false,
   };
 
   constructor(props) {
@@ -188,14 +189,37 @@ export default class PostForm extends React.Component {
 
     // Submit the post to the server
     Axios[method](endpoint, post).then(({
-      data: { post: returnedPost },
+      data: { post: returnedPost, comment: returnedComment },
     }) => {
       this.setState({
         textContent: '',
         canPost: false,
+        isPreview: false,
       });
 
-      submittedCallback(returnedPost);
+      let returnedContent;
+      if (returnedComment) {
+        const {
+          published,
+          id,
+          author,
+          contentType: commentContentType,
+          comment,
+        } = returnedComment;
+        returnedContent = {
+          published,
+          id,
+          author,
+          contentType: commentContentType,
+          content: comment,
+          comments: [],
+        };
+      } else {
+        returnedContent = returnedPost;
+      }
+
+
+      submittedCallback(returnedContent);
     }).catch((error) => {
       this.setState({
         errorMessage: error.message,

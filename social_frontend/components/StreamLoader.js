@@ -71,10 +71,13 @@ export default class StreamLoader extends React.Component {
     if (afterDeletePost) afterDeletePost(post);
   }
 
-  afterPatchPost(post) {
-    const { posts: currentPosts } = this.state;
+  afterPatchPost(patchedPost) {
+    const { posts } = this.state;
     this.setState({
-      posts: [...currentPosts, post],
+      posts: posts.map((post) => {
+        if (post.id === patchedPost.id) return patchedPost;
+        return post;
+      }),
     });
   }
 
