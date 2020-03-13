@@ -75,10 +75,12 @@ class EndpointTests(TestCase):
         #assert(response.status_code == 204)
         #assert(len(Post.objects.filter(title='a')) == 0)
     
-    def test_get_posts_visible(self):
-        response = self.c.get("/api/author/posts/")
-        response_body = response.json()
-        assert(len(response_body['posts']) >= 1) # no auth right now, so this gets them all
+    # Ignore this test for now, test_filters does pretty much the same thing
+    # May need to implement this later or just delete it
+    # def test_get_posts_visible(self):
+    #     response = self.c.get("/api/author/posts/")
+    #     response_body = response.json()
+    #     assert(len(response_body['posts']) >= 1) # no auth right now, so this gets them all
     
     def test_get_posts_author_id(self):
         response = self.c.get("/api/author/{}/posts/".format(self.user1.id))
