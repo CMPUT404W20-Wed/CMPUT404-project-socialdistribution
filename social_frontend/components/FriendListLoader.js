@@ -8,12 +8,16 @@ import {
   mutualFriendsEndpoint,
   followingEndpoint,
   followersEndpoint,
+  profileEndpoint,
+  friendshipEndpoint,
+  friendRequestEndpoint,
 } from '../util/endpoints';
 
 
 class FriendListLoader extends React.Component {
   state = {
     friends: [],
+    friendProfiles: [],
   };
 
   constructor(props) {
@@ -36,9 +40,25 @@ class FriendListLoader extends React.Component {
 
     Axios.get(endpoint(profileId)).then(
       ({ data: { authors: friends } }) => {
-        if (friends !== undefined) {
-          this.setState({ friends });
-        }
+        const parsedFriends = friends.map(
+          (url) => url.split('/').slice(-1)[0],
+        );
+
+        this.setState({ friends: parsedFriends });
+
+        parsedFriends.map((friendId) => (
+          Axios.get(profileEndpoint(friendId)).then(
+            ({ data }) => {
+              const { friendProfiles } = this.state;
+              this.setState({
+                friendProfiles: {
+                  ...friendProfiles,
+                  [friendId]: data,
+                },
+              });
+            },
+          )
+        ));
       },
     ).catch((error) => {
       // TODO
@@ -47,18 +67,60 @@ class FriendListLoader extends React.Component {
     });
   }
 
-  doFriendAction(friend) {
-    // TODO
-    console.log(this, friend);
+  doFriendAction(friend, status) {
+    const { currentUserId, currentUserName } = this.props;
+    const {
+      id: friendId,
+      host,
+      displayName,
+      url,
+    } = friend;
+
+    if (status === 'stranger' || status === 'follower') {
+      const body = {
+        query: 'friendrequest',
+        author: {
+          id: currentUserId,
+          host: document.location.origin,
+          displayName: currentUserName,
+          url: document.location.origin + profileEndpoint(currentUserId),
+        },
+        friend: {
+          friendId,
+          host,
+          displayName,
+          url,
+        },
+      };
+
+      Axios.post(friendRequestEndpoint(friendId), body).then(() => {
+        const { friends } = this.state;
+        this.setState({
+          friends: friends.filter((x) => x !== friendId),
+        });
+      });
+    } else if (status === 'following' || status === 'friend') {
+      Axios.delete(friendshipEndpoint(currentUserId, friendId)).then(() => {
+        const { friends } = this.state;
+        this.setState({
+          friends: friends.filter((x) => x !== friendId),
+        });
+      });
+    }
   }
 
   render() {
     const { currentUserId, profileId, mode } = this.props;
-    const { friends } = this.state;
+    const { friends, friendProfiles } = this.state;
+    const mappedFriends = friends.map(
+      (friendId) => (
+        { ...friendProfiles[friendId], id: friendId } ?? { id: friendId }),
+    );
+
     return (
       <FriendList
         mode={mode}
-        members={friends}
+        members={mappedFriends}
         isOwn={currentUserId === profileId}
         actionCallback={this.doFriendAction}
       />
@@ -68,6 +130,7 @@ class FriendListLoader extends React.Component {
 
 FriendListLoader.propTypes = {
   currentUserId: PropTypes.string,
+  currentUserName: PropTypes.string,
   profileId: PropTypes.string.isRequired,
   mode: PropTypes.oneOf([
     'friends',
@@ -78,10 +141,12 @@ FriendListLoader.propTypes = {
 
 FriendListLoader.defaultProps = {
   currentUserId: null,
+  currentUserName: null,
 };
 
 const mapStateToProps = (state) => ({
   currentUserId: state.id,
+  currentUserName: state.username,
 });
 
 export default connect(mapStateToProps)(FriendListLoader);

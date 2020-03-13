@@ -23,10 +23,10 @@ export const singleCommentEndpoint = (post, comment) => (
   `/api/posts/${post}/comments/${comment}/`
 );
 
-export const followingEndpoint = (user) => `/api/author/${user}/friends/`;
+export const followingEndpoint = (user) => `/api/author/${user}/following/`;
 
 export const mutualFriendsEndpoint = (user) => (
-  `/api/author/${user}/friends/?filter=mutual`
+  `/api/author/${user}/friends/`
 );
 
 export const followersEndpoint = (user) => (

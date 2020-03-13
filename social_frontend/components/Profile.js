@@ -54,7 +54,6 @@ class Profile extends React.Component {
     if (status === 'stranger' || status === 'follower') {
       const {
         profile: {
-          id: friendId,
           host,
           displayName,
           url,
@@ -69,14 +68,14 @@ class Profile extends React.Component {
           url: document.location.origin + profileEndpoint(currentUserId),
         },
         friend: {
-          friendId,
+          id,
           host,
           displayName,
           url,
         },
       };
 
-      Axios.post(friendRequestEndpoint(id, body)).then(() => {
+      Axios.post(friendRequestEndpoint(id), body).then(() => {
         const { profile } = this.state;
         this.setState({
           profile: {
@@ -86,7 +85,7 @@ class Profile extends React.Component {
         });
       });
     } else if (status === 'following' || status === 'friend') {
-      Axios.delete(friendshipEndpoint(id)).then(() => {
+      Axios.delete(friendshipEndpoint(currentUserId, id)).then(() => {
         const { profile } = this.state;
         this.setState({
           profile: {
@@ -153,7 +152,7 @@ class Profile extends React.Component {
             <div className="user-id">{id}</div>
           </HeaderMaybeLink>
           {
-            !panel && (
+            !(panel || id === currentUserId) && (
               <button
                 type="button"
                 title={friendActionLabel}

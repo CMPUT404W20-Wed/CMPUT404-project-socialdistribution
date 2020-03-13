@@ -1,18 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { userShape } from '../util/shapes';
 
-
-const Friend = ({ user, actionLabel, onAction }) => {
+const Friend = ({
+  user,
+  actionLabel,
+  status,
+  actionCallback,
+}) => {
   const { id, displayName } = user;
+
   return (
     <div className="user-card">
       <img alt={id} />
       <div className="user-name">{displayName}</div>
       {
         actionLabel && (
-          <button type="button" onClick={() => onAction(user)}>
+          <button type="button" onClick={() => actionCallback(user, status)}>
             {actionLabel}
           </button>
         )
@@ -22,14 +26,22 @@ const Friend = ({ user, actionLabel, onAction }) => {
 };
 
 Friend.propTypes = {
-  user: userShape.isRequired,
+  user: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    displayName: PropTypes.string,
+  }).isRequired,
   actionLabel: PropTypes.string,
-  onAction: PropTypes.func,
+  actionCallback: PropTypes.func,
+  status: PropTypes.oneOf([
+    'friend',
+    'follower',
+    'following',
+  ]).isRequired,
 };
 
 Friend.defaultProps = {
   actionLabel: null,
-  onAction: null,
+  actionCallback: null,
 };
 
 
@@ -37,12 +49,22 @@ const FriendList = ({
   mode,
   isOwn,
   members,
-  onAction,
+  actionCallback,
 }) => {
   let actionLabel;
-  if (mode === 'friends') actionLabel = 'Unfriend';
-  else if (mode === 'followers') actionLabel = 'Friend';
-  else if (mode === 'following') actionLabel = 'Unfollow';
+  let status;
+
+  if (mode === 'friends') {
+    status = 'friend';
+    actionLabel = 'Unfriend';
+  } else if (mode === 'followers') {
+    status = 'follower';
+    actionLabel = 'Friend';
+  } else if (mode === 'following') {
+    status = 'following';
+    actionLabel = 'Unfollow';
+  }
+
   return (
     <div className="user-list">
       {
@@ -50,8 +72,9 @@ const FriendList = ({
           <Friend
             key={member.id}
             user={member}
+            status={status}
             actionLabel={actionLabel}
-            onAction={isOwn ? onAction : null}
+            actionCallback={isOwn ? actionCallback : null}
           />
         ))
       }
@@ -66,12 +89,15 @@ FriendList.propTypes = {
     'followers',
   ]).isRequired,
   isOwn: PropTypes.bool.isRequired,
-  members: PropTypes.arrayOf(userShape).isRequired,
-  onAction: PropTypes.func,
+  members: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    displayName: PropTypes.string,
+  })).isRequired,
+  actionCallback: PropTypes.func,
 };
 
 FriendList.defaultProps = {
-  onAction: null,
+  actionCallback: null,
 };
 
 
