@@ -224,7 +224,6 @@ class EndpointTests(TestCase):
         client.login(username='4', password='123')
         assert(len(Friend.objects.all()) == 4)
         response = client.delete('/api/author/{}/friends/{}/'.format(self.user4.id, self.user5.id))
-        # print("\nResponse: ", response.content[0], '\n', response.content[1])
         assert(len(Friend.objects.all()) == 3)
 
     
