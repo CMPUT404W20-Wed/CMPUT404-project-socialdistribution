@@ -80,7 +80,7 @@ def all_posts(request):
     if method == "GET":
         # TODO: only visible posts or something
         page, size, filter_ = get_post_query_params(request)
-        posts = apply_filter(request, _filter)
+        posts = apply_filter(request, filter_)
         posts_pages = Paginator(posts, size)
         response_body = {
             "query": "posts",
