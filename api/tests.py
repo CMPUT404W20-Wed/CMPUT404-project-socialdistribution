@@ -118,18 +118,18 @@ class EndpointTests(TestCase):
     def test_followers(self):
         response = self.c.get('/api/author/{}/followers/'.format(self.user1.id))
         response_body = response.json()
-        assert(len(response_body["authors"]) == 1)
-        response = self.c.get('/api/author/{}/followers/'.format(self.user2.id))
+        assert(len(response_body["authors"]) == 0)
+        response = self.c.get('/api/author/{}/followers/'.format(self.user3.id))
         response_body = response.json()
         assert(len(response_body["authors"]) == 1)
 
     def test_following(self):
         response = self.c.get('/api/author/{}/following/'.format(self.user1.id))
         response_body = response.json()
-        assert(len(response_body["authors"]) == 2)
+        assert(len(response_body["authors"]) == 1)
         response = self.c.get('/api/author/{}/following/'.format(self.user2.id))
         response_body = response.json()
-        assert(len(response_body["authors"]) == 1)
+        assert(len(response_body["authors"]) == 0)
 
     def test_post_friends(self):
         client = Client()
@@ -194,3 +194,20 @@ class EndpointTests(TestCase):
         response = self.c.get('/api/author/posts/?filter=private')
         json_response = response.json()
         assert(len(json_response["posts"]) == 0)
+    
+    def test_edit_post(self):
+        self.client.login(username='1', password='123')
+        post = {
+            "title": "editme",
+            "description": "editme",
+            "content": "editme"
+        }
+        response1 = self.client.post('/api/author/posts/', post, content_type="application/json")
+        post_id = response1.json()['post']['id']
+        assert(len(Post.objects.filter(pk=post_id)) == 1)
+        post["title"] = "edited"
+        response2 = self.client.put('/api/posts/{}/'.format(post_id), post, content_type="application/json")
+        assert(response2.status_code == 200)
+        response2_json = response2.json()
+        assert(response2_json['post']['title'] == "edited")
+        assert(Post.objects.get(pk=response2_json['post']['id']).title == "edited")
