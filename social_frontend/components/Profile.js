@@ -89,23 +89,11 @@ class Profile extends React.Component {
       };
 
       Axios.post(friendRequestEndpoint(id), body).then(() => {
-        const { profile } = this.state;
-        this.setState({
-          profile: {
-            ...profile,
-            followers: [...profile.followers, currentUserId],
-          },
-        });
+        this.doLoadProfile(id);
       });
     } else if (status === 'following' || status === 'friend') {
       Axios.delete(friendshipEndpoint(currentUserId, id)).then(() => {
-        const { profile } = this.state;
-        this.setState({
-          profile: {
-            ...profile,
-            followers: profile.followers.filter((x) => x !== currentUserId),
-          },
-        });
+        this.doLoadProfile(id);
       });
     }
   }
@@ -131,10 +119,13 @@ class Profile extends React.Component {
       followers,
     } = profile;
 
+    // TODO this can probably be done better
+    const friendIds = friends.map(({ fid }) => fid.split('/').slice(-1)[0]);
+
     let friendLabel;
     let friendActionLabel;
     let friendClass;
-    if (friends && friends.indexOf(currentUserId) >= 0) {
+    if (friendIds && friendIds.indexOf(currentUserId) >= 0) {
       friendLabel = 'Friend';
       friendActionLabel = 'Unfriend';
       friendClass = 'friend';

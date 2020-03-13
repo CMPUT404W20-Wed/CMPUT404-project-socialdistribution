@@ -11,6 +11,11 @@
     margin: 8px 0;
 }
 
+.user-list a {
+    color: unset;
+    text-decoration: none;
+}
+
 .user-card img {
     width: 64px;
     height: 64px;

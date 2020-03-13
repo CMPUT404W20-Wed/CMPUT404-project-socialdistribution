@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 
 const Friend = ({
@@ -11,7 +12,7 @@ const Friend = ({
   const { id, displayName } = user;
 
   return (
-    <div className="user-card">
+    <Link to={`/profile/${id}`} className="user-card">
       <img alt={id} />
       <div className="user-name">{displayName}</div>
       {
@@ -21,7 +22,7 @@ const Friend = ({
           </button>
         )
       }
-    </div>
+    </Link>
   );
 };
 
