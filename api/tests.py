@@ -27,17 +27,27 @@ class EndpointTests(TestCase):
         self.user1 = User(username='1')
         self.user1.set_password('123')
         self.user2 = User(username='2')
+        self.user2.host = "http://localhost:8000"
         self.user1.save()
         self.user2.save()
 
         # user1 follows user2
         self.friend = Friend(user1=self.user1.id, user2=self.user2.id)
         self.friend.save()
+
+        self.user3 = User(username='3')
+        self.user3.host = "http://localhost:8000"
+        self.user3.save()
         
         self.post1 = Post(title='a', description='b', content='c', author=self.user1)
         self.post1.save()
         self.comment1 = Comment(comment='d', author=self.user1, post=self.post1)
         self.comment1.save()
+
+        self.friend1 = Friend(user1=self.user1.id, user2=self.user2.id)
+        self.friend2 = Friend(user1=self.user2.id, user2=self.user1.id)
+        self.friend1.save()
+        self.friend2.save()
         
         # register a user with endpoint good and proper like
         self.c.post('/rest-auth/registration/', {'username':'user123','password1':'12345','password2':'12345'})
@@ -116,6 +126,43 @@ class EndpointTests(TestCase):
         response = self.c.get('/api/author/{}/following/'.format(self.user2.id))
         response_body = response.json()
         assert(len(response_body["authors"]) == 0)
+
+    def test_post_friends(self):
+        client = Client()
+        client.login(username='user123', password='12345')
+        post = {
+            "query": "friends",
+            "author": str(self.user1.id),
+            "authors": [
+                "http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+		        "http://127.0.0.1:5454/author/ae345d54-75b4-431b-adb2-fb6b9e547891",
+                str(self.user2.host+"/author/"+str(self.user2.id))
+            ]
+        }
+        response = self.c.post('/api/author/'+str(self.user1.id)+'/friends/', post, content_type="application/json")
+        assert(len(response.json()['authors']) == 1)
+
+    def test_friendrequest(self):
+        client = Client()
+        client.login(username='user123', password='12345')
+        post = {
+            "query": "friendrequest",
+            "author": {
+                "id":str(self.user3.host+"/author/"+str(self.user3.id)),
+                "host":str(self.user3.host),
+                "displayName":"Test User",
+                "url":str(self.user3.host+"/author/"+str(self.user3.id)),
+            },
+            "friend": {
+                "id":str(self.user2.host+"/author/"+str(self.user2.id)),
+                "host":str(self.user2.host),
+                "displayName":"Friend Two",
+                "id":str(self.user2.host+"/author/"+str(self.user2.id)),
+            }
+        }
+        response = self.c.post('/api/friendrequest/', post, content_type="application/json")
+        assert(len(Friend.objects.all()) == 3)
+        assert(Friend.objects.get(user1=self.user3.id).user1)
     
     def test_delete_post(self):
         self.client.login(username='1', password='123')

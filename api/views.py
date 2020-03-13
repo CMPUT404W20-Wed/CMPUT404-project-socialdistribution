@@ -5,6 +5,7 @@ from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
 from .forms import UserForm
 from .models import User, Post, Comment, Friend
+from .filters import apply_filter
 import json
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
@@ -24,8 +25,9 @@ def index(request):
 def posts_visible(request):
     method = request.method
     if method == "GET":
-        # TODO: posts visible to the currently authenticated user
-        posts = Post.objects.all()
+        # Filter posts by PUBLIC, PRIVATE, FRIENDS, or FOAF
+        posts = apply_filter(request, "PUBLIC")
+
         response_body = JSONRenderer().render({
             "query": "posts",
             "count": len(posts),
@@ -73,8 +75,9 @@ def posts_by_aid(request, aid):
 def all_posts(request):
     method = request.method
     if method == "GET":
-        # TODO: only visible posts or something
-        posts = Post.objects.all()
+        # TODO: Filter posts properly
+        posts = apply_filter(request, "PUBLIC")
+
         response_body = JSONRenderer().render({
             "query": "posts",
             "count": len(posts),
@@ -83,7 +86,7 @@ def all_posts(request):
             #"previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
         })
-        print(posts)
+
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
@@ -94,7 +97,6 @@ def posts_by_pid(request, pid):
     method = request.method
     if method == "GET":
         post = Post.objects.get(pk=pid)
-        # TODO: please sanity check that this is actually the response format
         response_body = JSONRenderer().render({
             "query": "getPost",
             "post": PostSerializer(post).data
@@ -156,6 +158,7 @@ def register(request):
             # TODO: check wtf this does
             # user.set_password(user.password)
             user.save()
+    # TODO: Implement a response for when the user already exists with the same name
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -175,38 +178,93 @@ def login(request):
             return HttpResponse(status=401)
 
 # Query for FOAF
-# author/<uuid:aid>/friends
+# author/<uuid:aid>/friends/
 def friends_by_aid(request, aid):
     method = request.method
     # Get the friends of the author
     if method == "GET":
-        authors = Friend.objects.filter(user1=aid)
-        authors_json = serializers.serialize("json", authors)
-        return HttpResponse(content=authors_json, content_type="application/json", status=200)
+        author_friends = Friend.objects.filter(user1=aid)
+        friend_list = []
+        for a in author_friends:
+            friend_profile = User.objects.get(id=a.user2)
+            friend_list.append(friend_profile.host+'/author/'+a.user2)
+        # authors_json = serializers.serialize("json", author_friends)
+        response_body = JSONRenderer().render({
+            "query": "friends",
+            "authors": friend_list,
+            "count": len(author_friends)
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     # Check if anyone in the list is friends with the author
     if method == "POST":
-        # TODO: Still need to implement, probably save for Part 2
-        pass
+        body = json.loads(request.body)
+        # List of authors we are checking against
+        author_list = body["authors"]
+        author_profile = User.objects.get(id=aid)
+        friend_list = []
+        for a in author_list:
+            # friend_profile = User.objects.get(id=a.split('/')[-1])
+            friendship = Friend.objects.filter(user1=aid, user2=a.split('/')[-1]) and Friend.objects.filter(user2=aid, user1=a.split('/')[-1])
+            if friendship:
+                friend_list.append(a)
+        response_body = JSONRenderer().render({
+            "query": "friends",
+            "author": author_profile.host+"/author/"+str(aid),
+            "authors": friend_list
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
+# author/<authorid>/friends/<authorid2>/
 def friendship_by_aid(request, aid1, aid2):
     method = request.method
     if method == "GET":
         friendship = Friend.objects.filter(user1=aid1, user2=aid2) and Friend.objects.filter(user2=aid1, user1=aid2)
         if not friendship:
             # TODO: Return the author list with the stripped protocol
-            return JsonResponse({
+            user1_profile = User.objects.get(id=aid1)
+            user2_profile = User.objects.get(id=aid2)
+            response_body = JSONRenderer().render({
                 "query": "friends",
-                "friends": "false"
+                "friends": "false",
+                "authors": [
+                    user1_profile.host+"/author/"+str(aid1),
+                    user2_profile.host+"/author/"+str(aid2)
+                ]
             })
         else:
             # TODO: Return the author list with the stripped protocol
-            return JsonResponse({
+            user1_profile = User.objects.get(id=aid1)
+            user2_profile = User.objects.get(id=aid2)
+            response_body = JSONRenderer().render({
                 "query": "friends",
                 "friends":"true",
-                "authors": [aid1, aid2]
+                "authors": [
+                    user1_profile.host+"/author/"+str(aid1),
+                    user2_profile.host+"/author/"+str(aid2)
+                ]
             })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
+
+def friendrequest(request):
+    method = request.method
+    if method == "POST":
+        body = json.loads(request.body)
+        if body["query"] == "friendrequest":
+            requester_id = body["author"]["id"].split('/')[-1]
+            requestee_id = body["friend"]["id"].split('/')[-1]
+            request = {
+                "user1": requester_id,
+                "user2": requestee_id,
+            }
+            Friend.objects.create(**request)
+            return HttpResponse(status=200)
+
+        else:
+            return HttpResponse(status=400, content="Bad Request")
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 
@@ -260,10 +318,10 @@ def profile(request, userid):
         for friend in friends:
             # Put each friend in json format
             friends_list.append({
-                "id": "TODO",
-                "host": "TODO",
-                "displayName": "TODO",
-                "url": "TODO"
+                # "id": "TODO",
+                # "host": "TODO",
+                # "displayName": "TODO",
+                # "url": "TODO"
             })
 
 
