@@ -39,6 +39,9 @@ class EndpointTests(TestCase):
         self.comment1 = Comment(comment='d', author=self.user1, post=self.post1)
         self.comment1.save()
 
+        self.post2 = Post(title='e', description='f', content='g', author=self.user2, visibility="PRIVATE")
+        self.post2.save()
+
         self.friend1 = Friend(user1=self.user1.id, user2=self.user2.id)
         self.friend2 = Friend(user1=self.user2.id, user2=self.user1.id)
         self.friend1.save()
@@ -81,10 +84,12 @@ class EndpointTests(TestCase):
         #assert(response.status_code == 204)
         #assert(len(Post.objects.filter(title='a')) == 0)
     
-    def test_get_posts_visible(self):
-        response = self.c.get("/api/author/posts/")
-        response_body = response.json()
-        assert(len(response_body['posts']) >= 1) # no auth right now, so this gets them all
+    # Ignore this test for now, test_filters does pretty much the same thing
+    # May need to implement this later or just delete it
+    # def test_get_posts_visible(self):
+    #     response = self.c.get("/api/author/posts/")
+    #     response_body = response.json()
+    #     assert(len(response_body['posts']) >= 1) # no auth right now, so this gets them all
     
     def test_get_posts_author_id(self):
         response = self.c.get("/api/author/{}/posts/".format(self.user1.id))
@@ -146,6 +151,10 @@ class EndpointTests(TestCase):
 
 
     
+    def test_get_with_params(self):
+        response = self.c.get('/api/author/posts/?page=1&size=50')
+        assert(response.status_code == 200)
+
     def test_delete_post(self):
         self.client.login(username='1', password='123')
         post = {
@@ -161,3 +170,10 @@ class EndpointTests(TestCase):
         assert(response2.status_code == 204)
         assert(len(Post.objects.filter(pk=post_id)) == 0)
 
+    def test_filter(self):
+        response = self.c.get('/api/author/posts/?filter=public')
+        json_response = response.json()
+        assert(len(json_response["posts"]) >= 1)
+        response = self.c.get('/api/author/posts/?filter=private')
+        json_response = response.json()
+        assert(len(json_response["posts"]) == 0)
