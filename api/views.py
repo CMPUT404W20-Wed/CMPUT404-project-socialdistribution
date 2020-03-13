@@ -348,34 +348,50 @@ def following(request, aid):
         return HttpResponse(status=405, content="Method Not Allowed")
 
 # Returns a specified profile
-# author/<uuid:userid>/
-def profile(request, userid):
+# author/<uuid:aid>/
+def profile(request, aid):
     method = request.method
     if method == "GET":
-        # Get the user object
-        user = User.objects.get(pk=userid)
-        username = user.username
-        host = user.host
-        url = host + "/author/" + str(user.id)
-        
-        friends = Friend.objects.filter(user1=userid)
-        friends_list = []
-        for friend in friends:
-            # Put each friend in json format
-            friends_list.append({
-                # "id": "TODO",
-                # "host": "TODO",
-                # "displayName": "TODO",
-                # "url": "TODO"
-            })
+        friends = Friend.objects.filter(user1=aid)
+        friend_list = []
+        for f in friends:
+            friend_profile = User.objects.get(id=f.user2)
+            twoWayFriendship = Friend.objects.filter(user1=f.user2, user2=aid)
+            if twoWayFriendship:
+                # Put each friend in json format
+                friend_list.append({
+                    "id": friend_profile.host+'/author/'+str(friend_profile.id),
+                    "host": friend_profile.host,
+                    "displayName": friend_profile.username,
+                    "url": friend_profile.host+'/author/'+str(friend_profile.id),
+                })
 
+        following = Friend.objects.filter(user1=aid)
+        following_list = []
+        for f in following:
+            friend = Friend.objects.filter(user1=aid, user2=f.user2) and Friend.objects.filter(user2=aid, user1=f.user2)
+            if not friend:
+                following_list.append(f.user2)
 
+        followers = Friend.objects.filter(user2=aid)
+        follower_list = []
+        for f in followers:
+            friend = Friend.objects.filter(user1=aid, user2=f.user1) and Friend.objects.filter(user2=aid, user1=f.user1)
+            if not friend:
+                follower_list.append(f.user1)
+
+        user = User.objects.get(pk=aid)
         response_body = JSONRenderer().render({
-            "id":"TODO",
-            "host":host,
-            "displayName": username,
-            "url": url,
-            "friends": friends_list
+            "id": user.host+"/author/"+str(user.id),
+            "host": user.host,
+            "displayName": user.username,
+            "url": user.host+"/author/"+str(user.id),
+            "friends": friend_list,
+            "friendCount": len(friend_list),
+            "followers": follower_list,
+            "followerCount": len(follower_list),
+            "following": following_list,
+            "followingCount": len(following_list),
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
