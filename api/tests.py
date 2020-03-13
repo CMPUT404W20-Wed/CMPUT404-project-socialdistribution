@@ -165,7 +165,7 @@ class EndpointTests(TestCase):
             }
         }
         response = self.c.post('/api/friendrequest/', post, content_type="application/json")
-        assert(len(Friend.objects.all()) == 3)
+        assert(len(Friend.objects.all()) == 4)
         assert(Friend.objects.get(user1=self.user3.id).user1)
     
     def test_get_with_params(self):
