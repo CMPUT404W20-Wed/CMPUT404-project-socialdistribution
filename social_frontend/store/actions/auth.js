@@ -21,9 +21,9 @@ export const authSuccess = (token) => ({
   token,
 });
 
-export const authFail = (error) => ({
+export const authFail = (errorMessage) => ({
   type: actionTypes.AUTH_FAIL,
-  error,
+  errorMessage,
 });
 
 export const logout = () => ({
@@ -68,7 +68,7 @@ export const authLogin = (username, password) => (
       dispatch(authSuccess(token));
       dispatch(checkAuthTimeout(3600));
     }).catch((err) => {
-      dispatch(authFail(err));
+      dispatch(authFail(err.message));
     });
   }
 );
@@ -83,7 +83,7 @@ export const authSignup = (username, password1, password2) => (
     }).then(() => {
       dispatch(authSuccess(null));
     }).catch((err) => {
-      dispatch(authFail(err));
+      dispatch(authFail(err.message));
     });
   }
 );

@@ -52,19 +52,7 @@ class LoginPage extends React.Component {
     const { enteredUsername, enteredPassword } = this.state;
     const { onAuth } = this.props;
 
-    return new Promise((resolve, reject) => {
-      setTimeout(
-        () => {
-          try {
-            onAuth(enteredUsername, enteredPassword);
-            resolve();
-          } catch (error) {
-            reject(new Error(error));
-          }
-        },
-        1000,
-      );
-    });
+    return onAuth(enteredUsername, enteredPassword);
   }
 
   render() {
@@ -73,13 +61,7 @@ class LoginPage extends React.Component {
       enteredPassword,
     } = this.state;
 
-    const { error, loading } = this.props;
-
-    let errorMessage = null;
-
-    if (error) {
-      errorMessage = <p>{error.message}</p>;
-    }
+    const { errorMessage, loading } = this.props;
 
     const enableSubmit = enteredUsername.length > 0
       && enteredPassword.length > 0;
@@ -122,20 +104,19 @@ class LoginPage extends React.Component {
 }
 
 LoginPage.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  error: PropTypes.object,
+  errorMessage: PropTypes.string,
   loading: PropTypes.bool,
   onAuth: PropTypes.func.isRequired,
 };
 
 LoginPage.defaultProps = {
-  error: null,
+  errorMessage: null,
   loading: false,
 };
 
-const mapStateToProps = (state) => ({
-  loading: state.loading,
-  error: state.error,
+const mapStateToProps = ({ loading, errorMessage }) => ({
+  loading,
+  errorMessage,
 });
 
 const mapDispatchToProps = (dispatch) => ({
