@@ -118,18 +118,18 @@ class EndpointTests(TestCase):
     def test_followers(self):
         response = self.c.get('/api/author/{}/followers/'.format(self.user1.id))
         response_body = response.json()
-        assert(len(response_body["authors"]) == 1)
-        response = self.c.get('/api/author/{}/followers/'.format(self.user2.id))
+        assert(len(response_body["authors"]) == 0)
+        response = self.c.get('/api/author/{}/followers/'.format(self.user3.id))
         response_body = response.json()
         assert(len(response_body["authors"]) == 1)
 
     def test_following(self):
         response = self.c.get('/api/author/{}/following/'.format(self.user1.id))
         response_body = response.json()
-        assert(len(response_body["authors"]) == 2)
+        assert(len(response_body["authors"]) == 1)
         response = self.c.get('/api/author/{}/following/'.format(self.user2.id))
         response_body = response.json()
-        assert(len(response_body["authors"]) == 1)
+        assert(len(response_body["authors"]) == 0)
 
     def test_post_friends(self):
         client = Client()
@@ -211,3 +211,40 @@ class EndpointTests(TestCase):
         response2_json = response2.json()
         assert(response2_json['post']['title'] == "edited")
         assert(Post.objects.get(pk=response2_json['post']['id']).title == "edited")
+
+    def test_unfriend(self):
+        self.user4 = User(username='4')
+        self.user4.set_password('123')
+        self.user4.save()
+        self.user5 = User(username='5')
+        self.user5.save()
+        self.friend4 = Friend(user1=self.user4.id, user2=self.user5.id)
+        self.friend4.save()
+        client = Client()
+        client.login(username='4', password='123')
+        assert(len(Friend.objects.all()) == 4)
+        response = client.delete('/api/author/{}/friends/{}/'.format(self.user4.id, self.user5.id))
+        assert(len(Friend.objects.all()) == 3)
+
+    
+    def test_edit_delete_comment(self):
+        self.client.login(username='1', password='123')
+        comment = {
+            "comment": "no u"
+        }
+        response1 = self.client.post('/api/posts/{}/comments/'.format(self.post1.id), comment, content_type="application/json")
+        assert(response1.status_code == 200)
+        comment_id = response1.json()['comment']['id']
+        
+        new_comment = {
+            "comment": "k"
+        }
+        response2 = self.client.put("/api/posts/{}/comments/{}".format(self.post1.id, comment_id), new_comment, content_type="application/json")
+        assert(response2.status_code == 200)
+        assert(Comment.objects.get(pk=comment_id).comment == "k")
+        assert(response2.json()['comment']['id'] == comment_id)
+        assert(response2.json()['comment']['comment'] == "k")
+        
+        response3 = self.client.delete('/api/posts/{}/comments/{}'.format(self.post1.id, comment_id))
+        assert(response3.status_code == 204)
+
