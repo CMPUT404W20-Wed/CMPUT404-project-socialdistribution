@@ -1,7 +1,9 @@
 
 // TODO remove trailing slashes
 
-export const streamEndpoint = () => '/api/author/posts/';
+export const streamEndpoint = (filter) => (
+  `/api/author/posts/?filter=${filter}`
+);
 
 export const userStreamEndpoint = (author) => (
   `/api/author/${author}/posts/`

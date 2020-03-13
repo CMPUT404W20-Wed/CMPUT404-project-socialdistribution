@@ -20,6 +20,8 @@ export default class PostPage extends React.Component {
     super(props);
 
     this.doLoadPost = this.doLoadPost.bind(this);
+    this.handlePostDelete = this.handlePostDelete.bind(this);
+    this.handlePostPatch = this.handlePostPatch.bind(this);
   }
 
   componentDidMount() {

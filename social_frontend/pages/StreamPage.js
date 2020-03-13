@@ -14,6 +14,16 @@ import {
   singlePostEndpoint,
 } from '../util/endpoints';
 
+
+const filterToQueryMap = {
+  all: 'public',
+  following: 'following',
+  related: 'foaf',
+  friends: 'friends',
+  personal: 'private',
+};
+
+
 /* Navigation bar for stream filters. */
 const StreamFilterNav = () => (
   <nav className="stream-nav">
@@ -77,7 +87,7 @@ class StreamPage extends React.Component {
 
     const endpoint = (filter === 'profile')
       ? userStreamEndpoint(profileId)
-      : streamEndpoint(filter);
+      : streamEndpoint(filterToQueryMap[filter]);
 
     return (
       <main className="main">
