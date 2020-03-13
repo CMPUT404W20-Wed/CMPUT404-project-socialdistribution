@@ -64,6 +64,7 @@ const PostFormControls = ({
               <input
                 type="checkbox"
                 name="unlisted"
+                title={`Unlisted: ${isUnlisted ? 'yes' : 'no'}`}
                 checked={isUnlisted}
                 onChange={onUnlistedToggle}
               />
@@ -274,6 +275,7 @@ export default class PostForm extends React.Component {
           <input
             type="checkbox"
             name="markdown"
+            title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}
             checked={isMarkdown}
             onChange={this.handleMarkdownToggle}
           />
