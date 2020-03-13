@@ -120,7 +120,7 @@ class Profile extends React.Component {
     } = profile;
 
     // TODO this can probably be done better
-    const friendIds = friends.map(({ fid }) => fid.split('/').slice(-1)[0]);
+    const friendIds = friends.map(({ id: fid }) => fid.split('/').slice(-1)[0]);
 
     let friendLabel;
     let friendActionLabel;
