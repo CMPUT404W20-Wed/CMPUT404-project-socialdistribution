@@ -194,7 +194,6 @@ def friends_by_aid(request, aid):
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     # Check if anyone in the list is friends with the author
     if method == "POST":
-        # TODO: Still need to implement, probably save for Part 2
         body = json.loads(request.body)
         # List of authors we are checking against
         author_list = body["authors"]
@@ -244,6 +243,25 @@ def friendship_by_aid(request, aid1, aid2):
                 ]
             })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
+
+def friendrequest(request):
+    method = request.method
+    if method == "POST":
+        body = json.loads(request.body)
+        if body["query"] == "friendrequest":
+            requester_id = body["author"]["id"].split('/')[-1]
+            requestee_id = body["friend"]["id"].split('/')[-1]
+            request = {
+                "user1": requester_id,
+                "user2": requestee_id,
+            }
+            Friend.objects.create(**request)
+            return HttpResponse(status=200)
+
+        else:
+            return HttpResponse(status=400, content="Bad Request")
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
 

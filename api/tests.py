@@ -30,6 +30,9 @@ class EndpointTests(TestCase):
         self.user2.host = "http://localhost:8000"
         self.user1.save()
         self.user2.save()
+        self.user3 = User(username='3')
+        self.user3.host = "http://localhost:8000"
+        self.user3.save()
         
         self.post1 = Post(title='a', description='b', content='c', author=self.user1)
         self.post1.save()
@@ -111,10 +114,28 @@ class EndpointTests(TestCase):
                 str(self.user2.host+"/author/"+str(self.user2.id))
             ]
         }
-        # print(post)
         response = self.c.post('/api/author/'+str(self.user1.id)+'/friends/', post, content_type="application/json")
-        # assert(response.json()['success'] == True)
-        # print(response.json()['authors'])
         assert(len(response.json()['authors']) == 1)
-        # print(response)
+
+    def test_friendrequest(self):
+        client = Client()
+        client.login(username='user123', password='12345')
+        post = {
+            "query": "friendrequest",
+            "author": {
+                "id":str(self.user3.host+"/author/"+str(self.user3.id)),
+                "host":str(self.user3.host),
+                "displayName":"Test User",
+                "url":str(self.user3.host+"/author/"+str(self.user3.id)),
+            },
+            "friend": {
+                "id":str(self.user2.host+"/author/"+str(self.user2.id)),
+                "host":str(self.user2.host),
+                "displayName":"Friend Two",
+                "id":str(self.user2.host+"/author/"+str(self.user2.id)),
+            }
+        }
+        response = self.c.post('/api/friendrequest/', post, content_type="application/json")
+        assert(len(Friend.objects.all()) == 3)
+        assert(Friend.objects.get(user1=self.user3.id).user1)
 

@@ -30,4 +30,5 @@ urlpatterns = [
     path('author/<uuid:userid>/', views.profile),
     path('author/<uuid:aid>/friends/', views.friends_by_aid),
     path('author/<uuid:aid1>/friends/<uuid:aid2>/', views.friendship_by_aid),
+    path('friendrequest/', views.friendrequest)
 ]
