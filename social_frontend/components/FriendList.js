@@ -15,7 +15,7 @@ const Friend = ({
       <img alt={id} />
       <div className="user-name">{displayName}</div>
       {
-        actionLabel && (
+        actionCallback && (
           <button type="button" onClick={() => actionCallback(user, status)}>
             {actionLabel}
           </button>

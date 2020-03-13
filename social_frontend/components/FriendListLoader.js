@@ -4,6 +4,7 @@ import Axios from 'axios';
 import { connect } from 'react-redux';
 
 import FriendList from './FriendList';
+import { broadcast } from '../util/broadcast';
 import {
   mutualFriendsEndpoint,
   followingEndpoint,
@@ -86,7 +87,7 @@ class FriendListLoader extends React.Component {
           url: document.location.origin + profileEndpoint(currentUserId),
         },
         friend: {
-          friendId,
+          id: friendId,
           host,
           displayName,
           url,
@@ -107,6 +108,8 @@ class FriendListLoader extends React.Component {
         });
       });
     }
+
+    broadcast('profileDirty', currentUserId);
   }
 
   render() {

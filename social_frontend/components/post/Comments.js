@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import StreamLoader from '../StreamLoader';
 import Editor from '../Editor';
+import { broadcast } from '../../util/broadcast';
 import {
   commentsEndpoint,
   submitCommentEndpoint,
@@ -12,36 +13,42 @@ import {
 
 /* Footer containing post comments. */
 export default class Comments extends React.Component {
-  state = {
-    pushedPosts: [],
-  };
-
   constructor(props) {
     super(props);
 
+    this.streamRef = React.createRef();
+
     this.afterSubmitPost = this.afterSubmitPost.bind(this);
+    this.afterDeletePost = this.afterDeletePost.bind(this);
   }
 
   afterSubmitPost(post) {
-    const { pushedPosts: currentPushedPosts } = this.state;
-    this.setState({
-      pushedPosts: [post, ...currentPushedPosts],
-    });
+    const { postId } = this.props;
+
+    // TODO can this be made declarative?
+    this.streamRef.current.pushPostToBottom(post);
+
+    broadcast('postDirty', postId);
+  }
+
+  afterDeletePost() {
+    const { postId } = this.props;
+    broadcast('postDirty', postId);
   }
 
   render() {
     const { postId, PostComponent } = this.props;
-    const { pushedPosts } = this.state;
 
     return (
       <div className="post-footer">
         <StreamLoader
+          ref={this.streamRef}
           PostComponent={PostComponent}
           getEndpoint={commentsEndpoint(postId)}
           itemEndpointPattern={
             (commentId) => singleCommentEndpoint(postId, commentId)
           }
-          pushedPosts={pushedPosts}
+          afterDeletePost={this.afterDeletePost}
         />
         <Editor
           isComment

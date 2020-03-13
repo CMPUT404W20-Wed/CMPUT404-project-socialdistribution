@@ -4,6 +4,7 @@ import Axios from 'axios';
 
 import Post from '../components/post/Post';
 import { singlePostEndpoint } from '../util/endpoints';
+import { broadcast } from '../util/broadcast';
 
 
 /* Page displaying a single post, including comments.
@@ -14,26 +15,30 @@ import { singlePostEndpoint } from '../util/endpoints';
 export default class PostPage extends React.Component {
   state = {
     post: null,
+    deleted: false,
   };
 
   constructor(props) {
     super(props);
 
     this.doLoadPost = this.doLoadPost.bind(this);
-    this.handlePostDelete = this.handlePostDelete.bind(this);
-    this.handlePostPatch = this.handlePostPatch.bind(this);
+    this.afterPostDelete = this.afterPostDelete.bind(this);
+    this.afterPostPatch = this.afterPostPatch.bind(this);
   }
 
   componentDidMount() {
     this.doLoadPost();
   }
 
-  handlePostPatch(post) {
+  afterPostPatch(post) {
+    broadcast('postDirty', post.id);
     this.setState({ post });
   }
 
-  handlePostDelete() {
-    this.setState({ post: null });
+  afterPostDelete() {
+    const { post } = this.state;
+    broadcast('postDelete', post.id);
+    this.setState({ post: null, deleted: true });
   }
 
   doLoadPost() {
@@ -52,14 +57,30 @@ export default class PostPage extends React.Component {
 
   render() {
     const { id } = this.props;
-    const { post } = this.state;
+    const { post, deleted } = this.state;
+    if (deleted) {
+      return (
+        <article className="post standalone-post invalid-post">
+          Post deleted.
+        </article>
+      );
+    }
+
+    if (post === null) {
+      return (
+        <article className="post standalone-post invalid-post">
+          Post not found.
+        </article>
+      );
+    }
+
     return (
       <Post
         type="standalone"
         post={post}
         endpoint={singlePostEndpoint(id)}
-        afterPatch={this.handlePostPatch}
-        afterDelete={this.handlePostDelete}
+        afterPatch={this.afterPostPatch}
+        afterDelete={this.afterPostDelete}
       />
     );
   }

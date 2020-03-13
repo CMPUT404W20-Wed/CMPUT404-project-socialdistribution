@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import Suspender from './common/suspend/Suspender';
 import safeFormat from '../util/safeFormat';
+import { listen, removeListener } from '../util/broadcast';
 import {
   profileEndpoint,
   friendRequestEndpoint,
@@ -29,11 +30,23 @@ class Profile extends React.Component {
     super(props);
 
     this.doFriendAction = this.doFriendAction.bind(this);
+    this.handleProfileDirty = this.handleProfileDirty.bind(this);
   }
 
   componentDidMount() {
     const { id } = this.props;
     if (id !== null) this.doLoadProfile(id);
+
+    this.listener = listen('profileDirty', this.handleProfileDirty);
+  }
+
+  componentWillUnmount() {
+    removeListener('profileDirty', this.listener);
+  }
+
+  handleProfileDirty(dirtyId) {
+    const { id } = this.props;
+    if (id === dirtyId) this.doLoadProfile(id);
   }
 
   doLoadProfile(id) {

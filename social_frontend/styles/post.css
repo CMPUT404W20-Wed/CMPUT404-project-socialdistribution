@@ -137,3 +137,7 @@
     background-color: #fff0f0;
 }
 
+.invalid-post {
+    padding: 16px;
+    text-align: center;
+}

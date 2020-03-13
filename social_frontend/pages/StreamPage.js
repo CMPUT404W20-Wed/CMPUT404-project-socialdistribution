@@ -54,26 +54,21 @@ const StreamFilterNav = () => (
  * Otherwise if filter is set, display posts matching the filter
  */
 class StreamPage extends React.Component {
-  state = {
-    pushedPosts: [],
-  };
-
   constructor(props) {
     super(props);
+
+    this.streamRef = React.createRef();
 
     this.afterSubmitPost = this.afterSubmitPost.bind(this);
   }
 
   afterSubmitPost(post) {
-    const { pushedPosts: currentPushedPosts } = this.state;
-    this.setState({
-      pushedPosts: [post, ...currentPushedPosts],
-    });
+    // TODO can this be made declarative?
+    this.streamRef.current.pushPostToTop(post);
   }
 
   render() {
     const { currentUserId, profileId, filter } = this.props;
-    const { pushedPosts } = this.state;
 
     const displayUserId = profileId || currentUserId;
 
@@ -109,7 +104,7 @@ class StreamPage extends React.Component {
         }
         <StreamLoader
           key={filter}
-          pushedPosts={pushedPosts}
+          ref={this.streamRef}
           getEndpoint={endpoint}
           itemEndpointPattern={singlePostEndpoint}
           PostComponent={StreamPost}
