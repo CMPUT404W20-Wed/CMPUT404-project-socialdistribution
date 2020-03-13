@@ -12,9 +12,9 @@ const Friend = ({
   const { id, displayName } = user;
 
   return (
-    <Link to={`/profile/${id}`} className="user-card">
+    <div className="user-card">
       <img alt={id} />
-      <div className="user-name">{displayName}</div>
+      <Link to={`/profile/${id}`} className="user-name">{displayName}</Link>
       {
         actionCallback && (
           <button type="button" onClick={() => actionCallback(user, status)}>
@@ -22,7 +22,7 @@ const Friend = ({
           </button>
         )
       }
-    </Link>
+    </div>
   );
 };
 
