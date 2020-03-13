@@ -3,6 +3,8 @@ from .models import User, Post, Friend
 def apply_filter(request, filter_status):
     # Get all posts and filter them to make sure the visibility matches what we need
     all_posts = Post.objects.all()
+
+    filter_status = filter_status.upper()
     posts = filter_on_status(all_posts, filter_status)
 
     if filter_status == "PUBLIC":
@@ -13,6 +15,8 @@ def apply_filter(request, filter_status):
         return friend_filter(request, posts)
     elif filter_status == "FOAF":
         return foaf_filter(request, posts)
+    else:
+        return posts
 
 # Return all posts of a particular status
 def filter_on_status(all_posts, filter_status):

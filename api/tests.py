@@ -34,6 +34,9 @@ class EndpointTests(TestCase):
         self.post1.save()
         self.comment1 = Comment(comment='d', author=self.user1, post=self.post1)
         self.comment1.save()
+
+        self.post2 = Post(title='e', description='f', content='g', author=self.user2, visibility="PRIVATE")
+        self.post2.save()
         
         # register a user with endpoint good and proper like
         self.c.post('/rest-auth/registration/', {'username':'user123','password1':'12345','password2':'12345'})
@@ -115,3 +118,11 @@ class EndpointTests(TestCase):
         #import pdb; pdb.set_trace()
         assert(response2.status_code == 204)
         assert(len(Post.objects.filter(pk=post_id)) == 0)
+
+    def test_filter(self):
+        response = self.c.get('/api/author/posts/?filter=public')
+        json_response = response.json()
+        assert(len(json_response["posts"]) >= 1)
+        response = self.c.get('/api/author/posts/?filter=private')
+        json_response = response.json()
+        assert(len(json_response["posts"]) == 0)
