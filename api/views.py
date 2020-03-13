@@ -5,6 +5,7 @@ from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
 from .forms import UserForm
 from .models import User, Post, Comment, Friend
+from .filters import apply_filter
 import json
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
@@ -24,8 +25,9 @@ def index(request):
 def posts_visible(request):
     method = request.method
     if method == "GET":
-        # TODO: posts visible to the currently authenticated user
-        posts = Post.objects.all()
+        # Filter posts by PUBLIC, PRIVATE, FRIENDS, or FOAF
+        posts = apply_filter(request, "PUBLIC")
+
         response_body = JSONRenderer().render({
             "query": "posts",
             "count": len(posts),
@@ -38,11 +40,12 @@ def posts_visible(request):
     if method == "POST":
         post = json.loads(request.body)
         post["author"] = request.user
-        Post.objects.create(**post)
+        post = Post.objects.create(**post)
         response_body = JSONRenderer().render({
             "query": "posts",
             "success": True,
-            "message": "Post Created"
+            "message": "Post Created",
+            "post": PostSerializer(post).data
         })
         return HttpResponse(content=response_body, status=200, content_type="application/json")
     return HttpResponse(status=405, content="Method Not Allowed")
@@ -72,8 +75,9 @@ def posts_by_aid(request, aid):
 def all_posts(request):
     method = request.method
     if method == "GET":
-        # TODO: only visible posts or something
-        posts = Post.objects.all()
+        # TODO: Filter posts properly
+        posts = apply_filter(request, "PUBLIC")
+
         response_body = JSONRenderer().render({
             "query": "posts",
             "count": len(posts),
@@ -82,7 +86,7 @@ def all_posts(request):
             #"previous": "TODO",
             "posts": PostSerializer(posts, many=True).data
         })
-        print(posts)
+
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
@@ -93,7 +97,6 @@ def posts_by_pid(request, pid):
     method = request.method
     if method == "GET":
         post = Post.objects.get(pk=pid)
-        # TODO: please sanity check that this is actually the response format
         response_body = JSONRenderer().render({
             "query": "getPost",
             "post": PostSerializer(post).data
@@ -101,14 +104,14 @@ def posts_by_pid(request, pid):
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     elif method == "DELETE":
         post = Post.objects.get(pk=pid)
-        if post.author == request.user.pk:
+        if post.author.id == request.user.pk:
             post.delete()
             return HttpResponse(status=204)
         else:
             return HttpResponse(status=401)
     elif method == "PUT":
         post = Post.object.get(pk=pid)
-        if post.author == request.user.pk:
+        if post.author.id == request.user.pk:
             post.update(**json.loads(request.body))
             post.save()
             return HttpResponse(status=204)
@@ -281,10 +284,10 @@ def profile(request, userid):
         for friend in friends:
             # Put each friend in json format
             friends_list.append({
-                "id": "TODO",
-                "host": "TODO",
-                "displayName": "TODO",
-                "url": "TODO"
+                # "id": "TODO",
+                # "host": "TODO",
+                # "displayName": "TODO",
+                # "url": "TODO"
             })
 
 
