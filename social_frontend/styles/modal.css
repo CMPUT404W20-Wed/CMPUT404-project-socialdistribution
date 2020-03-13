@@ -17,3 +17,14 @@ html.modal-active {
     margin: auto;
     background-color: white;
 }
+
+.modal-closer {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    font-size: 32px;
+    background: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
