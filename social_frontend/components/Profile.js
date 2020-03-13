@@ -152,14 +152,18 @@ class Profile extends React.Component {
             <h2 className="user-name">{displayName}</h2>
             <div className="user-id">{id}</div>
           </HeaderMaybeLink>
-          <button
-            type="button"
-            title={friendActionLabel}
-            className={`friend-action ${friendClass}`}
-            onClick={() => this.doFriendAction(friendClass)}
-          >
-            {friendLabel}
-          </button>
+          {
+            !panel && (
+              <button
+                type="button"
+                title={friendActionLabel}
+                className={`friend-action ${friendClass}`}
+                onClick={() => this.doFriendAction(friendClass)}
+              >
+                {friendLabel}
+              </button>
+            )
+          }
         </header>
         <nav className="profile-nav">
           {
