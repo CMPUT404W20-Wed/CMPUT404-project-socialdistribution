@@ -82,7 +82,7 @@ class Comment(models.Model):
     updated = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['-created']
+        ordering = ['created']
     
 
 class Friend(models.Model):
