@@ -157,7 +157,6 @@ def comments_by_pid(request, pid):
     return HttpResponse(status=405, content="Method Not Allowed")
 
 # TODO: pid not actually needed, but we can check cid is a comment of pid if we want
-# TODO: test this
 def comments_by_cid(request, pid, cid):
     method = request.method
     comment = Comment.objects.get(pk=cid)
