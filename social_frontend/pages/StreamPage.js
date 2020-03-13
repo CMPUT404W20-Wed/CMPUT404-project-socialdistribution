@@ -28,11 +28,11 @@ const filterToQueryMap = {
 const StreamFilterNav = () => (
   <nav className="stream-nav">
     <NavLink to="/" exact activeClassName="active">
-      Everything
+      Public
     </NavLink>
-    <NavLink to="/following" activeClassName="active">
+    {/* <NavLink to="/following" activeClassName="active">
       Following
-    </NavLink>
+    </NavLink> */}
     <NavLink to="/related" activeClassName="active">
       Related
     </NavLink>
