@@ -212,16 +212,20 @@ def friends_by_aid(request, aid):
     method = request.method
     # Get the friends of the author
     if method == "GET":
-        author_friends = Friend.objects.filter(user1=aid)
+        #
+        friends = Friend.objects.filter(user1=aid)
         friend_list = []
-        for a in author_friends:
-            friend_profile = User.objects.get(id=a.user2)
-            friend_list.append(friend_profile.host+'/author/'+a.user2)
-        # authors_json = serializers.serialize("json", author_friends)
+        for f in friends:
+            friend_profile = User.objects.get(id=f.user2)
+            twoWayFriendship = Friend.objects.filter(user1=f.user2, user2=aid)
+            if twoWayFriendship:
+                # Put each friend in json format
+                friend_list.append(friend_profile.host+'/author/'+str(friend_profile.id))
+                
         response_body = JSONRenderer().render({
             "query": "friends",
             "authors": friend_list,
-            "count": len(author_friends)
+            "count": len(friend_list)
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     # Check if anyone in the list is friends with the author
