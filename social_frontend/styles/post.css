@@ -76,6 +76,12 @@
     padding: 0 1em;
 }
 
+.content-media {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+}
+
 .post-footer a.comments-link {
     display: block;
     padding: 8px 16px;

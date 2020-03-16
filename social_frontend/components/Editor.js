@@ -4,7 +4,7 @@ import Axios from 'axios';
 
 import Markdown from './Markdown';
 import Attachments from './Attachments';
-import { imageAbsoluteURL } from '../util/endpoints';
+import { imageAbsoluteURL, submitPostEndpoint } from '../util/endpoints';
 
 import '../styles/editor.css';
 
@@ -210,7 +210,7 @@ export default class PostForm extends React.Component {
           // visibleTo: [],
         };
 
-        return Axios.post(endpoint, attachmentPost).then(({
+        return Axios.post(submitPostEndpoint(), attachmentPost).then(({
           data: { post: returnedPost },
         }) => ({
           id: returnedPost.id,
@@ -244,7 +244,7 @@ export default class PostForm extends React.Component {
       console.log('isComment?', isComment);
       const post = isComment
         ? {
-          adjustedContentType,
+          contentType: adjustedContentType,
           comment: adjustedContent,
         }
         : {
