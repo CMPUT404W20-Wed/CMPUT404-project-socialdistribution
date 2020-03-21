@@ -89,3 +89,8 @@ class Friend(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user1 = models.CharField(max_length=40)
     user2 = models.CharField(max_length=40)
+
+class Node(models.Model):
+    host = models.URLField(max_length=255, primary_key=True)
+    name = models.CharField(max_length=40) # Not sure entirely what this should be?
+    password = models.UUIDField(default=uuid.uuid4, editable=False)
