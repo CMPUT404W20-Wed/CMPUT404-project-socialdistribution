@@ -74,12 +74,17 @@
 
 .content-markdown {
     padding: 0 1em;
+    position: relative;
 }
 
 .content-media {
     display: flex;
     justify-content: center;
     padding: 16px;
+}
+
+.content-markdown img {
+    max-width: 100%;
 }
 
 .post-footer a.comments-link {

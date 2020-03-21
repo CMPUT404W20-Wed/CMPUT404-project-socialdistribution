@@ -10,6 +10,8 @@ from .utils import *
 from .filters import apply_filter
 import json
 
+from .views_.media import *
+
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
 
 # index
