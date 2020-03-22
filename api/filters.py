@@ -5,6 +5,10 @@ def apply_filter(request, filter_status):
     all_posts = Post.objects.all()
 
     filter_status = filter_status.upper()
+    visibilities = ["PUBLIC", "PRIVATE", "FRIENDS", "FOAF", "SERVERONLY", "AUTHOR"]
+    if filter_status not in visibilities:
+        filter_status = "PUBLIC"
+        
     posts = filter_on_status(all_posts, filter_status)
 
     if filter_status == "PUBLIC" or filter_status == "":

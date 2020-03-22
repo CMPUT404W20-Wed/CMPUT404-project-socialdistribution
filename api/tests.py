@@ -194,6 +194,9 @@ class EndpointTests(TestCase):
         response = self.c.get('/api/author/posts/?filter=private')
         json_response = response.json()
         assert(len(json_response["posts"]) == 0)
+        response = self.c.get('/api/author/posts/')
+        json_response = response.json()
+        assert(len(json_response["posts"]) >= 1)
     
     def test_edit_post(self):
         self.client.login(username='1', password='123')
