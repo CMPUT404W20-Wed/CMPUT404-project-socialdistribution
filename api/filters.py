@@ -8,7 +8,7 @@ def apply_filter(request, filter_status):
     visibilities = ["PUBLIC", "PRIVATE", "FRIENDS", "FOAF", "SERVERONLY", "AUTHOR"]
     if filter_status not in visibilities:
         filter_status = "PUBLIC"
-        
+
     posts = filter_on_status(all_posts, filter_status)
 
     if filter_status == "PUBLIC" or filter_status == "":
@@ -91,8 +91,7 @@ def host_filter(request, posts):
 
 # Return posts private for this author
 # Currently can't test this function as it has no corresponding visibility
-# private_to should contain the id of who the post is private to
-def author_filter(request, posts, private_to):
+def author_filter(request, posts):
     user_id = request.user.id
 
     return_posts = []
