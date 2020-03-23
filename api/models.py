@@ -89,3 +89,14 @@ class Friend(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user1 = models.CharField(max_length=40)
     user2 = models.CharField(max_length=40)
+
+class Node(models.Model):
+    host = models.URLField(max_length=255, primary_key=True)
+    # username = models.CharField(max_length=40)
+    password = models.UUIDField(default=uuid.uuid4, editable=False)
+
+    # Not sure if this has to be a variable or if it can stay a function
+    def get_username(self):
+        # Username is currently just the host app name
+        # ie for us it's glacial-earth-37816
+        return host.strip("https://").split('.')[0]
