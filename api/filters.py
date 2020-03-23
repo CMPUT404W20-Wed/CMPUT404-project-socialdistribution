@@ -5,6 +5,10 @@ def apply_filter(request, filter_status):
     all_posts = Post.objects.all()
 
     filter_status = filter_status.upper()
+    visibilities = ["PUBLIC", "PRIVATE", "FRIENDS", "FOAF", "SERVERONLY", "AUTHOR"]
+    if filter_status not in visibilities:
+        filter_status = "PUBLIC"
+
     posts = filter_on_status(all_posts, filter_status)
 
     if filter_status == "PUBLIC" or filter_status == "":
@@ -15,6 +19,10 @@ def apply_filter(request, filter_status):
         return friend_filter(request, posts)
     elif filter_status == "FOAF":
         return foaf_filter(request, posts)
+    elif filter_status == "SERVERONLY":
+        return host_filter(request, posts)
+    elif filter_status == "AUTHOR":
+        return author_filter(request, posts)
     else:
         return posts
 
@@ -66,3 +74,30 @@ def foaf_filter(request, posts):
                     foaf_posts.append(post)
 
     return foaf_posts
+
+# Posts I create be private to friends on my host
+def host_filter(request, posts):
+    # Get all posts of friends that have host filter
+    friend_posts = friend_filter(request, posts)
+    user_host = request.user.host
+
+    # Remove posts coming from a different host
+    for post in friend_posts:
+        author_host = post.author.host
+        if (author_host != user_host):
+            friend_posts.remove(post)
+
+    return friend_posts
+
+# Return posts private for this author
+# Currently can't test this function as it has no corresponding visibility
+def author_filter(request, posts):
+    user_id = request.user.id
+
+    return_posts = []
+    for post in posts:
+        private_to = None # Will need to update this
+        if private_to == user_id:
+            return_posts.append(post)
+
+    return return_posts
