@@ -423,3 +423,25 @@ def grab_external_data():
         print("Make the request: {}".format(request_last_updated))
     else:
         print("Don't make the request")
+'''
+def run_now_and_then():
+    for login in RemoteLogin.objects.all():
+        response = requests.get("{}{}?page={}&size={}&filter={}".format(login.host, "posts", page,size,filter_), headers={"Authorization": login.get_authorization()})
+        response_json = response.json()
+
+        adapter = adapters[login.host]
+
+        for post in response_json['posts']:
+            author_obj = adapter.create_author(post['author'])
+            # if author is created, get it
+            post['author'] = author_obj
+            
+            comments = post['comments']
+
+            # create post before creating comments
+            post_obj = adapter.create_post(post)
+
+            for comment in comments:
+                comment_obj = adapter.create_comment(comment)
+                # get or create? save?
+'''
