@@ -4,11 +4,12 @@ from rest_framework.renderers import JSONRenderer
 from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
 from .forms import UserForm
-from .models import User, Post, Comment, Friend
+from .models import User, Post, Comment, Friend, LocalLogin, RemoteLogin
 from django.core.paginator import Paginator
 from .utils import *
 from .filters import apply_filter
 import json
+import requests
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
 
@@ -78,7 +79,6 @@ def posts_by_aid(request, aid):
 def all_posts(request):
     method = request.method
     if method == "GET":
-        # TODO: only visible posts or something
         page, size, filter_ = get_post_query_params(request)
         posts = apply_filter(request, filter_)
         posts_pages = Paginator(posts, size)
