@@ -90,6 +90,7 @@ class Friend(models.Model):
     user1 = models.CharField(max_length=40)
     user2 = models.CharField(max_length=40)
 
+'''
 class Node(models.Model):
     # host = models.URLField(max_length=255, primary_key=True)
     username = models.CharField(max_length=40, primary_key=True)
@@ -100,3 +101,18 @@ class Node(models.Model):
     #     # Username is currently just the host app name
     #     # ie for us it's glacial-earth-37816
     #     return host.strip("https://").split('.')[0]
+'''
+
+class Login(models.Model):
+    host = models.URLField(max_length=255, primary_key=True)
+    username = models.CharField(max_length=40)
+    password = models.CharField(max_length=40)
+
+    def get_authorization(self):
+        return base64.b64encode(bytes(username+":"+password,'utf-8')).decode('utf-8')
+
+class RemoteLogin(Login):
+    pass
+
+class LocalLogin(Login):
+    pass
