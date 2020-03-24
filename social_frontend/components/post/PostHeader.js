@@ -6,7 +6,7 @@ import PopupMenu from '../common/PopupMenu';
 
 
 const visibilityLabels = {
-  PUBLIC: '',
+  PUBLIC: 'Public',
   PRIVATE: 'Private',
   FRIENDS: 'All friends',
   FOAF: 'Friends of friends',
@@ -23,6 +23,7 @@ const visibilityLabels = {
 const PostHeader = ({
   author: { id, displayName },
   visibility,
+  unlisted,
   isOwnPost,
   onEditClick,
   onDeleteClick,
@@ -37,8 +38,11 @@ const PostHeader = ({
       {/* <div className="author-id">{id}</div> */}
     </Link>
     {
-      visibility && (
-        <div className="post-visibility">{visibilityLabels[visibility]}</div>
+      (visibility && (visibility !== 'PUBLIC' || unlisted)) && (
+        <div className="post-visibility">
+          {visibilityLabels[visibility]}
+          {unlisted && <span title="Unlisted"> *</span>}
+        </div>
       )
     }
     {
@@ -77,12 +81,14 @@ PostHeader.propTypes = {
     'AUTHOR',
     'SERVERONLY',
   ]),
+  unlisted: PropTypes.bool,
   isOwnPost: PropTypes.bool.isRequired,
   onEditClick: PropTypes.func.isRequired,
   onDeleteClick: PropTypes.func.isRequired,
 };
 
 PostHeader.defaultProps = {
+  unlisted: false,
   visibility: undefined,
 };
 

@@ -36,7 +36,8 @@ def posts_visible(request):
             posts = get_public_posts()
 
         posts = list(filter(
-                lambda post: user_is_authorized(request.user, post),
+                lambda post: (user_is_authorized(request.user, post)
+                    and not post.unlisted),
                 posts))
 
         posts_pages = Paginator(posts, size)
@@ -71,8 +72,12 @@ def posts_by_aid(request, aid):
         user = User.objects.get(pk=aid)
         posts = Post.objects.filter(author=user)
 
+        # Note that your own unlisted posts show up on your profile,
+        # but others' unlisted posts don't show up on their profile
         posts = list(filter(
-                lambda post: user_is_authorized(request.user, post),
+                lambda post: (user_is_authorized(request.user, post)
+                    and not (post.unlisted
+                        and not post.author.id == request.user.id)),
                 posts))
 
         posts_pages = Paginator(posts, size)
@@ -89,6 +94,9 @@ def posts_by_aid(request, aid):
 
 # posts/
 def all_posts(request):
+    # NOTE: This endpoint will return unlisted posts,
+    # so it should only be available to other nodes, not the frontend
+
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)

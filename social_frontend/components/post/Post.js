@@ -104,6 +104,7 @@ class Post extends React.Component {
       comments,
       contentType,
       visibility,
+      unlisted,
     } = post;
 
     const { id: authorId } = author;
@@ -138,6 +139,7 @@ class Post extends React.Component {
         <PostHeader
           author={author}
           visibility={visibility}
+          unlisted={unlisted}
           isOwnPost={isOwnPost}
           onEditClick={this.doEdit}
           onDeleteClick={this.doDelete}

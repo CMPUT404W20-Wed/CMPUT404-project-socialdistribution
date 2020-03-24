@@ -119,6 +119,7 @@ const Main = () => (
     <Route
       path={[
         '/',
+        '/public',
         '/following',
         '/related',
         '/friends',
