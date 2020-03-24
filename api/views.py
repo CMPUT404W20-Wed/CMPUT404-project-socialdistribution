@@ -33,7 +33,7 @@ def posts_visible(request):
         if filter_:
             posts = get_posts_by_status(filter_)
         else:
-            posts = get_public_posts()
+            posts = Post.objects.all()
 
         posts = list(filter(
                 lambda post: (user_is_authorized(request.user, post)
@@ -100,9 +100,9 @@ def all_posts(request):
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
-        posts = filter(
+        posts = list(filter(
                 lambda post: user_is_authorized(request.user, post),
-                get_public_posts())
+                get_public_posts()))
 
         posts_pages = Paginator(posts, size)
         response_body = {
