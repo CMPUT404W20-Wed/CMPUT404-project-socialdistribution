@@ -7,6 +7,8 @@ from django_mysql.models import ListCharField
 # TODO: need validators (some fields required) https://docs.djangoproject.com/en/3.0/ref/validators/
 # TODO: some fields should not be settable by user
 
+url = "http://glacial-earth-37816.herokuapp.com/"
+
 # extend the User object to get the extra fields, example #4 here:
 # https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html
 class User(AbstractUser): # has a username, password
@@ -22,11 +24,10 @@ class User(AbstractUser): # has a username, password
     displayName = models.CharField(max_length=20)
     github = models.CharField(max_length=255)
 
-
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    source = models.URLField(max_length=255) # where did you get this post from?
-    origin = models.URLField(max_length=255) # where is it actually from
+    source = models.URLField(max_length=255, default=url) # where did you get this post from?
+    origin = models.URLField(max_length=255, default=url) # where is it actually from
     # The content type of the post, assume either
     # text/markdown, text/plain, application/base64
     # These are embedded png or jpeg -- might need to make two posts for images
