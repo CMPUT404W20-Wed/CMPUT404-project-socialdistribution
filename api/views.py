@@ -196,7 +196,7 @@ def comments_by_cid(request, pid, cid):
         # returning forbidden would leak information
         return HttpResponseNotFound()
 
-    comment = get_object_or_404(post=post, pk=cid)
+    comment = get_object_or_404(Comment, post=post, pk=cid)
 
     if comment.author.id == request.user.pk:
         if method == "DELETE":
