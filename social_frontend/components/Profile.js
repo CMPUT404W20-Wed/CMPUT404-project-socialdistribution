@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import Suspender from './common/suspend/Suspender';
 import safeFormat from '../util/safeFormat';
+import aidToUuid from '../util/aidToUuid';
 import { listen, removeListener } from '../util/broadcast';
 import {
   profileEndpoint,
@@ -52,7 +53,10 @@ class Profile extends React.Component {
   doLoadProfile(id) {
     return Axios.get(profileEndpoint(id)).then(({ data: profile }) => {
       this.setState({
-        profile,
+        profile: {
+          id: aidToUuid(profile.id),
+          ...profile,
+        },
       });
     }).catch((error) => {
       // TODO error?
@@ -120,7 +124,7 @@ class Profile extends React.Component {
     } = profile;
 
     // TODO this can probably be done better
-    const friendIds = friends.map(({ id: fid }) => fid.split('/').slice(-1)[0]);
+    const friendIds = friends.map(({ id: fid }) => aidToUuid(fid));
 
     let friendLabel;
     let friendActionLabel;
