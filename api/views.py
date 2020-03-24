@@ -400,3 +400,25 @@ def profile(request, aid):
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
+'''
+def run_now_and_then():
+    for login in RemoteLogin.objects.all():
+        response = requests.get("{}{}?page={}&size={}&filter={}".format(login.host, "posts", page,size,filter_), headers={"Authorization": login.get_authorization()})
+        response_json = response.json()
+
+        adapter = adapters[login.host]
+
+        for post in response_json['posts']:
+            author_obj = adapter.create_author(post['author'])
+            # if author is created, get it
+            post['author'] = author_obj
+            
+            comments = post['comments']
+
+            # create post before creating comments
+            post_obj = adapter.create_post(post)
+
+            for comment in comments:
+                comment_obj = adapter.create_comment(comment)
+                # get or create? save?
+'''
