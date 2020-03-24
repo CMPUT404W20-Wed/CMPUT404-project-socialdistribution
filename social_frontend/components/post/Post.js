@@ -103,6 +103,7 @@ class Post extends React.Component {
       content,
       comments,
       contentType,
+      visibility,
     } = post;
 
     const { id: authorId } = author;
@@ -136,6 +137,7 @@ class Post extends React.Component {
       <article className={`post ${className}`}>
         <PostHeader
           author={author}
+          visibility={visibility}
           isOwnPost={isOwnPost}
           onEditClick={this.doEdit}
           onDeleteClick={this.doDelete}

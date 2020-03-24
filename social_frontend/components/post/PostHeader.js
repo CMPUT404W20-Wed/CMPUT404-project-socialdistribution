@@ -5,6 +5,16 @@ import { Link } from 'react-router-dom';
 import PopupMenu from '../common/PopupMenu';
 
 
+const visibilityLabels = {
+  PUBLIC: '',
+  PRIVATE: 'Private',
+  FRIENDS: 'All friends',
+  FOAF: 'Friends of friends',
+  SERVERONLY: 'Local friends',
+  AUTHOR: 'Private to group',
+};
+
+
 /* Header of a post.
  * Displays post info, and links to edit and delete if isOwnPost is set.
  *
@@ -12,6 +22,7 @@ import PopupMenu from '../common/PopupMenu';
  */
 const PostHeader = ({
   author: { id, displayName },
+  visibility,
   isOwnPost,
   onEditClick,
   onDeleteClick,
@@ -25,6 +36,11 @@ const PostHeader = ({
       <div className="author-name">{displayName}</div>
       {/* <div className="author-id">{id}</div> */}
     </Link>
+    {
+      visibility && (
+        <div className="post-visibility">{visibilityLabels[visibility]}</div>
+      )
+    }
     {
       isOwnPost && (
         <PopupMenu className="post-menu" handle="⁝">
@@ -53,9 +69,21 @@ PostHeader.propTypes = {
     id: PropTypes.string.isRequired,
     displayName: PropTypes.string.isRequired,
   }).isRequired,
+  visibility: PropTypes.oneOf([
+    'PUBLIC',
+    'PRIVATE',
+    'FRIENDS',
+    'FOAF',
+    'AUTHOR',
+    'SERVERONLY',
+  ]),
   isOwnPost: PropTypes.bool.isRequired,
   onEditClick: PropTypes.func.isRequired,
   onDeleteClick: PropTypes.func.isRequired,
+};
+
+PostHeader.defaultProps = {
+  visibility: undefined,
 };
 
 export default PostHeader;
