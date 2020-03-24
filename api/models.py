@@ -17,8 +17,8 @@ class User(AbstractUser): # has a username, password
     host = models.URLField(max_length=255)
     url = models.URLField(max_length=255)
     # these are not in the spec
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    # created = models.DateTimeField(auto_now_add=True)
+    # updated = models.DateTimeField(auto_now=True)
     
     # don't need this because this class inherits username
     displayName = models.CharField(max_length=20)
@@ -66,7 +66,8 @@ class Post(models.Model):
     categories = ListCharField(base_field=models.CharField(max_length=40), max_length=10)
 
     visibleTo = ListCharField(base_field=models.CharField(max_length=255), max_length=255)
-    
+    local = models.BooleanField(default=True)
+
     def get_comments(self):
         # return Comment.objects.filter(id=self.id)
         return Comment.objects.filter(post=self.id)
@@ -87,6 +88,8 @@ class Comment(models.Model):
     # these two are not in the spec
     published = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    local = models.BooleanField(default=True)
     
     class Meta:
         ordering = ['published']

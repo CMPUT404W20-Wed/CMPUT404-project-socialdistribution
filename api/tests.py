@@ -5,6 +5,7 @@ from unittest import skip
 import json
 from .serializers import *
 from rest_framework.renderers import JSONRenderer
+from utils import *
 
 
 class SerializerTests(TestCase):
@@ -258,8 +259,4 @@ class EndpointTests(TestCase):
         login.save()
         self.client.login(username='1', password='123')
         self.client.get('/api/posts/')
-<<<<<<< HEAD
         import pdb; pdb.set_trace()
-=======
-        import pdb; pdb.set_trace()
->>>>>>> 1a0ea0de5f259e7b71db240783ffd51388d2710c

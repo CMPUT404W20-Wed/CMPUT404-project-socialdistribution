@@ -4,13 +4,14 @@ from rest_framework.renderers import JSONRenderer
 from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
 from .forms import UserForm
-from .models import User, Post, Comment, Friend, LocalLogin, RemoteLogin
+from .models import User, Post, Comment, Friend, LocalLogin, RemoteLogin, url
 from django.core.paginator import Paginator
 from .utils import *
 from .filters import apply_filter
 import json
 import requests
 import time
+from django.db.models import Q
 
 request_last_updated = 0
 
@@ -82,7 +83,8 @@ def posts_by_aid(request, aid):
 # posts/
 def all_posts(request):
     method = request.method
-    grab_external_data()
+    # grab_external_data()
+    run_now_and_then()
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
         posts = apply_filter(request, filter_)
@@ -423,10 +425,14 @@ def grab_external_data():
         print("Make the request: {}".format(request_last_updated))
     else:
         print("Don't make the request")
-'''
+
 def run_now_and_then():
+    global request_last_updated
+    # Delete all foreign posts and comments
+    Post.objects.filter(~Q(local=False)).delete()
+    Comment.objects.filter(~Q(local=False)).delete()
     for login in RemoteLogin.objects.all():
-        response = requests.get("{}{}?page={}&size={}&filter={}".format(login.host, "posts", page,size,filter_), headers={"Authorization": login.get_authorization()})
+        response = requests.get("{}{}".format(login.host, "posts"), headers={"Authorization": login.get_authorization()})
         response_json = response.json()
 
         adapter = adapters[login.host]
@@ -442,6 +448,10 @@ def run_now_and_then():
             post_obj = adapter.create_post(post)
 
             for comment in comments:
+                # print("Comment: {}".format(comment))
+                author_obj = adapter.create_author(comment['author'])
+                comment['author'] = author_obj
+                comment['post'] = post_obj
                 comment_obj = adapter.create_comment(comment)
                 # get or create? save?
-'''
+
