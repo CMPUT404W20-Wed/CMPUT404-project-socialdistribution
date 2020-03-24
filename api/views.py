@@ -10,6 +10,9 @@ from .utils import *
 from .filters import apply_filter
 import json
 import requests
+import time
+
+request_last_updated = 0
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
 
@@ -27,6 +30,7 @@ def index(request):
 # author/posts
 def posts_visible(request):
     method = request.method
+    grab_external_data()
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
         # TODO: posts visible to the currently authenticated user
@@ -78,6 +82,7 @@ def posts_by_aid(request, aid):
 # posts/
 def all_posts(request):
     method = request.method
+    grab_external_data()
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
         posts = apply_filter(request, filter_)
@@ -400,3 +405,21 @@ def profile(request, aid):
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
+
+def grab_external_data():
+    print("Here")
+    global request_last_updated
+    # Make the request every 60 seconds
+    if (time.time() - request_last_updated) > 60:
+        # Update the time
+        request_last_updated = time.time()
+        all_posts_json = []
+        for login in RemoteLogin.objects.all():
+            response = requests.get("{}{}".format(login.host, "posts"), headers={"Authorization": login.get_authorization()})
+        all_posts_json += response.json().get('posts', [])
+        import pdb; pdb.set_trace()
+        for post in all_posts_json:
+            post
+        print("Make the request: {}".format(request_last_updated))
+    else:
+        print("Don't make the request")
