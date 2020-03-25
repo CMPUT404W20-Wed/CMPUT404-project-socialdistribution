@@ -1,0 +1,78 @@
+
+.attachment-impl {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+}
+
+.attachments {
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    margin-bottom: 8px;
+    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.attachment {
+    margin-right: 16px;
+    position: relative;
+}
+
+.attachment img {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #ccc;
+}
+
+.attachment-name {
+    text-align: center;
+    color: #555;
+    font-size: 10pt;
+    width: 104px;
+}
+
+button.attachments-add,
+.attachments button.attachments-add {
+    flex-shrink: 0;
+    border: none;
+    margin: 0;
+    width: unset;
+    padding: 0;
+    height: 100px;
+}
+
+.attachments-add-placeholder {
+    display: flex;
+    width: 100px;
+    height: 100px;
+    border: 2px dotted #ccc;
+    cursor: pointer;
+}
+
+.attachments-add-placeholder::after {
+    content: "+";
+    color: #ccc;
+    margin: auto;
+    font-size: 20pt;
+}
+
+.attachments .attachment-detach,
+.attachments .attachment-detach:enabled {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    font-size: 15pt;
+    line-height: 24px;
+    border: none;
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+}
