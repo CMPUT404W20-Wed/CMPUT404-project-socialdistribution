@@ -20,6 +20,7 @@ from . import views
 #Before adding url, make sure it's not being used by React, in social_frontend/App.js
 urlpatterns = [
     path('', views.index),
+    path('media/<uuid:pid>.<str:format_>', views.media),
     path('author/posts/', views.posts_visible),
     path('author/<uuid:aid>/posts/', views.posts_by_aid),
     path('posts/', views.all_posts),

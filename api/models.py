@@ -1,29 +1,38 @@
 import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import base64
+from django_mysql.models import ListCharField
+from django.utils import timezone
 
 # TODO: need validators (some fields required) https://docs.djangoproject.com/en/3.0/ref/validators/
 # TODO: some fields should not be settable by user
 
+url = "http://glacial-earth-37816.herokuapp.com/"
+
 # extend the User object to get the extra fields, example #4 here:
 # https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html
-class User(AbstractUser):
+class User(AbstractUser): # has a username, password
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     approved = models.BooleanField(default=False)
     host = models.URLField(max_length=255)
+    url = models.URLField(max_length=255)
     # these are not in the spec
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    # created = models.DateTimeField(auto_now_add=True)
+    # updated = models.DateTimeField(auto_now=True)
     
     # don't need this because this class inherits username
-    # displayName = models.CharField(max_length=20)
-    github = models.URLField(max_length=255)
-
+    displayName = models.CharField(max_length=20)
+    github = models.CharField(max_length=255)
+    firstName = models.CharField(max_length=20)
+    lastName = models.CharField(max_length=20)
+    email = models.CharField(max_length=40)
+    bio = models.CharField(max_length=100)
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    source = models.URLField(max_length=255) # where did you get this post from?
-    origin = models.URLField(max_length=255) # where is it actually from
+    source = models.URLField(max_length=255, default=url) # where did you get this post from?
+    origin = models.URLField(max_length=255, default=url) # where is it actually from
     # The content type of the post, assume either
     # text/markdown, text/plain, application/base64
     # These are embedded png or jpeg -- might need to make two posts for images
@@ -31,7 +40,7 @@ class Post(models.Model):
     # for HTML you will want to strip tags before displaying
     contentType = models.CharField(max_length=18)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    published = models.DateTimeField(auto_now_add=True)
+    published = models.DateTimeField(default=timezone.now)
     # this one is not in the spec
     updated = models.DateTimeField(auto_now=True)
     
@@ -59,7 +68,11 @@ class Post(models.Model):
     # unlisted means it is public if you know the post name
     # use this for images, it's so images don't show up in timelines
     unlisted = models.BooleanField(default=False)
-    
+    categories = ListCharField(base_field=models.CharField(max_length=40), max_length=10)
+
+    visibleTo = ListCharField(base_field=models.CharField(max_length=255), max_length=255)
+    local = models.BooleanField(default=True)
+
     def get_comments(self):
         # return Comment.objects.filter(id=self.id)
         return Comment.objects.filter(post=self.id)
@@ -78,8 +91,10 @@ class Comment(models.Model):
     # TODO: comments will always be text/markdown? what to do on front end?
     contentType = models.CharField(max_length=18, default="text/plain")
     # these two are not in the spec
-    published = models.DateTimeField(auto_now_add=True)
+    published = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(auto_now=True)
+
+    local = models.BooleanField(default=True)
     
     class Meta:
         ordering = ['published']
@@ -109,7 +124,7 @@ class Login(models.Model):
     password = models.CharField(max_length=40)
 
     def get_authorization(self):
-        return base64.b64encode(bytes(username+":"+password,'utf-8')).decode('utf-8')
+        return base64.b64encode(bytes(self.username+":"+self.password,'utf-8')).decode('utf-8')
 
 class RemoteLogin(Login):
     pass

@@ -4,11 +4,18 @@ from rest_framework.renderers import JSONRenderer
 from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
 from .forms import UserForm
-from .models import User, Post, Comment, Friend
+from .models import User, Post, Comment, Friend, LocalLogin, RemoteLogin, url
 from django.core.paginator import Paginator
 from .utils import *
 from .filters import apply_filter
 import json
+import requests
+import time
+from django.db.models import Q
+
+request_last_updated = 0
+
+from .views_.media import *
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
 
@@ -25,6 +32,7 @@ def index(request):
 
 # author/posts
 def posts_visible(request):
+    ensure_data()
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
@@ -55,6 +63,7 @@ def posts_visible(request):
 # posts by author id
 # author/<uuid:aid>/posts
 def posts_by_aid(request, aid):
+    ensure_data()
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
@@ -77,8 +86,9 @@ def posts_by_aid(request, aid):
 # posts/
 def all_posts(request):
     method = request.method
+    # grab_external_data()
+    ensure_data()
     if method == "GET":
-        # TODO: only visible posts or something
         page, size, filter_ = get_post_query_params(request)
         posts = apply_filter(request, filter_)
         posts_pages = Paginator(posts, size)
@@ -96,6 +106,7 @@ def all_posts(request):
 # posts by post id
 # posts/<uuid:pid>
 def posts_by_pid(request, pid):
+    ensure_data()
     method = request.method
     if method == "GET":
         post = Post.objects.get(pk=pid)
@@ -128,6 +139,7 @@ def posts_by_pid(request, pid):
 # comments by post id
 # posts/<uuid:pid>/comments
 def comments_by_pid(request, pid):
+    ensure_data()
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
@@ -158,6 +170,7 @@ def comments_by_pid(request, pid):
 
 # TODO: pid not actually needed, but we can check cid is a comment of pid if we want
 def comments_by_cid(request, pid, cid):
+    ensure_data()
     method = request.method
     comment = Comment.objects.get(pk=cid)
     if comment.author.id == request.user.pk:
@@ -354,6 +367,7 @@ def following(request, aid):
 # Returns a specified profile
 # author/<uuid:aid>/
 def profile(request, aid):
+    ensure_data()
     method = request.method
     if method == "GET":
         friends = Friend.objects.filter(user1=aid)
@@ -400,3 +414,84 @@ def profile(request, aid):
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
+
+def grab_external_data():
+    #print("Here")
+    global request_last_updated
+    # Make the request every 60 seconds
+    if (time.time() - request_last_updated) > 60:
+        # Update the time
+        request_last_updated = time.time()
+        all_posts_json = []
+        for login in RemoteLogin.objects.all():
+            response = requests.get("{}{}".format(login.host, "posts"), headers={"Authorization": login.get_authorization()})
+        all_posts_json += response.json().get('posts', [])
+        #import pdb; pdb.set_trace()
+        for post in all_posts_json:
+            post
+        #print("Make the request: {}".format(request_last_updated))
+    else:
+        pass
+        #print("Don't make the request")
+
+def ensure_data():
+    global request_last_updated
+    
+    if (time.time() - request_last_updated) > 60:
+        # Update the time
+        request_last_updated = time.time()
+        # Delete all foreign posts and comments
+        print("Running Request")
+        Post.objects.filter(local=False).delete()
+        Comment.objects.filter(local=False).delete()
+        for login in RemoteLogin.objects.all():
+            adapter = adapters[login.host]
+
+            response = adapter.get_request("{}{}".format(login.host, "posts"), login)
+            # import pdb; pdb.set_trace()
+            response_json = response.json()
+
+            
+
+            for post in response_json['posts']:
+                author_obj = adapter.create_author(post['author'])
+                get_foreign_friends(login, author_obj, adapter)
+                # if author is created, get it
+                post['author'] = author_obj
+                
+                comments = post['comments']
+
+                # create post before creating comments
+                post_obj = adapter.create_post(post)
+
+                for comment in comments:
+                    # print("Comment: {}".format(comment))
+                    author_obj = adapter.create_author(comment['author'])
+                    get_foreign_friends(login, author_obj, adapter)
+                    comment['author'] = author_obj
+                    comment['post'] = post_obj
+                    comment_obj = adapter.create_comment(comment)
+                    # get or create? save?
+
+    else:
+        pass
+        # print("Nope")
+        
+
+def get_foreign_friends(login, author, adapter):
+    url = adapter.get_friends_path(author)
+    #print("URL: {}".format(url))
+    response = adapter.get_request(url, login)
+    #print("Code: {}".format(response.status_code))
+    response_json = response.json()
+
+    for author_id in response_json['authors']:
+        #print('Author: {}'.format(author_id))
+        url = adapter.get_author_path(author)
+        try:
+            response = adapter.get_request(url, login)
+            response_json = response.json()
+            adapter.create_author(response_json['author'])
+        except Exception as e:
+            raise(e)
+            print("BAD")

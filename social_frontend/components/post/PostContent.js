@@ -17,6 +17,16 @@ const PostContent = ({ contentType, content }) => {
     );
   }
 
+  if (contentType === 'image/png;base64'
+    || contentType === 'image/jpeg;base64'
+  ) {
+    return (
+      <div className="content-media">
+        <img src={`data:${contentType},${content}`} alt="Attachment" />
+      </div>
+    );
+  }
+
   return (
     <div className="content-unknown">
       {`Unsupported content-type "${contentType}"`}

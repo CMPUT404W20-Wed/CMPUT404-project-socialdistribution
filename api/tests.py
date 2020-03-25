@@ -1,10 +1,11 @@
 from django.test import TestCase, Client
 from django.core import serializers
-from .models import Post, User, Comment, Friend
+from .models import Post, User, Comment, Friend, RemoteLogin, LocalLogin
 from unittest import skip
 import json
 from .serializers import *
 from rest_framework.renderers import JSONRenderer
+from .utils import *
 
 
 class SerializerTests(TestCase):
@@ -251,3 +252,14 @@ class EndpointTests(TestCase):
         response3 = self.client.delete('/api/posts/{}/comments/{}'.format(self.post1.id, comment_id))
         assert(response3.status_code == 204)
 
+
+    # TODO: NOT A UNIT TEST -- remove
+    def test_get_all_posts(self):
+
+        #login = RemoteLogin(host="https://dsnfof.herokuapp.com/api/",username="group11",password="group11password")
+        login = RemoteLogin(host="https://cmput404-group-project-mandala.herokuapp.com/", username="earth", password="glacial-earth")
+        login.save()
+
+        self.client.login(username='1', password='123')
+        self.client.get('/api/posts/')
+        #import pdb; pdb.set_trace()
