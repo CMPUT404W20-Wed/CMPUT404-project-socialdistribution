@@ -19,6 +19,52 @@ def get_post_query_params(request):
     filter_ = request.GET.get('filter', '')
     return page, size, filter_
 
+class Group4Adapter:
+
+    def __init__(self):
+        self.path = "https://cmput404-group-project-mandala.herokuapp.com/"
+
+    def create_author(self, author_json):
+        # print('Author: {}'.format(author_json))
+        id = author_json['id'].split('/')[-1]
+        author_json['id'] = id
+        author_obj = User(**author_json)
+        author_obj.username = author_json['displayName']
+        author_obj.password = ""
+        author_obj.save()
+        return author_obj
+
+    def create_post(self, post_json):
+        post_json_d = copy.deepcopy(post_json)
+        # print("Post: {}".format(post_json))
+        id = post_json_d['id']
+        # post_json_d['author'] = self.create_author(post_json_d['author'])
+        post_json_d['local'] = False
+        del post_json_d['count']
+        del post_json_d['next']
+        del post_json_d['comments']
+
+        post_obj = Post(**post_json_d)
+        post_obj.save()
+        return post_obj
+
+    def create_comment(self, comment_json):
+        #print("Comment: {}".format(comment_json))
+        id = comment_json['id']
+        comment_json['local'] = False
+        comment_obj = Comment(**comment_json)
+        
+        comment_obj.save()
+        return comment_obj
+
+    def get_friends_path(self, author):
+        path = self.path + 'author/' + author.id.split('/')[-1] + '/friends'
+        return path
+
+    def get_author_path(self, author):
+        path = self.path + 'author/' + author.id.split('/')[-1]
+        return path
+
 class Group3Adapter:
 
     def __init__(self):
@@ -67,9 +113,11 @@ class Group3Adapter:
 
 # initialize the adapters for the groups
 group3adapter = Group3Adapter()
+group4adapter = Group4Adapter()
 
 adapters = {
-    "https://dsnfof.herokuapp.com/api/": group3adapter
+    "https://dsnfof.herokuapp.com/api/": group3adapter,
+    "https://cmput404-group-project-mandala.herokuapp.com/": group4adapter
 }
 
 '''

@@ -255,7 +255,9 @@ class EndpointTests(TestCase):
 
     # TODO: NOT A UNIT TEST -- remove
     def test_get_all_posts(self):
-        login = RemoteLogin(host="https://dsnfof.herokuapp.com/api/",username="group11",password="group11password")
+
+        #login = RemoteLogin(host="https://dsnfof.herokuapp.com/api/",username="group11",password="group11password")
+        login = RemoteLogin(host="https://cmput404-group-project-mandala.herokuapp.com/", username="earth", password="glacial-earth")
         login.save()
         self.client.login(username='1', password='123')
         self.client.get('/api/posts/')
