@@ -474,7 +474,8 @@ def ensure_data():
                     # get or create? save?
 
     else:
-        print("Nope")
+        pass
+        # print("Nope")
         
 
 def get_foreign_friends(login, author, adapter):
