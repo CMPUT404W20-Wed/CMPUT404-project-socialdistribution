@@ -435,7 +435,7 @@ def run_now_and_then():
     Post.objects.filter(~Q(local=False)).delete()
     Comment.objects.filter(~Q(local=False)).delete()
     for login in RemoteLogin.objects.all():
-        response = requests.get("{}{}".format(login.host, "posts"), headers={"Authorization": login.get_authorization()})
+        response = adapter.get_request("{}{}".format(login.host, "posts"), login)
         response_json = response.json()
 
         adapter = adapters[login.host]
@@ -464,7 +464,7 @@ def run_now_and_then():
 def get_foreign_friends(login, author, adapter):
     url = adapter.get_friends_path(author)
     #print("URL: {}".format(url))
-    response = requests.get(url, headers={"Authorization": login.get_authorization()})
+    response = adapter.get_request(url, login)
     #print("Code: {}".format(response.status_code))
     response_json = response.json()
 
@@ -472,7 +472,7 @@ def get_foreign_friends(login, author, adapter):
         #print('Author: {}'.format(author_id))
         url = adapter.get_author_path(author)
         try:
-            response = requests.get(url, headers={"Authorization": login.get_authorization()})
+            response = adapter.get_request(url)
             response_json = response.json()
             adapter.create_author(response_json['author'])
         except Exception as e:

@@ -1,6 +1,7 @@
 from django.core.paginator import Paginator
 from .models import Post, User, Comment, RemoteLogin
 import copy
+import requests
 
 def create_pagination_info(request, objects_paginator: Paginator, page, size, filter_):
     uri = request.build_absolute_uri()
@@ -65,6 +66,15 @@ class Group4Adapter:
         path = self.path + 'author/' + author.id.split('/')[-1]
         return path
 
+    def get_request(self, url, login):
+        headers = {
+            'Authorization': 'Basic '+login.get_authorization(),
+            'Accept': 'application/json',
+        }
+
+        response = requests.get('https://cmput404-group-project-mandala.herokuapp.com/', headers=headers)
+        return response
+
 class Group3Adapter:
 
     def __init__(self):
@@ -111,6 +121,10 @@ class Group3Adapter:
         path = self.path + 'author/' + author.id.split('/')[-1]
         return path
 
+    def get_request(self, url, login):
+        headers = {"Authorization": login.get_authorization()}
+        return response.get(url, headers=headers)
+
 # initialize the adapters for the groups
 group3adapter = Group3Adapter()
 group4adapter = Group4Adapter()
@@ -119,7 +133,6 @@ adapters = {
     "https://dsnfof.herokuapp.com/api/": group3adapter,
     "https://cmput404-group-project-mandala.herokuapp.com/": group4adapter
 }
-
 '''
 
 '''
