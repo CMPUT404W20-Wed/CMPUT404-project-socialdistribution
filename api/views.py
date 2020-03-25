@@ -439,6 +439,7 @@ def run_now_and_then():
 
         for post in response_json['posts']:
             author_obj = adapter.create_author(post['author'])
+            get_foreign_friends(login, author_obj, adapter)
             # if author is created, get it
             post['author'] = author_obj
             
@@ -450,8 +451,27 @@ def run_now_and_then():
             for comment in comments:
                 # print("Comment: {}".format(comment))
                 author_obj = adapter.create_author(comment['author'])
+                get_foreign_friends(login, author_obj, adapter)
                 comment['author'] = author_obj
                 comment['post'] = post_obj
                 comment_obj = adapter.create_comment(comment)
                 # get or create? save?
+        
 
+def get_foreign_friends(login, author, adapter):
+    url = adapter.get_friends_path(author)
+    print("URL: {}".format(url))
+    response = requests.get(url, headers={"Authorization": login.get_authorization()})
+    print("Code: {}".format(response.status_code))
+    response_json = response.json()
+
+    for author_id in response_json['authors']:
+        print('Author: {}'.format(author_id))
+        url = adapter.get_author_path(author)
+        try:
+            response = requests.get(url, headers={"Authorization": login.get_authorization()})
+            response_json = response.json()
+            adapter.create_author(response_json['author'])
+        except Exception as e:
+            raise(e)
+            print("BAD")

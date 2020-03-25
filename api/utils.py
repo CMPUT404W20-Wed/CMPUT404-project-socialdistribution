@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator
-from .models import Post, User, Comment
+from .models import Post, User, Comment, RemoteLogin
 import copy
 
 def create_pagination_info(request, objects_paginator: Paginator, page, size, filter_):
@@ -22,7 +22,7 @@ def get_post_query_params(request):
 class Group3Adapter:
 
     def __init__(self):
-        pass
+        self.path = "http://dsnfof.herokuapp.com/api/"
 
     def create_author(self, author_json):
         # print('Author: {}'.format(author_json))
@@ -56,6 +56,14 @@ class Group3Adapter:
         
         comment_obj.save()
         return comment_obj
+
+    def get_friends_path(self, author):
+        path = self.path + 'author/' + author.id.split('/')[-1] + '/friends'
+        return path
+
+    def get_author_path(self, author):
+        path = self.path + 'author/' + author.id.split('/')[-1]
+        return path
 
 # initialize the adapters for the groups
 group3adapter = Group3Adapter()

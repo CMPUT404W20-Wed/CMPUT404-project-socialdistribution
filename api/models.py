@@ -23,6 +23,10 @@ class User(AbstractUser): # has a username, password
     # don't need this because this class inherits username
     displayName = models.CharField(max_length=20)
     github = models.CharField(max_length=255)
+    firstName = models.CharField(max_length=20)
+    lastName = models.CharField(max_length=20)
+    email = models.CharField(max_length=40)
+    bio = models.CharField(max_length=100)
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
