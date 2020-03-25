@@ -49,7 +49,7 @@ class Group3Adapter:
         return post_obj
 
     def create_comment(self, comment_json):
-        print("Comment: {}".format(comment_json))
+        #print("Comment: {}".format(comment_json))
         id = comment_json['id']
         comment_json['local'] = False
         comment_obj = Comment(**comment_json)

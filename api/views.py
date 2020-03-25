@@ -31,7 +31,7 @@ def index(request):
 # author/posts
 def posts_visible(request):
     method = request.method
-    grab_external_data()
+    #grab_external_data()
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
         # TODO: posts visible to the currently authenticated user
@@ -409,7 +409,7 @@ def profile(request, aid):
         return HttpResponse(status=405, content="Method Not Allowed")
 
 def grab_external_data():
-    print("Here")
+    #print("Here")
     global request_last_updated
     # Make the request every 60 seconds
     if (time.time() - request_last_updated) > 60:
@@ -419,12 +419,13 @@ def grab_external_data():
         for login in RemoteLogin.objects.all():
             response = requests.get("{}{}".format(login.host, "posts"), headers={"Authorization": login.get_authorization()})
         all_posts_json += response.json().get('posts', [])
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         for post in all_posts_json:
             post
-        print("Make the request: {}".format(request_last_updated))
+        #print("Make the request: {}".format(request_last_updated))
     else:
-        print("Don't make the request")
+        pass
+        #print("Don't make the request")
 
 def run_now_and_then():
     global request_last_updated
@@ -460,13 +461,13 @@ def run_now_and_then():
 
 def get_foreign_friends(login, author, adapter):
     url = adapter.get_friends_path(author)
-    print("URL: {}".format(url))
+    #print("URL: {}".format(url))
     response = requests.get(url, headers={"Authorization": login.get_authorization()})
-    print("Code: {}".format(response.status_code))
+    #print("Code: {}".format(response.status_code))
     response_json = response.json()
 
     for author_id in response_json['authors']:
-        print('Author: {}'.format(author_id))
+        #print('Author: {}'.format(author_id))
         url = adapter.get_author_path(author)
         try:
             response = requests.get(url, headers={"Authorization": login.get_authorization()})
