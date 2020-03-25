@@ -39,11 +39,23 @@ class Group4Adapter:
         post_json_d = copy.deepcopy(post_json)
         # print("Post: {}".format(post_json))
         id = post_json_d['id']
+        print("Post: {}".format(post_json_d))
         # post_json_d['author'] = self.create_author(post_json_d['author'])
         post_json_d['local'] = False
         del post_json_d['count']
         del post_json_d['next']
         del post_json_d['comments']
+        del post_json_d['size']
+
+        # import pdb; pdb.set_trace()
+
+        if post_json_d['contentType'] == 'TYPE_PLAIN':
+            # pdb.set_trace()
+            post_json_d['contentType'] = 'text/plain'
+        
+        if post_json_d['contentType'] == 'TYPE_MARKDOWN':
+            # pdb.set_trace()
+            post_json_d['contentType'] = 'text/markdown'
 
         post_obj = Post(**post_json_d)
         post_obj.save()
@@ -71,8 +83,8 @@ class Group4Adapter:
             'Authorization': 'Basic '+login.get_authorization(),
             'Accept': 'application/json',
         }
-
-        response = requests.get('https://cmput404-group-project-mandala.herokuapp.com/', headers=headers)
+        # import pdb; pdb.set_trace()
+        response = requests.get(url, headers=headers)
         return response
 
 class Group3Adapter:
@@ -123,7 +135,8 @@ class Group3Adapter:
 
     def get_request(self, url, login):
         headers = {"Authorization": login.get_authorization()}
-        return response.get(url, headers=headers)
+        response = requests.get(url, headers=headers, allow_redirects=True)
+        return response
 
 # initialize the adapters for the groups
 group3adapter = Group3Adapter()

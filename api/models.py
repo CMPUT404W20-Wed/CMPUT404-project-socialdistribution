@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 import base64
 from django_mysql.models import ListCharField
+from django.utils import timezone
 
 # TODO: need validators (some fields required) https://docs.djangoproject.com/en/3.0/ref/validators/
 # TODO: some fields should not be settable by user
@@ -39,7 +40,7 @@ class Post(models.Model):
     # for HTML you will want to strip tags before displaying
     contentType = models.CharField(max_length=18)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    published = models.DateTimeField(auto_now_add=True)
+    published = models.DateTimeField(default=timezone.now)
     # this one is not in the spec
     updated = models.DateTimeField(auto_now=True)
     
@@ -90,7 +91,7 @@ class Comment(models.Model):
     # TODO: comments will always be text/markdown? what to do on front end?
     contentType = models.CharField(max_length=18, default="text/plain")
     # these two are not in the spec
-    published = models.DateTimeField(auto_now_add=True)
+    published = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(auto_now=True)
 
     local = models.BooleanField(default=True)

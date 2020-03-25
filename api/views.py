@@ -32,8 +32,8 @@ def index(request):
 
 # author/posts
 def posts_visible(request):
+    ensure_data()
     method = request.method
-    #grab_external_data()
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
         # TODO: posts visible to the currently authenticated user
@@ -63,6 +63,7 @@ def posts_visible(request):
 # posts by author id
 # author/<uuid:aid>/posts
 def posts_by_aid(request, aid):
+    ensure_data()
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
@@ -86,7 +87,7 @@ def posts_by_aid(request, aid):
 def all_posts(request):
     method = request.method
     # grab_external_data()
-    run_now_and_then()
+    ensure_data()
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
         posts = apply_filter(request, filter_)
@@ -105,6 +106,7 @@ def all_posts(request):
 # posts by post id
 # posts/<uuid:pid>
 def posts_by_pid(request, pid):
+    ensure_data()
     method = request.method
     if method == "GET":
         post = Post.objects.get(pk=pid)
@@ -137,6 +139,7 @@ def posts_by_pid(request, pid):
 # comments by post id
 # posts/<uuid:pid>/comments
 def comments_by_pid(request, pid):
+    ensure_data()
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
@@ -167,6 +170,7 @@ def comments_by_pid(request, pid):
 
 # TODO: pid not actually needed, but we can check cid is a comment of pid if we want
 def comments_by_cid(request, pid, cid):
+    ensure_data()
     method = request.method
     comment = Comment.objects.get(pk=cid)
     if comment.author.id == request.user.pk:
@@ -363,6 +367,7 @@ def following(request, aid):
 # Returns a specified profile
 # author/<uuid:aid>/
 def profile(request, aid):
+    ensure_data()
     method = request.method
     if method == "GET":
         friends = Friend.objects.filter(user1=aid)
@@ -429,36 +434,47 @@ def grab_external_data():
         pass
         #print("Don't make the request")
 
-def run_now_and_then():
+def ensure_data():
     global request_last_updated
-    # Delete all foreign posts and comments
-    Post.objects.filter(~Q(local=False)).delete()
-    Comment.objects.filter(~Q(local=False)).delete()
-    for login in RemoteLogin.objects.all():
-        response = adapter.get_request("{}{}".format(login.host, "posts"), login)
-        response_json = response.json()
+    
+    if (time.time() - request_last_updated) > 60:
+        # Update the time
+        request_last_updated = time.time()
+        # Delete all foreign posts and comments
+        print("Running Request")
+        Post.objects.filter(local=False).delete()
+        Comment.objects.filter(local=False).delete()
+        for login in RemoteLogin.objects.all():
+            adapter = adapters[login.host]
 
-        adapter = adapters[login.host]
+            response = adapter.get_request("{}{}".format(login.host, "posts"), login)
+            # import pdb; pdb.set_trace()
+            response_json = response.json()
 
-        for post in response_json['posts']:
-            author_obj = adapter.create_author(post['author'])
-            get_foreign_friends(login, author_obj, adapter)
-            # if author is created, get it
-            post['author'] = author_obj
             
-            comments = post['comments']
 
-            # create post before creating comments
-            post_obj = adapter.create_post(post)
-
-            for comment in comments:
-                # print("Comment: {}".format(comment))
-                author_obj = adapter.create_author(comment['author'])
+            for post in response_json['posts']:
+                author_obj = adapter.create_author(post['author'])
                 get_foreign_friends(login, author_obj, adapter)
-                comment['author'] = author_obj
-                comment['post'] = post_obj
-                comment_obj = adapter.create_comment(comment)
-                # get or create? save?
+                # if author is created, get it
+                post['author'] = author_obj
+                
+                comments = post['comments']
+
+                # create post before creating comments
+                post_obj = adapter.create_post(post)
+
+                for comment in comments:
+                    # print("Comment: {}".format(comment))
+                    author_obj = adapter.create_author(comment['author'])
+                    get_foreign_friends(login, author_obj, adapter)
+                    comment['author'] = author_obj
+                    comment['post'] = post_obj
+                    comment_obj = adapter.create_comment(comment)
+                    # get or create? save?
+
+    else:
+        print("Nope")
         
 
 def get_foreign_friends(login, author, adapter):
@@ -472,7 +488,7 @@ def get_foreign_friends(login, author, adapter):
         #print('Author: {}'.format(author_id))
         url = adapter.get_author_path(author)
         try:
-            response = adapter.get_request(url)
+            response = adapter.get_request(url, login)
             response_json = response.json()
             adapter.create_author(response_json['author'])
         except Exception as e:
