@@ -252,12 +252,3 @@ class EndpointTests(TestCase):
         
         response3 = self.client.delete('/api/posts/{}/comments/{}'.format(self.post1.id, comment_id))
         assert(response3.status_code == 204)
-
-    def test_get_all_posts_basic_auth(self):
-        client = Client()
-        login = LocalLogin(host='testserver',username='asdfsa',password='asdfsdaf')
-        response = client.get('/api/posts/', **{'Authorization': 'Basic '+login.get_authorization()})
-        assert(response.status_code==401)
-        login.save()
-        response = client.get('/api/posts/', **{'Authorization': 'Basic '+login.get_authorization()})
-        assert(response.status_code==200)
