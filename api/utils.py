@@ -1,7 +1,8 @@
 from django.core.paginator import Paginator
-from .models import Post, User, Comment, RemoteLogin
+from .models import Post, User, Comment, RemoteLogin, LocalLogin
 import copy
 import requests
+import base64
 
 def create_pagination_info(request, objects_paginator: Paginator, page, size, filter_):
     uri = request.build_absolute_uri()
@@ -146,60 +147,13 @@ adapters = {
     "https://dsnfof.herokuapp.com/api/": group3adapter,
     "https://cmput404-group-project-mandala.herokuapp.com/": group4adapter
 }
-'''
 
-'''
-'''
-creds = LocalLogin.objects.filter(pk=request.get_host())
-
-creds_authed = False
-
-if creds:
-
-    creds_authed = creds.get_authetication() == request.content_params.get('Authorization', '')
-
-if not creds_authed or request.user.is_authenticated()
-'''
-'''
-
-if method == "GET":
-
-    page, size, filter_ = get_post_query_params(request)
-
-    all_posts_json = []
-
-    for login in RemoteLogin.objects.all():
-
-        response = requests.get("{}{}?page={}&size={}&filter={}".format(login.host, "posts", page,size,filter_), headers={"Authorization": login.get_authorization()})
-
-        all_posts_json += response.json().get('posts', [])
-
-        
-
-    for post in all_posts_json:
-
-        post['author']['id'] = post['author']['id'].split('/')[-1]
-
-        post['author'] = User(**post['author'])
-
-        del post['count']
-
-        del post['next']
-
-        comments = post['comments']
-
-        
-
-        # save the author
-
-        # for comment in comments, save
-
-        # delete the comment field from the post
-
-        # save the post
-
-        # set the foreginkey to the post
-
-    all_posts_objects = [Post(**post) for post in all_posts_json]
-
-'''
+def authenticate_node(request):
+    auth_header_value = request.META.get('Authorization','')
+    _, auth = auth_header_value.split(' ')
+    try:
+        username, password = base64.b64decode(auth).decode().split(':')
+        login = LocalLogin.objects.get(username=username)
+        return login.get_authorization() == auth
+    except Exception as e:
+        return False
