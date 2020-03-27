@@ -22,12 +22,12 @@ class User(AbstractUser): # has a username, password
     # updated = models.DateTimeField(auto_now=True)
     
     # don't need this because this class inherits username
-    displayName = models.CharField(max_length=20)
+    displayName = models.CharField(max_length=127)
     github = models.CharField(max_length=255)
-    firstName = models.CharField(max_length=20)
-    lastName = models.CharField(max_length=20)
-    email = models.CharField(max_length=40)
-    bio = models.CharField(max_length=100)
+    firstName = models.CharField(max_length=63)
+    lastName = models.CharField(max_length=63)
+    email = models.CharField(max_length=127)
+    bio = models.TextField()
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -44,9 +44,9 @@ class Post(models.Model):
     # this one is not in the spec
     updated = models.DateTimeField(auto_now=True)
     
-    title = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-    content = models.CharField(max_length=1023) # what is a good max length?
+    title = models.TextField()
+    description = models.TextField()
+    content = models.TextField()
     # for visibility PUBLIC means it is open to the wild web
     # FOAF means it is only visible to Friends of A Friend
     # If any of my friends are your friends I can see the post
@@ -87,7 +87,7 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     
-    comment = models.CharField(max_length=255)
+    comment = models.TextField()
     # TODO: comments will always be text/markdown? what to do on front end?
     contentType = models.CharField(max_length=18, default="text/plain")
     # these two are not in the spec
@@ -120,8 +120,8 @@ class Node(models.Model):
 
 class Login(models.Model):
     host = models.URLField(max_length=255, primary_key=True)
-    username = models.CharField(max_length=40)
-    password = models.CharField(max_length=40)
+    username = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
 
     def get_authorization(self):
         return base64.b64encode(bytes(self.username+":"+self.password,'utf-8')).decode('utf-8')

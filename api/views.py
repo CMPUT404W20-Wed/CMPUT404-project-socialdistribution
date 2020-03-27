@@ -440,19 +440,23 @@ def ensure_data():
     if (time.time() - request_last_updated) > 60:
         # Update the time
         request_last_updated = time.time()
-        # Delete all foreign posts and comments
         print("Running Request")
-        Post.objects.filter(local=False).delete()
-        Comment.objects.filter(local=False).delete()
+
+        # Get the foreign data first -- this might take a while
+        responses = []
         for login in RemoteLogin.objects.all():
+            print("-->", login.host)
             adapter = adapters[login.host]
 
             response = adapter.get_request("{}{}".format(login.host, "posts"), login)
-            # import pdb; pdb.set_trace()
-            response_json = response.json()
+            responses.append(response.json())
+
+        # Delete all foreign posts and comments
+        Post.objects.filter(local=False).delete()
+        Comment.objects.filter(local=False).delete()
 
             
-
+        for response_json in responses:
             for post in response_json['posts']:
                 author_obj = adapter.create_author(post['author'])
                 get_foreign_friends(login, author_obj, adapter)
@@ -470,6 +474,8 @@ def ensure_data():
                     get_foreign_friends(login, author_obj, adapter)
                     comment['author'] = author_obj
                     comment['post'] = post_obj
+                    if not comment['contentType']:
+                        comment['contentType'] = 'text/plain'
                     comment_obj = adapter.create_comment(comment)
                     # get or create? save?
 
@@ -491,6 +497,7 @@ def get_foreign_friends(login, author, adapter):
         try:
             response = adapter.get_request(url, login)
             response_json = response.json()
+            response_json['author'].pop('friends', None)
             adapter.create_author(response_json['author'])
         except Exception as e:
             raise(e)
