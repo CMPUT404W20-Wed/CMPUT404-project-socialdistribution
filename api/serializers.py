@@ -9,11 +9,17 @@ class UserSerializer(serializers.Serializer):
     github = serializers.URLField()
     
     def get_id(self, obj):
-        return "{}{}".format(obj.host, obj.id)
+        if obj.host.endswith('/'):
+            return "{}{}".format(obj.host, obj.id)
+        else:
+            return "{}/{}".format(obj.host, obj.id)
         #return "{}".format(obj.id)
     
     def get_url(self, obj):
-        return "{}{}".format(obj.host, obj.id)
+        if obj.host.endswith('/'):
+            return "{}{}".format(obj.host, obj.id)
+        else:
+            return "{}/{}".format(obj.host, obj.id)
 
 class CommentSerializer(serializers.Serializer):
     id = serializers.CharField()
