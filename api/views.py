@@ -466,18 +466,21 @@ def ensure_data():
                 comments = post['comments']
 
                 # create post before creating comments
-                post_obj = adapter.create_post(post)
+                try:
+                    post_obj = adapter.create_post(post)
 
-                for comment in comments:
-                    # print("Comment: {}".format(comment))
-                    author_obj = adapter.create_author(comment['author'])
-                    get_foreign_friends(login, author_obj, adapter)
-                    comment['author'] = author_obj
-                    comment['post'] = post_obj
-                    if not comment['contentType']:
-                        comment['contentType'] = 'text/plain'
-                    comment_obj = adapter.create_comment(comment)
-                    # get or create? save?
+                    for comment in comments:
+                        # print("Comment: {}".format(comment))
+                        author_obj = adapter.create_author(comment['author'])
+                        get_foreign_friends(login, author_obj, adapter)
+                        comment['author'] = author_obj
+                        comment['post'] = post_obj
+                        if not comment['contentType']:
+                            comment['contentType'] = 'text/plain'
+                        comment_obj = adapter.create_comment(comment)
+                        # get or create? save?
+                except:
+                    print("Rejecting post due to error")
 
     else:
         pass
@@ -500,5 +503,5 @@ def get_foreign_friends(login, author, adapter):
             response_json['author'].pop('friends', None)
             adapter.create_author(response_json['author'])
         except Exception as e:
-            raise(e)
+            #raise(e)
             print("BAD")

@@ -104,7 +104,7 @@ class Group3Adapter:
 
     def create_post(self, post_json):
         post_json_d = copy.deepcopy(post_json)
-        # print("Post: {}".format(post_json))
+        print("Post: {}".format(post_json))
         id = post_json_d['id']
         # post_json_d['author'] = self.create_author(post_json_d['author'])
         post_json_d['local'] = False
