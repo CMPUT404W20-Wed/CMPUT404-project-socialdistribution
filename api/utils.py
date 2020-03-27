@@ -42,10 +42,10 @@ class Group4Adapter:
         print("Post: {}".format(post_json_d))
         # post_json_d['author'] = self.create_author(post_json_d['author'])
         post_json_d['local'] = False
-        del post_json_d['count']
-        del post_json_d['next']
-        del post_json_d['comments']
-        del post_json_d['size']
+        post_json_d.pop('count', None)
+        post_json_d.pop('next', None)
+        post_json_d.pop('comments', None)
+        post_json_d.pop('size', None)
 
         # import pdb; pdb.set_trace()
 
@@ -108,9 +108,9 @@ class Group3Adapter:
         id = post_json_d['id']
         # post_json_d['author'] = self.create_author(post_json_d['author'])
         post_json_d['local'] = False
-        del post_json_d['count']
-        del post_json_d['next']
-        del post_json_d['comments']
+        post_json_d.pop('count', None)
+        post_json_d.pop('next', None)
+        post_json_d.pop('comments', None)
 
         post_obj = Post(**post_json_d)
         post_obj.save()
