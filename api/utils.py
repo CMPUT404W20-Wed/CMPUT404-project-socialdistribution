@@ -149,9 +149,10 @@ adapters = {
 }
 
 def authenticate_node(request):
-    auth_header_value = request.META.get('Authorization','')
-    _, auth = auth_header_value.split(' ')
+    
     try:
+        auth_header_value = request.META.get('Authorization','')
+        _, auth = auth_header_value.split(' ')
         username, password = base64.b64decode(auth).decode().split(':')
         login = LocalLogin.objects.get(username=username)
         return login.get_authorization() == auth
