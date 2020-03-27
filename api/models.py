@@ -2,7 +2,7 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import base64
-from django_mysql.models import ListCharField
+from django_mysql.models import ListTextField
 from django.utils import timezone
 
 # TODO: need validators (some fields required) https://docs.djangoproject.com/en/3.0/ref/validators/
@@ -68,9 +68,9 @@ class Post(models.Model):
     # unlisted means it is public if you know the post name
     # use this for images, it's so images don't show up in timelines
     unlisted = models.BooleanField(default=False)
-    categories = ListCharField(base_field=models.CharField(max_length=40), max_length=10)
+    categories = ListTextField(base_field=models.CharField(max_length=63))
 
-    visibleTo = ListCharField(base_field=models.CharField(max_length=255), max_length=255)
+    visibleTo = ListTextField(base_field=models.CharField(max_length=255))
     local = models.BooleanField(default=True)
 
     def get_comments(self):
