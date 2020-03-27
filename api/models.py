@@ -15,8 +15,8 @@ url = "http://glacial-earth-37816.herokuapp.com/"
 class User(AbstractUser): # has a username, password
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     approved = models.BooleanField(default=False)
-    host = models.URLField(max_length=255)
-    url = models.URLField(max_length=255)
+    host = models.URLField(max_length=255, default=url)
+    url = models.URLField(max_length=255, default=url)
     # these are not in the spec
     # created = models.DateTimeField(auto_now_add=True)
     # updated = models.DateTimeField(auto_now=True)
@@ -28,6 +28,7 @@ class User(AbstractUser): # has a username, password
     lastName = models.CharField(max_length=63)
     email = models.CharField(max_length=127)
     bio = models.TextField()
+    local = models.BooleanField(default=True)
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

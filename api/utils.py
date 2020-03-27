@@ -29,6 +29,7 @@ class Group4Adapter:
     def create_author(self, author_json):
         # print('Author: {}'.format(author_json))
         id = author_json['id'].split('/')[-1]
+        author_json['local'] = False
         author_json['id'] = id
         author_obj = User(**author_json)
         author_obj.username = author_json['displayName']
@@ -97,6 +98,7 @@ class Group3Adapter:
         # print('Author: {}'.format(author_json))
         id = author_json['id'].split('/')[-1]
         author_json['id'] = id
+        author_json['local'] = False
         author_obj = User(**author_json)
         author_obj.username = author_json['displayName']
         author_obj.password = ""
