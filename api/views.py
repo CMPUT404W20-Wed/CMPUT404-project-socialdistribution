@@ -32,6 +32,8 @@ def index(request):
 
 # author/posts
 def posts_visible(request):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     ensure_data()
     method = request.method
     if method == "GET":
@@ -63,6 +65,8 @@ def posts_visible(request):
 # posts by author id
 # author/<uuid:aid>/posts
 def posts_by_aid(request, aid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     ensure_data()
     method = request.method
     if method == "GET":
@@ -85,6 +89,8 @@ def posts_by_aid(request, aid):
 
 # posts/
 def all_posts(request):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     # grab_external_data()
     ensure_data()
@@ -106,6 +112,8 @@ def all_posts(request):
 # posts by post id
 # posts/<uuid:pid>
 def posts_by_pid(request, pid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     ensure_data()
     method = request.method
     if method == "GET":
@@ -139,6 +147,8 @@ def posts_by_pid(request, pid):
 # comments by post id
 # posts/<uuid:pid>/comments
 def comments_by_pid(request, pid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     ensure_data()
     method = request.method
     if method == "GET":
@@ -170,6 +180,8 @@ def comments_by_pid(request, pid):
 
 # TODO: pid not actually needed, but we can check cid is a comment of pid if we want
 def comments_by_cid(request, pid, cid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     ensure_data()
     method = request.method
     comment = Comment.objects.get(pk=cid)
@@ -222,6 +234,8 @@ def login(request):
 # Query for FOAF
 # author/<uuid:aid>/friends/
 def friends_by_aid(request, aid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     # Get the friends of the author
     if method == "GET":
@@ -264,6 +278,8 @@ def friends_by_aid(request, aid):
 
 # author/<authorid>/friends/<authorid2>/
 def friendship_by_aid(request, aid1, aid2):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     if method == "GET":
         friendship = Friend.objects.filter(user1=aid1, user2=aid2) and Friend.objects.filter(user2=aid1, user1=aid2)
@@ -304,6 +320,8 @@ def friendship_by_aid(request, aid1, aid2):
 
 # friendrequest/
 def friendrequest(request):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     if method == "POST":
         body = json.loads(request.body)
@@ -324,6 +342,8 @@ def friendrequest(request):
 
 # author/<authorid>/followers/
 def followers(request, aid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     if method == "GET":
         followers = Friend.objects.filter(user2=aid)
@@ -345,6 +365,8 @@ def followers(request, aid):
 
 # author/<authorid>/following/
 def following(request, aid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     if method == "GET":
         following = Friend.objects.filter(user1=aid)
@@ -367,6 +389,8 @@ def following(request, aid):
 # Returns a specified profile
 # author/<uuid:aid>/
 def profile(request, aid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     ensure_data()
     method = request.method
     if method == "GET":
