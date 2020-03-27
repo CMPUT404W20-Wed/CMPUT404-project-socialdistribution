@@ -102,7 +102,7 @@ class EndpointTests(TestCase):
         assert(len(response_body['posts']) == 1)
         assert(response_body['posts'][0]['id'] == str(self.post1.id))
         assert(len(response_body['posts'][0]['comments']) == 1)
-        assert(response_body['posts'][0]['author']['id'] == str(self.user1.id))
+        assert(response_body['posts'][0]['author']['id'].split('/')[-1] == str(self.user1.id))
     
     def test_comments(self):
         assert(len(self.post1.get_comments()) == 1)
