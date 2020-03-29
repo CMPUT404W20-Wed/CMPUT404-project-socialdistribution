@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Axios from 'axios';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import * as actions from '../store/actions/auth';
 import SuspensefulSubmit from '../components/common/suspend/SuspensefulSubmit';
+import { registerEndpoint } from '../util/endpoints';
 
 import '../styles/login.css';
 
@@ -15,6 +16,8 @@ class RegistrationPage extends React.Component {
     enteredUsername: '',
     enteredPassword1: '',
     enteredPassword2: '',
+    errorMessage: null,
+    loading: false,
   };
 
   constructor(props) {
@@ -62,17 +65,24 @@ class RegistrationPage extends React.Component {
     const {
       enteredUsername,
       enteredPassword1,
-      enteredPassword2,
     } = this.state;
-    const { onRegister, history } = this.props;
+    const { history } = this.props;
 
-    const rst = onRegister(
-      enteredUsername,
-      enteredPassword1,
-      enteredPassword2,
-    );
-    history.push('/');
-    return rst;
+    this.setState({
+      loading: true,
+    });
+
+    Axios.post(registerEndpoint(), {
+      username: enteredUsername,
+      password: enteredPassword1,
+    }).then(() => {
+      history.push('/');
+    }).catch((e) => {
+      this.setState({
+        errorMessage: e.message,
+        loading: false,
+      });
+    });
   }
 
   render() {
@@ -80,12 +90,13 @@ class RegistrationPage extends React.Component {
       enteredUsername,
       enteredPassword1,
       enteredPassword2,
+      errorMessage,
+      loading,
     } = this.state;
 
-    const { errorMessage, loading } = this.props;
-
     const enableSubmit = enteredUsername.length > 0
-      && enteredPassword1.length > 0 && enteredPassword2.length;
+      && enteredPassword1.length > 0 && enteredPassword2.length
+      && enteredPassword1 === enteredPassword2;
 
     return (
       <div className="login-page-wrapper">
@@ -133,17 +144,9 @@ class RegistrationPage extends React.Component {
 }
 
 RegistrationPage.propTypes = {
-  errorMessage: PropTypes.string,
-  loading: PropTypes.bool,
-  onRegister: PropTypes.func.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
   }).isRequired,
-};
-
-RegistrationPage.defaultProps = {
-  errorMessage: null,
-  loading: false,
 };
 
 const mapStateToProps = ({ loading, errorMessage }) => ({
@@ -151,9 +154,4 @@ const mapStateToProps = ({ loading, errorMessage }) => ({
   errorMessage,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onRegister:
-  (userName, password1, password2) => dispatch(actions.authSignup(userName, password1, password2)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(RegistrationPage));
+export default connect(mapStateToProps)(withRouter(RegistrationPage));
