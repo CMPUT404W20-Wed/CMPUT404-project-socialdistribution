@@ -71,7 +71,7 @@ export const authLogin = (username, password) => (
       dispatch(authSuccess());
       dispatch(checkAuthTimeout(3600));
     }).catch((err) => {
-      dispatch(authFail(err.response.data ?? err.message));
+      dispatch(authFail(err.response.data || err.message));
     });
   }
 );
