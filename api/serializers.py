@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import User, Post
 
-
 class UserSerializer(serializers.Serializer):
     id = serializers.SerializerMethodField()
     # TODO: what is the difference between url and id?
@@ -10,8 +9,17 @@ class UserSerializer(serializers.Serializer):
     github = serializers.URLField()
     
     def get_id(self, obj):
-        #return "{}{}".format(obj.host, obj.id)
-        return "{}".format(obj.id)
+        if obj.host.endswith('/'):
+            return "{}{}".format(obj.host, obj.id)
+        else:
+            return "{}/{}".format(obj.host, obj.id)
+        #return "{}".format(obj.id)
+    
+    def get_url(self, obj):
+        if obj.host.endswith('/'):
+            return "{}{}".format(obj.host, obj.id)
+        else:
+            return "{}/{}".format(obj.host, obj.id)
 
 class CommentSerializer(serializers.Serializer):
     id = serializers.CharField()
@@ -34,3 +42,6 @@ class PostSerializer(serializers.Serializer):
     published = serializers.DateTimeField(format=None)
     visibility = serializers.CharField()
     unlisted = serializers.BooleanField()
+    
+    def get_id(self, obj):
+        return "{}{}".format(obj.host, obj.id)

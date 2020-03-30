@@ -8,6 +8,7 @@ import Comments from './Comments';
 import Editor from '../Editor';
 import PostContent from './PostContent';
 import ModalLink from '../common/modal/ModalLink';
+import aidToUuid from '../../util/aidToUuid';
 import { postShape } from '../../util/shapes';
 import safeFormat from '../../util/safeFormat';
 
@@ -107,7 +108,7 @@ class Post extends React.Component {
       unlisted,
     } = post;
 
-    const { id: authorId } = author;
+    const authorId = aidToUuid(author.id);
     const isOwnPost = (authorId === currentUserId);
     const commentCount = comments ? comments.length : 0;
 

@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 
 import FriendList from './FriendList';
 import { broadcast } from '../util/broadcast';
+import aidToUuid from '../util/aidToUuid';
 import {
   mutualFriendsEndpoint,
   followingEndpoint,
@@ -41,9 +42,7 @@ class FriendListLoader extends React.Component {
 
     Axios.get(endpoint(profileId)).then(
       ({ data: { authors: friends } }) => {
-        const parsedFriends = friends.map(
-          (url) => url.split('/').slice(-1)[0],
-        );
+        const parsedFriends = friends.map((id) => aidToUuid(id));
 
         this.setState({ friends: parsedFriends });
 

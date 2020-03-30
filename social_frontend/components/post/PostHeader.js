@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import PopupMenu from '../common/PopupMenu';
+import aidToUuid from '../../util/aidToUuid';
 
 
 const visibilityLabels = {
@@ -31,7 +32,7 @@ const PostHeader = ({
   <header className="post-header">
     <Link
       className="post-author"
-      to={`/profile/${id}`}
+      to={`/profile/${aidToUuid(id)}`}
     >
       <img className="avatar" alt={id} />
       <div className="author-name">{displayName}</div>

@@ -102,13 +102,17 @@
 }
 
 .standalone-post .comment-form {
-  margin-top: 8px;
+    margin-top: 8px;
 }
 
 .modal .comment-form {
-  margin: 0;
-  border: none;
-  border-top: 1px solid #ccc;
-  border-radius: 0;
-  margin-top: 8px;
+    margin: 0;
+    border: none;
+    border-top: 1px solid #ccc;
+    border-radius: 0;
+    margin-top: 8px;
+}
+
+.post-form input.post-form-attach-toggle {
+    margin-left: auto;
 }
