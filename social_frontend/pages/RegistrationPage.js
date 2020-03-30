@@ -80,7 +80,7 @@ class RegistrationPage extends React.Component {
       });
     }).catch((e) => {
       this.setState({
-        errorMessage: e.message,
+        errorMessage: e.response.data ?? e.message,
         state: 'error',
       });
     });

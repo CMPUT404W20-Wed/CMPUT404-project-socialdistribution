@@ -16,13 +16,13 @@ def login(request):
                 'password': str,
             }, request.body)
         if data is None:
-            return HttpResponseBadRequest()
+            return HttpResponseBadRequest("Invalid request")
 
         user = auth.authenticate(request, **data)
         if user is None:
-            return HttpResponseBadRequest()
+            return HttpResponseBadRequest("Incorrect username or password")
         elif not user.approved:
-            return HttpResponseForbidden()
+            return HttpResponseBadRequest("Account is waiting for approval")
         auth.login(request, user)
         return HttpResponse()
 
@@ -34,7 +34,7 @@ def login(request):
                     'username': request.user.username
                 })
         else:
-            return HttpResponseBadRequest()
+            return HttpResponseBadRequest("Not logged in")
 
 
 @require_POST
@@ -44,16 +44,16 @@ def register(request):
             'password': str
         }, request.body)
     if data is None:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("Invalid request")
 
     if data['username'].startswith('$'):
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("Invalid username")
+
+    if User.objects.filter(username=data['username']):
+        return HttpResponseBadRequest("Username in use")
 
     user = User.objects.create_user(**data, displayName=data['username'])
-    if user is None:
-        return HttpResponse(status=401)
-    else:
-        return HttpResponse(status=201)
+    return HttpResponse(status=201)
 
 
 @require_POST
