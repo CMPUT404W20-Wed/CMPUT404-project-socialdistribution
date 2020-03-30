@@ -46,14 +46,12 @@ def register(request):
     if data is None:
         return HttpResponseBadRequest()
 
-    if '@' in data['username']:
-        # This ensures there are no username conflicts
-        # with disambiguated foreign usernames.
+    if data['username'].startswith('$'):
         return HttpResponseBadRequest()
 
     user = User.objects.create_user(**data, displayName=data['username'])
     if user is None:
-        return HttpResponseBadRequest()
+        return HttpResponse(status=401)
     else:
         return HttpResponse(status=201)
 

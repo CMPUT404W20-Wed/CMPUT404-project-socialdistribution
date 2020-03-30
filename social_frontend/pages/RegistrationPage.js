@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Axios from 'axios';
-import { Link, withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 import SuspensefulSubmit from '../components/common/suspend/SuspensefulSubmit';
 import { registerEndpoint } from '../util/endpoints';
@@ -17,7 +16,7 @@ class RegistrationPage extends React.Component {
     enteredPassword1: '',
     enteredPassword2: '',
     errorMessage: null,
-    loading: false,
+    state: 'ready',
   };
 
   constructor(props) {
@@ -66,21 +65,23 @@ class RegistrationPage extends React.Component {
       enteredUsername,
       enteredPassword1,
     } = this.state;
-    const { history } = this.props;
 
     this.setState({
-      loading: true,
+      state: 'loading',
+      errorMessage: null,
     });
 
     Axios.post(registerEndpoint(), {
       username: enteredUsername,
       password: enteredPassword1,
     }).then(() => {
-      history.push('/');
+      this.setState({
+        state: 'success',
+      });
     }).catch((e) => {
       this.setState({
         errorMessage: e.message,
-        loading: false,
+        state: 'error',
       });
     });
   }
@@ -91,8 +92,21 @@ class RegistrationPage extends React.Component {
       enteredPassword1,
       enteredPassword2,
       errorMessage,
-      loading,
+      state,
     } = this.state;
+
+    if (state === 'success') {
+      return (
+        <div className="login-page-wrapper">
+          <div className="login-page state-success">
+            <div className="login-form">
+              Request submitted.
+            </div>
+            <Link to="/" className="signup-link">Back to login</Link>
+          </div>
+        </div>
+      );
+    }
 
     const enableSubmit = enteredUsername.length > 0
       && enteredPassword1.length > 0 && enteredPassword2.length
@@ -100,7 +114,7 @@ class RegistrationPage extends React.Component {
 
     return (
       <div className="login-page-wrapper">
-        <main className="login-page state-ready">
+        <main className={`login-page state-${state}`}>
           <form className="login-form" onSubmit={this.handleSubmit}>
             <input
               className="field"
@@ -133,10 +147,10 @@ class RegistrationPage extends React.Component {
             <SuspensefulSubmit
               label="Request Account"
               disabled={!enableSubmit}
-              suspended={loading}
+              suspended={state === 'loading'}
             />
           </form>
-          <Link to="/" className="signup-link">Login Instead</Link>
+          <Link to="/" className="signup-link">Back to login</Link>
         </main>
       </div>
     );
@@ -149,9 +163,4 @@ RegistrationPage.propTypes = {
   }).isRequired,
 };
 
-const mapStateToProps = ({ loading, errorMessage }) => ({
-  loading,
-  errorMessage,
-});
-
-export default connect(mapStateToProps)(withRouter(RegistrationPage));
+export default RegistrationPage;

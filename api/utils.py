@@ -103,8 +103,7 @@ class Group3Adapter:
         author_json['id'] = id
         author_json['local'] = False
         author_obj = User(**author_json)
-        author_obj.username = (
-                author_json['displayName'] + '@' + author_json['host'])
+        author_obj.username = ('$' + id)
         author_obj.set_unusable_password()
         author_obj.save()
         return author_obj
