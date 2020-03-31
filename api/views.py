@@ -398,5 +398,18 @@ def profile(request, aid):
             "followingCount": len(following_list),
         })
         return HttpResponse(content=response_body, content_type="application/json", status=200)
+    elif method == "PUT":
+        author = User.objects.get(pk=aid)
+        if author.id == request.user.id:
+            # User is authenticated to edit profile
+            author.__dict__.update(**json.loads(request.body))
+            author.save()
+            response_body = JSONRenderer().render({
+                "query": "putAuthor"
+            })
+            return HttpResponse(content=response_body, content_type="application/json", status=200)
+        else:
+            # Trying to edit someone elses profile, unauthorized for that
+            return HttpResponse(status=401)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
