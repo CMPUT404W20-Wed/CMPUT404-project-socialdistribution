@@ -160,5 +160,4 @@ def authenticate_node(request):
         login = LocalLogin.objects.get(username=username)
         return login.get_authorization() == auth
     except Exception as e:
-        print(e)
         return False
