@@ -120,3 +120,44 @@ export const getUser = () => (
     });
   }
 );
+
+
+/**
+ * EDIT PROFILE REDUCER
+ *
+ *
+ *
+ */
+
+export const editStart = () => ({
+  type: actionTypes.EDIT_START,
+});
+
+export const editSuccess = (token) => ({
+  type: actionTypes.EDIT_SUCCESS,
+  token,
+});
+
+export const editFail = (errorMessage) => ({
+  type: actionTypes.EDIT_FAIL,
+  errorMessage,
+});
+
+export const editUser = (id, username, password, password2) => (
+  (dispatch) => {
+    dispatch(editStart);
+    if (password === password2) {
+      axios.put(`/author/${id}/`, {
+        username,
+        password,
+      }).then((res) => {
+        dispatch(editSuccess);
+        console.log(res);
+      }).catch((err) => {
+        dispatch(editFail(err.message));
+      });
+    } else {
+      dispatch(editFail("passwords don't match"));
+    }
+  }
+);

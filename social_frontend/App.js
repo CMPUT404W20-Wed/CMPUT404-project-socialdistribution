@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 
 import StreamPage from './pages/StreamPage';
 import PostPage from './pages/PostPage';
+import EditProfilePage from './pages/EditProfilePage';
 import LoginPage from './pages/LoginPage';
 import FriendListPage from './pages/FriendListPage';
 import RegistrationPage from './pages/RegistrationPage';
@@ -37,6 +38,13 @@ const UserMenu = ({ id, username, doLogout }) => (
         onClick={(event) => { event.target.blur(); }}
       >
         Profile
+      </Link>
+      {/* TODO */}
+      <Link
+        to={`/edit/${id}`}
+        onClick={(event) => { event.target.blur(); }}
+      >
+        Edit Profile
       </Link>
       <button
         type="button"
@@ -178,6 +186,17 @@ const Main = () => (
         }
       />
     </Route>
+    <Route
+      path="/edit/:id"
+      exact
+      render={
+        ({ match: { params: { id } } }) => (
+          <EditProfilePage
+            profileId={id}
+          />
+        )
+      }
+    />
     <Route
       path="*"
       render={() => (
