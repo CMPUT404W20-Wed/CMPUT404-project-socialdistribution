@@ -108,6 +108,8 @@ class Post extends React.Component {
       categories,
       comments,
       contentType,
+      visibility,
+      unlisted,
     } = post;
 
     const authorId = aidToUuid(author.id);
@@ -155,6 +157,11 @@ class Post extends React.Component {
                 submittedCallback={this.doAfterPatch}
                 endpoint={endpoint}
                 defaultContent={content}
+                defaultDescription={description}
+                defaultTitle={title}
+                defaultCategories={categories}
+                defaultVisibility={visibility}
+                defaultUnlistedState={unlisted}
               />
             )
             : (

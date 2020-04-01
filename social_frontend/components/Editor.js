@@ -142,11 +142,28 @@ export default class PostForm extends React.Component {
   }
 
   componentDidMount() {
-    const { defaultContent } = this.props;
+    const {
+      defaultContent,
+      defaultTitle,
+      defaultDescription,
+      defaultCategories,
+      defaultVisibility,
+      defaultUnlistedState,
+    } = this.props;
 
     this.setState({
       textContent: defaultContent,
+      title: defaultTitle,
+      description: defaultDescription,
+      categories: defaultCategories ?? [],
+      visibility: defaultVisibility,
+      isUnlisted: defaultUnlistedState,
       canPost: (defaultContent.length > 0),
+      showAdvanced: (
+        (defaultCategories && defaultCategories.length > 0)
+        || defaultTitle.length > 0
+        || defaultDescription.length > 0
+      ),
     });
   }
 
@@ -537,5 +554,10 @@ PostForm.defaultProps = {
   isPatching: false,
   submittedCallback: undefined,
   defaultContent: '',
+  defaultTitle: '',
+  defaultDescription: '',
+  defaultCategories: null,
+  defaultUnlistedState: false,
+  defaultVisibility: 'PUBLIC',
   onCancel: undefined,
 };
