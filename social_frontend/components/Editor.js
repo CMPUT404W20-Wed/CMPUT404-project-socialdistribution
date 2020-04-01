@@ -107,6 +107,8 @@ PostFormControls.defaultProps = {
 export default class PostForm extends React.Component {
   state = {
     textContent: '',
+    title: '',
+    description: '',
     attachments: [],
     canPost: false,
     visibility: 'PUBLIC',
@@ -115,18 +117,22 @@ export default class PostForm extends React.Component {
     isUnlisted: false,
     isPreview: false,
     isAttaching: false,
+    showAdvanced: false,
   };
 
   constructor(props) {
     super(props);
 
     this.handleTextChange = this.handleTextChange.bind(this);
+    this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
+    this.handleTitleChange = this.handleTitleChange.bind(this);
     this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMarkdownToggle = this.handleMarkdownToggle.bind(this);
     this.handlePreviewToggle = this.handlePreviewToggle.bind(this);
     this.handleUnlistedToggle = this.handleUnlistedToggle.bind(this);
     this.handleAttachingToggle = this.handleAttachingToggle.bind(this);
+    this.handleAdvancedToggle = this.handleAdvancedToggle.bind(this);
     this.handleAttach = this.handleAttach.bind(this);
     this.handleDetach = this.handleDetach.bind(this);
   }
@@ -145,6 +151,20 @@ export default class PostForm extends React.Component {
     this.setState({
       textContent,
       canPost: (textContent.length > 0),
+    });
+  }
+
+  handleDescriptionChange(event) {
+    const textContent = event.target.value;
+    this.setState({
+      description: textContent,
+    });
+  }
+
+  handleTitleChange(event) {
+    const textContent = event.target.value;
+    this.setState({
+      title: textContent,
     });
   }
 
@@ -170,6 +190,8 @@ export default class PostForm extends React.Component {
     } = this.props;
     const {
       textContent: content,
+      description,
+      title,
       attachments,
       isMarkdown,
       isUnlisted,
@@ -221,7 +243,6 @@ export default class PostForm extends React.Component {
     ).then((attachmentSpecs) => {
       // Handle the main post
 
-      const title = ''; // TODO
       const contentType = isMarkdown ? 'text/markdown' : 'text/plain';
 
       let adjustedContent;
@@ -253,7 +274,7 @@ export default class PostForm extends React.Component {
           contentType: adjustedContentType,
           content: adjustedContent,
           unlisted: isUnlisted,
-          description: '',
+          description: description,
           // categories: [],
           // visibleTo: [],
         };
@@ -331,6 +352,13 @@ export default class PostForm extends React.Component {
     });
   }
 
+  handleAdvancedToggle(event) {
+    const value = event.target.checked;
+    this.setState({
+      showAdvanced: value,
+    });
+  }
+
   handleAttach(file) {
     const fr = new FileReader();
     fr.onload = ({ target: { result } }) => {
@@ -359,12 +387,15 @@ export default class PostForm extends React.Component {
     } = this.props;
     const {
       textContent,
+      title,
+      description,
       attachments,
       canPost,
       isMarkdown,
       isPreview,
       isUnlisted,
       isAttaching,
+      showAdvanced,
       visibility,
       errorMessage,
     } = this.state;
@@ -384,6 +415,14 @@ export default class PostForm extends React.Component {
           <input
             type="checkbox"
             name="markdown"
+            className="post-form-advanced-toggle"
+            title="Advanced"
+            checked={showAdvanced}
+            onChange={this.handleAdvancedToggle}
+          />
+          <input
+            type="checkbox"
+            name="markdown"
             className="post-form-attach-toggle"
             title="Attach"
             checked={isAttaching}
@@ -396,6 +435,24 @@ export default class PostForm extends React.Component {
           onAttach={this.handleAttach}
           onDetach={this.handleDetach}
         />
+        {
+          showAdvanced && !isComment && (
+            <>
+              <input
+                value={title}
+                onChange={this.handleTitleChange}
+                className="post-form-title"
+                placeholder="Title"
+              />
+              <textarea
+                value={description}
+                onChange={this.handleDescriptionChange}
+                className="post-form-description"
+                placeholder="Description"
+              />
+            </>
+          )
+        }
         {
           isMarkdown && isPreview
             ? (
