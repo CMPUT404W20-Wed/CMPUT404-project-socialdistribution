@@ -13,7 +13,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import include, path
+from django.http import HttpResponseNotFound
+from django.urls import include, path, re_path
 from django.contrib.auth import login
 from . import views
 
@@ -21,6 +22,7 @@ from . import views
 urlpatterns = [
     path('', views.index),
     path('media/<uuid:pid>.<str:format_>', views.media),
+    path('media-redirect/<path:url>', views.media_redir),
     path('author/posts/', views.posts_visible),
     path('author/<uuid:aid>/posts/', views.posts_by_aid),
     path('posts/', views.all_posts),
@@ -35,4 +37,5 @@ urlpatterns = [
     path('author/<uuid:aid>/followers/', views.followers),
     path('author/<uuid:aid>/following/', views.following),
     path('friendrequest/', views.friendrequest),
+    re_path(r'.*', lambda r: HttpResponseNotFound()),
 ]
