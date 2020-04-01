@@ -42,6 +42,11 @@ class PostSerializer(serializers.Serializer):
     published = serializers.DateTimeField(format=None)
     visibility = serializers.CharField()
     unlisted = serializers.BooleanField()
+    categories = serializers.SerializerMethodField()
+
+    def get_categories(self, obj):
+        print(obj.categories)
+        return obj.categories
     
     def get_id(self, obj):
         return "{}{}".format(obj.host, obj.id)
