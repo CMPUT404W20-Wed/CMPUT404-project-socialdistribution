@@ -402,8 +402,16 @@ def profile(request, aid):
         author = User.objects.get(pk=aid)
         if author.id == request.user.id:
             # User is authenticated to edit profile
-            author.__dict__.update(**json.loads(request.body))
+            json_body = json.loads(request.body)
+            print(author.username)
+            if len(json_body["username"]) != 0:
+                author.username = json_body["username"]
+
+            if len(json_body["password"]) != 0:
+                author.password = json_body["password"]
+
             author.save()
+            print(author.username)
             response_body = JSONRenderer().render({
                 "query": "putAuthor"
             })

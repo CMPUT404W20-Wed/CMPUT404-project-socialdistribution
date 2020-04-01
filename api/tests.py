@@ -248,3 +248,25 @@ class EndpointTests(TestCase):
         response3 = self.client.delete('/api/posts/{}/comments/{}'.format(self.post1.id, comment_id))
         assert(response3.status_code == 204)
 
+    def test_edit_profile(self):
+        self.client.login(username='1', password='123')
+        user = {
+            "username": "new",
+            "password": "456"
+        }
+        # post = {
+        #     "title": "editme",
+        #     "description": "editme",
+        #     "content": "editme"
+        # }
+        # response1 = self.client.post('/api/author/posts/', post, content_type="application/json")
+        # post_id = response1.json()['post']['id']
+        # assert(len(Post.objects.filter(pk=post_id)) == 1)
+        # post["title"] = "edited"
+        author_id = self.user1.id
+        response = self.client.put('/api/author/{}/'.format(author_id), user, content_type="application/json")
+        assert(response.status_code == 200)
+        response_json = response.json()
+        print(response_json)
+        # assert(response2_json['post']['title'] == "edited")
+        # assert(Post.objects.get(pk=response2_json['post']['id']).title == "edited")
