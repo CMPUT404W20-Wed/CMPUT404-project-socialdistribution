@@ -140,3 +140,39 @@
     color: #aaa;
     opacity: 1;
 }
+
+.post-form .tag-bar {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.post-form .tag-bar .tag {
+    border: 1px solid #ccc;
+    border-radius: 24px;
+    padding-right: 8px;
+    font-size: 10pt;
+    color: #555;
+    margin-right: 8px;
+}
+
+.post-form .tag-bar .tag button {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    padding: 0;
+    border: none;
+    background-color: unset;
+    margin: 0;
+    cursor: pointer;
+}
+
+.post-form .tag-bar input {
+    background-color: white;
+    font-size: 10pt;
+    padding: 4px 12px;
+    width: 8em;
+    border: 1px solid #ccc;
+    border-radius: 24px;
+}

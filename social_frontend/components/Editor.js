@@ -4,6 +4,7 @@ import Axios from 'axios';
 
 import Markdown from './Markdown';
 import Attachments from './Attachments';
+import TagBar from './common/TagBar';
 import { imageAbsoluteURL, submitPostEndpoint } from '../util/endpoints';
 
 import '../styles/editor.css';
@@ -110,6 +111,7 @@ export default class PostForm extends React.Component {
     title: '',
     description: '',
     attachments: [],
+    categories: [],
     canPost: false,
     visibility: 'PUBLIC',
     errorMessage: null,
@@ -133,6 +135,8 @@ export default class PostForm extends React.Component {
     this.handleUnlistedToggle = this.handleUnlistedToggle.bind(this);
     this.handleAttachingToggle = this.handleAttachingToggle.bind(this);
     this.handleAdvancedToggle = this.handleAdvancedToggle.bind(this);
+    this.handleAddCategory = this.handleAddCategory.bind(this);
+    this.handleRemoveCategory = this.handleRemoveCategory.bind(this);
     this.handleAttach = this.handleAttach.bind(this);
     this.handleDetach = this.handleDetach.bind(this);
   }
@@ -192,6 +196,7 @@ export default class PostForm extends React.Component {
       textContent: content,
       description,
       title,
+      categories,
       attachments,
       isMarkdown,
       isUnlisted,
@@ -271,11 +276,11 @@ export default class PostForm extends React.Component {
         : {
           title,
           visibility,
+          categories,
+          description,
           contentType: adjustedContentType,
           content: adjustedContent,
           unlisted: isUnlisted,
-          description: description,
-          // categories: [],
           // visibleTo: [],
         };
 
@@ -287,7 +292,10 @@ export default class PostForm extends React.Component {
       }) => {
         this.setState({
           textContent: '',
+          description: '',
+          title: '',
           attachments: [],
+          categories: [],
           canPost: false,
           isPreview: false,
         });
@@ -359,6 +367,18 @@ export default class PostForm extends React.Component {
     });
   }
 
+  handleAddCategory(category) {
+    this.setState(({ categories }) => ({
+      categories: [...categories, category],
+    }));
+  }
+
+  handleRemoveCategory(index) {
+    this.setState(({ categories }) => ({
+      categories: categories.filter((a, i) => i !== index),
+    }));
+  }
+
   handleAttach(file) {
     const fr = new FileReader();
     fr.onload = ({ target: { result } }) => {
@@ -389,6 +409,7 @@ export default class PostForm extends React.Component {
       textContent,
       title,
       description,
+      categories,
       attachments,
       canPost,
       isMarkdown,
@@ -470,6 +491,18 @@ export default class PostForm extends React.Component {
                 placeholder={placeholder}
               />
             )
+        }
+        {
+          showAdvanced && !isComment && (
+            <TagBar
+              editable
+              editPlaceholder="Add category"
+              items={categories}
+              render={(text) => `#${text}`}
+              onAddItem={this.handleAddCategory}
+              onRemoveItem={this.handleRemoveCategory}
+            />
+          )
         }
         {errorMessage}
         <PostFormControls
