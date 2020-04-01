@@ -147,7 +147,7 @@ export const editUser = (id, username, password, password2) => (
   (dispatch) => {
     dispatch(editStart);
     if (password === password2) {
-      axios.put(`/author/${id}/`, {
+      axios.put(`/api/author/${id}/`, {
         username,
         password,
       }).then((res) => {
