@@ -66,8 +66,6 @@ class EditProfilePage extends React.Component {
     } = this.state;
     const { onEdit, id } = this.props;
 
-    console.log(this.props);
-
     return onEdit(id, enteredUsername, enteredPassword1, enteredPassword2);
   }
 
@@ -155,8 +153,10 @@ const mapStateToProps = ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  // eslint-disable-next-line max-len
-  onEdit: (id, userName, password1, password2) => dispatch(actions.editUser(id, userName, password1, password2)),
+  onEdit:
+  (id, userName, password, password2) => dispatch(actions.editUser(
+    id, userName, password, password2,
+  )),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditProfilePage);

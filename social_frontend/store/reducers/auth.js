@@ -64,7 +64,6 @@ const editStart = (state) => (
   })
 );
 
-
 const editSuccess = (state) => (
   updateObject(state, {
     errorMessage: null,
