@@ -78,7 +78,7 @@ def posts_visible(request):
 def posts_by_aid(request, aid):
     if not (request.user.is_authenticated or authenticate_node(request)):
         return HttpResponse(status=401, content="Unauthorized")
-    #ensure_data()
+    ensure_data()
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
