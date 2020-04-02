@@ -586,7 +586,6 @@ PostForm.propTypes = {
   defaultTitle: PropTypes.string,
   defaultDescription: PropTypes.string,
   defaultCategories: PropTypes.arrayOf(PropTypes.string),
-  defaultVisibleTo: PropTypes.arrayOf(PropTypes.string),
   defaultUnlistedState: PropTypes.bool,
   defaultVisibility: PropTypes.oneOf([
     'PUBLIC',
@@ -596,6 +595,7 @@ PostForm.propTypes = {
     'AUTHOR',
     'PRIVATE',
   ]),
+  defaultVisibleTo: PropTypes.arrayOf(PropTypes.string),
   endpoint: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
 };

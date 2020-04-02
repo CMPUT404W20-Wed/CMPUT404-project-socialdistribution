@@ -109,6 +109,7 @@ class Post extends React.Component {
       comments,
       contentType,
       visibility,
+      visibleTo,
       unlisted,
     } = post;
 
@@ -163,6 +164,7 @@ class Post extends React.Component {
                 defaultTitle={title}
                 defaultCategories={categories}
                 defaultVisibility={visibility}
+                defaultVisibleTo={visibleTo}
                 defaultUnlistedState={unlisted}
               />
             )
