@@ -1,5 +1,6 @@
 from django.core import serializers
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from django.shortcuts import get_object_or_404
 from rest_framework.renderers import JSONRenderer
 from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
@@ -7,7 +8,7 @@ from .forms import UserForm
 from .models import User, Post, Comment, Friend, LocalLogin, RemoteLogin, url
 from django.core.paginator import Paginator
 from .utils import *
-from .filters import apply_filter
+from .filters import get_posts_by_status, get_public_posts, user_is_authorized
 import json
 import requests
 import time
@@ -38,8 +39,17 @@ def posts_visible(request):
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
-        # TODO: posts visible to the currently authenticated user
-        posts = apply_filter(request, filter_)
+
+        if filter_:
+            posts = get_posts_by_status(filter_)
+        else:
+            posts = Post.objects.all()
+
+        posts = list(filter(
+                lambda post: (user_is_authorized(request.user, post)
+                    and not post.unlisted),
+                posts))
+
         posts_pages = Paginator(posts, size)
         response_body = {
             "query": "posts",
@@ -72,9 +82,17 @@ def posts_by_aid(request, aid):
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
         # all posts made by author id aid visible to currently authed user
-        # TODO: this thing here ignores the visibility thing
         user = User.objects.get(pk=aid)
         posts = Post.objects.filter(author=user)
+
+        # Note that your own unlisted posts show up on your profile,
+        # but others' unlisted posts don't show up on their profile
+        posts = list(filter(
+                lambda post: (user_is_authorized(request.user, post)
+                    and not (post.unlisted
+                        and not post.author.id == request.user.id)),
+                posts))
+
         posts_pages = Paginator(posts, size)
         response_body = {
             "query": "posts",
@@ -89,14 +107,19 @@ def posts_by_aid(request, aid):
 
 # posts/
 def all_posts(request):
-    if not (request.user.is_authenticated or authenticate_node(request)):
+    # NOTE: This endpoint will return unlisted posts,
+    # so it is only available to other nodes, not the frontend
+    if not authenticate_node(request):
         return HttpResponse(status=401, content="Unauthorized")
+
     method = request.method
-    # grab_external_data()
     ensure_data()
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
-        posts = apply_filter(request, filter_)
+        posts = list(filter(
+                lambda post: user_is_authorized(request.user, post),
+                get_public_posts()))
+
         posts_pages = Paginator(posts, size)
         response_body = {
             "query": "posts",
@@ -117,7 +140,11 @@ def posts_by_pid(request, pid):
     ensure_data()
     method = request.method
     if method == "GET":
-        post = Post.objects.get(pk=pid)
+        post = get_object_or_404(Post, pk=pid)
+        if not user_is_authorized(request.user, post):
+            # returning forbidden would leak information
+            return HttpResponseNotFound()
+
         response_body = JSONRenderer().render({
             "query": "getPost",
             "post": PostSerializer(post).data
@@ -153,7 +180,11 @@ def comments_by_pid(request, pid):
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
-        post = Post.objects.get(pk=pid)
+        post = get_object_or_404(Post, pk=pid)
+        if not user_is_authorized(request.user, post):
+            # returning forbidden would leak information
+            return HttpResponseNotFound()
+
         comments = Comment.objects.filter(post=post)
         comments_pages = Paginator(comments, size)
         response_body = {
@@ -184,7 +215,14 @@ def comments_by_cid(request, pid, cid):
         return HttpResponse(status=401, content="Unauthorized")
     ensure_data()
     method = request.method
-    comment = Comment.objects.get(pk=cid)
+
+    post = get_object_or_404(Post, pk=pid)
+    if not user_is_authorized(request.user, post):
+        # returning forbidden would leak information
+        return HttpResponseNotFound()
+
+    comment = get_object_or_404(Comment, post=post, pk=cid)
+
     if comment.author.id == request.user.pk:
         if method == "DELETE":
             comment.delete()

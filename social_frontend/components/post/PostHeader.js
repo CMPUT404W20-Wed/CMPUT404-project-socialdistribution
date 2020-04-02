@@ -6,6 +6,16 @@ import PopupMenu from '../common/PopupMenu';
 import aidToUuid from '../../util/aidToUuid';
 
 
+const visibilityLabels = {
+  PUBLIC: 'Public',
+  PRIVATE: 'Private',
+  FRIENDS: 'All friends',
+  FOAF: 'Friends of friends',
+  SERVERONLY: 'Local friends',
+  AUTHOR: 'Private to group',
+};
+
+
 /* Header of a post.
  * Displays post info, and links to edit and delete if isOwnPost is set.
  *
@@ -13,6 +23,8 @@ import aidToUuid from '../../util/aidToUuid';
  */
 const PostHeader = ({
   author: { id, displayName },
+  visibility,
+  unlisted,
   isOwnPost,
   onEditClick,
   onDeleteClick,
@@ -26,6 +38,14 @@ const PostHeader = ({
       <div className="author-name">{displayName}</div>
       {/* <div className="author-id">{id}</div> */}
     </Link>
+    {
+      (visibility && (visibility !== 'PUBLIC' || unlisted)) && (
+        <div className="post-visibility">
+          {visibilityLabels[visibility]}
+          {unlisted && <span title="Unlisted"> *</span>}
+        </div>
+      )
+    }
     {
       isOwnPost && (
         <PopupMenu className="post-menu" handle="⁝">
@@ -54,9 +74,23 @@ PostHeader.propTypes = {
     id: PropTypes.string.isRequired,
     displayName: PropTypes.string.isRequired,
   }).isRequired,
+  visibility: PropTypes.oneOf([
+    'PUBLIC',
+    'PRIVATE',
+    'FRIENDS',
+    'FOAF',
+    'AUTHOR',
+    'SERVERONLY',
+  ]),
+  unlisted: PropTypes.bool,
   isOwnPost: PropTypes.bool.isRequired,
   onEditClick: PropTypes.func.isRequired,
   onDeleteClick: PropTypes.func.isRequired,
+};
+
+PostHeader.defaultProps = {
+  unlisted: false,
+  visibility: undefined,
 };
 
 export default PostHeader;

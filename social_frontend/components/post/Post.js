@@ -104,6 +104,8 @@ class Post extends React.Component {
       content,
       comments,
       contentType,
+      visibility,
+      unlisted,
     } = post;
 
     const authorId = aidToUuid(author.id);
@@ -137,6 +139,8 @@ class Post extends React.Component {
       <article className={`post ${className}`}>
         <PostHeader
           author={author}
+          visibility={visibility}
+          unlisted={unlisted}
           isOwnPost={isOwnPost}
           onEditClick={this.doEdit}
           onDeleteClick={this.doDelete}
