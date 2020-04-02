@@ -514,7 +514,7 @@ def ensure_data():
             responses.append(response.json())
 
         # Delete all foreign posts and comments
-        User.objects.filter(local=False).delete()
+        #User.objects.filter(local=False).delete()
         Post.objects.filter(local=False).delete()
         Comment.objects.filter(local=False).delete()
 
