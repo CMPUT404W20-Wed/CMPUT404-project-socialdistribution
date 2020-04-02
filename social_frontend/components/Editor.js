@@ -472,14 +472,18 @@ export default class PostForm extends React.Component {
             checked={isMarkdown}
             onChange={this.handleMarkdownToggle}
           />
-          <input
-            type="checkbox"
-            name="markdown"
-            className="post-form-advanced-toggle"
-            title="Advanced"
-            checked={showAdvanced}
-            onChange={this.handleAdvancedToggle}
-          />
+          {
+            !isComment && (
+              <input
+                type="checkbox"
+                name="markdown"
+                className="post-form-advanced-toggle"
+                title="Advanced"
+                checked={showAdvanced}
+                onChange={this.handleAdvancedToggle}
+              />
+            )
+          }
           <input
             type="checkbox"
             name="markdown"

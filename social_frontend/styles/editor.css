@@ -118,6 +118,14 @@
     margin-right: 8px;
 }
 
+.post-form input.post-form-attach-toggle {
+    margin-left: auto;
+}
+
+.post-form input.post-form-advanced-toggle + .post-form-attach-toggle {
+    margin-left: 0;
+}
+
 .post-form input.post-form-title {
     background-color: white;
     border: 1px solid #ccc;
