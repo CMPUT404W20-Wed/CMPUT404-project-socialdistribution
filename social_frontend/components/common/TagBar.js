@@ -12,53 +12,96 @@ class TagInput extends React.Component {
 
     this.checkSubmit = this.checkSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.select = this.select.bind(this);
+  }
+
+  submit(text) {
+    const { onSubmit } = this.props;
+
+    event.preventDefault();
+
+    onSubmit(text);
+
+    this.setState({
+      text: '',
+    });
   }
 
   checkSubmit(event) {
     const { text } = this.state;
 
     if (event.key === 'Enter' && text.length) {
-      event.preventDefault();
-      const { onSubmit } = this.props;
+      const { suggestions } = this.props;
 
-      onSubmit(text);
-
-      this.setState({
-        text: '',
-      });
+      let completedText = suggestions ? suggestions[0] : text;
+      this.submit(completedText);
     }
   }
 
   handleChange(event) {
+    const { afterChange } = this.props;
+
     this.setState({
       text: event.target.value,
     });
+
+    if (afterChange) afterChange(event.target.value);
+  }
+
+  select(value) {
+    this.setState({
+      text: value,
+    });
+
+    this.submit(value);
   }
 
   render() {
-    const { placeholder } = this.props;
+    const { placeholder, suggestions } = this.props;
     const { text } = this.state;
     return (
-      <input
-        value={text}
-        placeholder={placeholder}
-        onChange={this.handleChange}
-        onKeyPress={this.checkSubmit}
-      />
+      <div className="tag-new">
+        <input
+          value={text}
+          placeholder={placeholder}
+          onChange={this.handleChange}
+          onKeyPress={this.checkSubmit}
+        />
+        {
+          suggestions && suggestions.length > 0 && (
+            <div className="tag-suggestions">
+              {
+                suggestions.map((s) => (
+                  <div key={s} onClick={() => this.select(s)}>
+                    {s}
+                  </div>
+                ))
+              }
+            </div>
+          )
+        }
+      </div>
     );
   }
 }
+
+TagInput.defaultProps = {
+  suggestions: [],
+};
 
 
 const TagBar = ({
   render,
   items,
   editable,
+  suggestions,
   editPlaceholder,
   onAddItem,
   onRemoveItem,
+  onInputChange,
+  className,
 }) => (
-  <div className="tag-bar">
+  <div className={className || "tag-bar"}>
     {
         items.map((item, i) => (
           <div className="tag" key={item}>
@@ -79,11 +122,17 @@ const TagBar = ({
       editable && (
         <TagInput
           onSubmit={(text) => onAddItem(text)}
+          afterChange={onInputChange}
           placeholder={editPlaceholder}
+          suggestions={suggestions}
         />
       )
     }
   </div>
 );
+
+TagBar.defaultProps = {
+  suggestions: [],
+};
 
 export default TagBar;

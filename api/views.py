@@ -16,6 +16,7 @@ from django.db.models import Q
 request_last_updated = 0
 
 from .views_.media import *
+from .views_.usersearch import *
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
 

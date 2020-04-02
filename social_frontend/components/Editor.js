@@ -5,6 +5,7 @@ import Axios from 'axios';
 import Markdown from './Markdown';
 import Attachments from './Attachments';
 import TagBar from './common/TagBar';
+import EditorUserBar from './EditorUserBar';
 import { imageAbsoluteURL, submitPostEndpoint } from '../util/endpoints';
 
 import '../styles/editor.css';
@@ -62,6 +63,7 @@ const PostFormControls = ({
                 <option value="FOAF">Friends of friends</option>
                 <option value="FRIENDS">All friends</option>
                 <option value="SERVERONLY">Local friends</option>
+                <option value="AUTHOR">Specific people</option>
                 <option value="PRIVATE">Private</option>
               </select>
               <input
@@ -89,6 +91,7 @@ PostFormControls.propTypes = {
     'FOAF',
     'FRIENDS',
     'SERVERONLY',
+    'AUTHOR',
     'PRIVATE',
   ]).isRequired,
   cancelCallback: PropTypes.func,
@@ -114,6 +117,7 @@ export default class PostForm extends React.Component {
     categories: [],
     canPost: false,
     visibility: 'PUBLIC',
+    visibleTo: [],
     errorMessage: null,
     isMarkdown: false,
     isUnlisted: false,
@@ -137,6 +141,8 @@ export default class PostForm extends React.Component {
     this.handleAdvancedToggle = this.handleAdvancedToggle.bind(this);
     this.handleAddCategory = this.handleAddCategory.bind(this);
     this.handleRemoveCategory = this.handleRemoveCategory.bind(this);
+    this.handleAddUser = this.handleAddUser.bind(this);
+    this.handleRemoveUser = this.handleRemoveUser.bind(this);
     this.handleAttach = this.handleAttach.bind(this);
     this.handleDetach = this.handleDetach.bind(this);
   }
@@ -148,6 +154,7 @@ export default class PostForm extends React.Component {
       defaultDescription,
       defaultCategories,
       defaultVisibility,
+      defaultVisibleTo,
       defaultUnlistedState,
     } = this.props;
 
@@ -157,6 +164,7 @@ export default class PostForm extends React.Component {
       description: defaultDescription,
       categories: defaultCategories ?? [],
       visibility: defaultVisibility,
+      visibleTo: defaultVisibleTo ?? [],
       isUnlisted: defaultUnlistedState,
       canPost: (defaultContent.length > 0),
       showAdvanced: (
@@ -219,6 +227,7 @@ export default class PostForm extends React.Component {
       isUnlisted,
       isAttaching,
       visibility,
+      visibleTo,
     } = this.state;
 
     // Handle attachments
@@ -245,13 +254,13 @@ export default class PostForm extends React.Component {
 
         const attachmentPost = {
           visibility,
+          visibleTo,
           contentType: attachmentType,
           content: window.btoa(attachmentContent),
           title: file.name,
           unlisted: true,
           description: 'Attachment',
-          // categories: [],
-          // visibleTo: [],
+          categories: [],
         };
 
         return Axios.post(submitPostEndpoint(), attachmentPost).then(({
@@ -293,12 +302,12 @@ export default class PostForm extends React.Component {
         : {
           title,
           visibility,
+          visibleTo,
           categories,
           description,
           contentType: adjustedContentType,
           content: adjustedContent,
           unlisted: isUnlisted,
-          // visibleTo: [],
         };
 
       const method = isPatching ? 'put' : 'post';
@@ -396,6 +405,18 @@ export default class PostForm extends React.Component {
     }));
   }
 
+  handleAddUser(id) {
+    this.setState(({ visibleTo }) => ({
+      visibleTo: [...visibleTo, id],
+    }));
+  }
+
+  handleRemoveUser(index) {
+    this.setState(({ visibleTo }) => ({
+      visibleTo: visibleTo.filter((u, i) => i !== index),
+    }));
+  }
+
   handleAttach(file) {
     const fr = new FileReader();
     fr.onload = ({ target: { result } }) => {
@@ -435,6 +456,7 @@ export default class PostForm extends React.Component {
       isAttaching,
       showAdvanced,
       visibility,
+      visibleTo,
       errorMessage,
     } = this.state;
 
@@ -522,6 +544,18 @@ export default class PostForm extends React.Component {
           )
         }
         {errorMessage}
+        {
+          visibility === 'AUTHOR' && (
+            <>
+              <h4 className="user-bar-header">Share with</h4>
+              <EditorUserBar
+                items={visibleTo}
+                onAddUser={this.handleAddUser}
+                onRemoveUser={this.handleRemoveUser}
+              />
+            </>
+          )
+        }
         <PostFormControls
           canPost={canPost}
           canPreview={isMarkdown}
@@ -557,6 +591,7 @@ PostForm.defaultProps = {
   defaultTitle: '',
   defaultDescription: '',
   defaultCategories: null,
+  defaultVisibleTo: null,
   defaultUnlistedState: false,
   defaultVisibility: 'PUBLIC',
   onCancel: undefined,
