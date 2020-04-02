@@ -50,14 +50,12 @@ class Group4Adapter:
         post_json_d.pop('size', None)
 
         # Empty category is invalid
-        print('a')
         post_json_d['categories'] = list(filter(
                 lambda x: x,
                 post_json_d['categories']))
 
         # import pdb; pdb.set_trace()
 
-        print('b')
         if post_json_d['contentType'] == 'TYPE_PLAIN':
             print("Converted content type")
             # pdb.set_trace()

@@ -79,7 +79,6 @@ def posts_by_aid(request, aid):
     if not (request.user.is_authenticated or authenticate_node(request)):
         return HttpResponse(status=401, content="Unauthorized")
     #ensure_data()
-    print("?")
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
@@ -89,7 +88,6 @@ def posts_by_aid(request, aid):
 
         # Note that your own unlisted posts show up on your profile,
         # but others' unlisted posts don't show up on their profile
-        print(posts)
         posts = list(filter(
                 lambda post: (user_is_authorized(request.user, post)
                     and not (post.unlisted
@@ -533,9 +531,7 @@ def ensure_data():
 
                 # create post before creating comments
                 try:
-                    print("will create post")
                     post_obj = adapter.create_post(post)
-                    print("did create post")
 
                     for comment in comments:
                         # print("Comment: {}".format(comment))
