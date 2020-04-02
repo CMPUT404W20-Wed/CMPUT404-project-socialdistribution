@@ -184,7 +184,7 @@ class Post extends React.Component {
                 {
                   categories && categories.length > 0 && (
                     <TagBar
-                      render={(category)=>`#${category}`}
+                      render={(category) => `#${category}`}
                       items={categories}
                     />
                   )

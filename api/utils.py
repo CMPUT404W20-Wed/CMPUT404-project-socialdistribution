@@ -41,7 +41,7 @@ class Group4Adapter:
         post_json_d = copy.deepcopy(post_json)
         # print("Post: {}".format(post_json))
         id = post_json_d['id']
-        print("Post: {}".format(post_json_d))
+        print("G4 Post: {}".format(post_json_d))
         # post_json_d['author'] = self.create_author(post_json_d['author'])
         post_json_d['local'] = False
         post_json_d.pop('count', None)
@@ -49,15 +49,26 @@ class Group4Adapter:
         post_json_d.pop('comments', None)
         post_json_d.pop('size', None)
 
+        # Empty category is invalid
+        print('a')
+        post_json_d['categories'] = list(filter(
+                lambda x: x,
+                post_json_d['categories']))
+
         # import pdb; pdb.set_trace()
 
+        print('b')
         if post_json_d['contentType'] == 'TYPE_PLAIN':
+            print("Converted content type")
             # pdb.set_trace()
             post_json_d['contentType'] = 'text/plain'
         
-        if post_json_d['contentType'] == 'TYPE_MARKDOWN':
+        elif post_json_d['contentType'] == 'TYPE_MARKDOWN':
+            print("Converted content type")
             # pdb.set_trace()
             post_json_d['contentType'] = 'text/markdown'
+        else:
+            print("OK content type:", post_json_d['contentType'])
 
         post_obj = Post(**post_json_d)
         post_obj.save()
@@ -107,13 +118,19 @@ class Group3Adapter:
 
     def create_post(self, post_json):
         post_json_d = copy.deepcopy(post_json)
-        print("Post: {}".format(post_json))
+        print("G3 Post: {}".format(post_json))
         id = post_json_d['id']
         # post_json_d['author'] = self.create_author(post_json_d['author'])
         post_json_d['local'] = False
         post_json_d.pop('count', None)
         post_json_d.pop('next', None)
         post_json_d.pop('comments', None)
+        post_json_d.pop('size', None)
+
+        # Empty category is invalid
+        post_json_d['categories'] = list(filter(
+                lambda x: x,
+                post_json_d['categories']))
 
         post_obj = Post(**post_json_d)
         post_obj.save()

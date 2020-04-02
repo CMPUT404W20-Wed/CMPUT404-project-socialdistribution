@@ -78,7 +78,8 @@ def posts_visible(request):
 def posts_by_aid(request, aid):
     if not (request.user.is_authenticated or authenticate_node(request)):
         return HttpResponse(status=401, content="Unauthorized")
-    ensure_data()
+    #ensure_data()
+    print("?")
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
@@ -88,6 +89,7 @@ def posts_by_aid(request, aid):
 
         # Note that your own unlisted posts show up on your profile,
         # but others' unlisted posts don't show up on their profile
+        print(posts)
         posts = list(filter(
                 lambda post: (user_is_authorized(request.user, post)
                     and not (post.unlisted
@@ -512,7 +514,7 @@ def ensure_data():
             adapter = adapters[login.host]
 
             response = adapter.get_request("{}{}".format(login.host, "posts"), login)
-            responses.append(response.json())
+            responses.append((adapter, response.json()))
 
         # Delete all foreign posts and comments
         #User.objects.filter(local=False).delete()
@@ -520,7 +522,7 @@ def ensure_data():
         Comment.objects.filter(local=False).delete()
 
             
-        for response_json in responses:
+        for adapter, response_json in responses:
             for post in response_json['posts']:
                 author_obj = adapter.create_author(post['author'])
                 get_foreign_friends(login, author_obj, adapter)
@@ -531,7 +533,9 @@ def ensure_data():
 
                 # create post before creating comments
                 try:
+                    print("will create post")
                     post_obj = adapter.create_post(post)
+                    print("did create post")
 
                     for comment in comments:
                         # print("Comment: {}".format(comment))
@@ -543,8 +547,9 @@ def ensure_data():
                             comment['contentType'] = 'text/plain'
                         comment_obj = adapter.create_comment(comment)
                         # get or create? save?
-                except:
-                    print("Rejecting post due to error")
+                except Exception as e:
+                    print("Rejecting post due to error:")
+                    print(e)
 
     else:
         pass
@@ -552,20 +557,24 @@ def ensure_data():
         
 
 def get_foreign_friends(login, author, adapter):
-    url = adapter.get_friends_path(author)
-    #print("URL: {}".format(url))
-    response = adapter.get_request(url, login)
-    #print("Code: {}".format(response.status_code))
-    response_json = response.json()
+    try:
+        url = adapter.get_friends_path(author)
+        #print("URL: {}".format(url))
+        response = adapter.get_request(url, login)
+        #print("Code: {}".format(response.status_code))
+        response_json = response.json()
 
-    for author_id in response_json['authors']:
-        #print('Author: {}'.format(author_id))
-        url = adapter.get_author_path(author)
-        try:
-            response = adapter.get_request(url, login)
-            response_json = response.json()
-            response_json['author'].pop('friends', None)
-            adapter.create_author(response_json['author'])
-        except Exception as e:
-            #raise(e)
-            print("BAD")
+        for author_id in response_json['authors']:
+            #print('Author: {}'.format(author_id))
+            url = adapter.get_author_path(author)
+            try:
+                response = adapter.get_request(url, login)
+                response_json = response.json()
+                response_json['author'].pop('friends', None)
+                adapter.create_author(response_json['author'])
+            except Exception as e:
+                print("Rejecting friend due to error:")
+                print(e)
+    except Exception as e:
+        print("Rejecting entire friends list due to error:")
+        print(e)

@@ -21,7 +21,8 @@ const filterToQueryMap = {
   following: 'following',
   related: 'foaf',
   friends: 'friends',
-  personal: 'private',
+  personal: 'author',
+  private: 'private',
 };
 
 
@@ -45,6 +46,9 @@ const StreamFilterNav = () => (
     </NavLink>
     <NavLink to="/personal" activeClassName="active">
       Personal
+    </NavLink>
+    <NavLink to="/private" activeClassName="active">
+      Private
     </NavLink>
   </nav>
 );

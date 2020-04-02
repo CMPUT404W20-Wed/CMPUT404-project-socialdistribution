@@ -33,7 +33,7 @@ export default class EditorUserBar extends React.Component {
           suggestions: matches.map(({ displayName }) => displayName),
         });
         matches.forEach(
-          (match) => { this.userMap[match.displayName] = match },
+          (match) => { this.userMap[match.displayName] = match; },
         );
       });
     }
@@ -50,7 +50,7 @@ export default class EditorUserBar extends React.Component {
   }
 
   render() {
-    const { items, onAddUser, onRemoveUser } = this.props;
+    const { items, onRemoveUser } = this.props;
     const { suggestions } = this.state;
 
     return (
@@ -68,3 +68,9 @@ export default class EditorUserBar extends React.Component {
     );
   }
 }
+
+EditorUserBar.propTypes = {
+  onAddUser: PropTypes.func.isRequired,
+  onRemoveUser: PropTypes.func.isRequired,
+  items: PropTypes.arrayOf(PropTypes.string).isRequired,
+};

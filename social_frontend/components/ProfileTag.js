@@ -43,3 +43,7 @@ export default class ProfileTag extends React.Component {
     );
   }
 }
+
+ProfileTag.propTypes = {
+  id: PropTypes.string.isRequired,
+};

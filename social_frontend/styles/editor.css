@@ -202,25 +202,29 @@
     width: calc(8em + 8px);
 }
 
-.post-form .user-bar .tag-suggestions > div {
+.post-form .user-bar .tag-suggestions > button {
+    border: none;
+    background-color: unset;
+    width: 100%;
     padding: 4px;
+    margin: 0;
     cursor: pointer;
 }
 
-.post-form .user-bar .tag-suggestions> div:last-child {
+.post-form .user-bar .tag-suggestions> button:last-child {
     border-radius: 0 0 3px 3px;
 }
 
-.post-form .user-bar .tag-suggestions > div:hover {
+.post-form .user-bar .tag-suggestions > button:hover {
     background-color: white;
 }
 
-.post-form .user-bar .tag-suggestions > div:first-child {
+.post-form .user-bar .tag-suggestions > button:first-child {
     background-color: #fcc;
     font-weight: bold;
 }
 
-.post-form .user-bar .tag-suggestions > div:first-child:hover {
+.post-form .user-bar .tag-suggestions > button:first-child:hover {
     background-color: #fdd;
 }
 

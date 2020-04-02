@@ -18,8 +18,6 @@ class TagInput extends React.Component {
   submit(text) {
     const { onSubmit } = this.props;
 
-    event.preventDefault();
-
     onSubmit(text);
 
     this.setState({
@@ -31,9 +29,11 @@ class TagInput extends React.Component {
     const { text } = this.state;
 
     if (event.key === 'Enter' && text.length) {
+      event.preventDefault();
+
       const { suggestions } = this.props;
 
-      let completedText = suggestions ? suggestions[0] : text;
+      const completedText = suggestions ? suggestions[0] : text;
       this.submit(completedText);
     }
   }
@@ -72,9 +72,9 @@ class TagInput extends React.Component {
             <div className="tag-suggestions">
               {
                 suggestions.map((s) => (
-                  <div key={s} onClick={() => this.select(s)}>
+                  <button type="button" key={s} onClick={() => this.select(s)}>
                     {s}
-                  </div>
+                  </button>
                 ))
               }
             </div>
@@ -85,8 +85,16 @@ class TagInput extends React.Component {
   }
 }
 
+TagInput.propTypes = {
+  placeholder: PropTypes.string.isRequired,
+  suggestions: PropTypes.arrayOf(PropTypes.string).isRequired,
+  afterChange: PropTypes.func,
+  onSubmit: PropTypes.func,
+};
+
 TagInput.defaultProps = {
-  suggestions: [],
+  afterChange: undefined,
+  onSubmit: undefined,
 };
 
 
@@ -101,7 +109,7 @@ const TagBar = ({
   onInputChange,
   className,
 }) => (
-  <div className={className || "tag-bar"}>
+  <div className={className || 'tag-bar'}>
     {
         items.map((item, i) => (
           <div className="tag" key={item}>
@@ -111,7 +119,9 @@ const TagBar = ({
                   type="button"
                   className="tag-delete"
                   onClick={() => onRemoveItem(i)}
-                >×</button>
+                >
+                  ×
+                </button>
               )
             }
             {render(item)}
@@ -131,8 +141,26 @@ const TagBar = ({
   </div>
 );
 
+TagBar.propTypes = {
+  render: PropTypes.func.isRequired,
+  items: PropTypes.arrayOf(PropTypes.string).isRequired,
+  editable: PropTypes.bool,
+  suggestions: PropTypes.arrayOf(PropTypes.string),
+  editPlaceholder: PropTypes.string,
+  onAddItem: PropTypes.func,
+  onRemoveItem: PropTypes.func,
+  onInputChange: PropTypes.func,
+  className: PropTypes.string,
+};
+
 TagBar.defaultProps = {
+  editable: false,
   suggestions: [],
+  editPlaceholder: '',
+  onAddItem: undefined,
+  onRemoveItem: undefined,
+  onInputChange: undefined,
+  className: undefined,
 };
 
 export default TagBar;
