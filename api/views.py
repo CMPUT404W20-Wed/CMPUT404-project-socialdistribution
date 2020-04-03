@@ -12,7 +12,6 @@ from .filters import get_posts_by_status, get_public_posts, user_is_authorized
 import json
 import requests
 import time
-from github import Github
 from datetime import datetime, timedelta
 from django.db.models import Q
 
@@ -571,31 +570,47 @@ def get_foreign_friends(login, author, adapter):
             #raise(e)
             print("BAD")
 
-def github_post(request):
+# /author/<id>/github/
+# Returns github activity for ME
+def github_post(request, aid):
     method = request.method
-    if method == "GET":
-        gh = Github("org-name", "access-token")
+    if method == "POST":
         user = request.user
+        if user.id != aid:
+            # Not authorized to make this request
+            return HttpResponse(status=401, content="Unauthorized")
+        
         gh_username = user.github.split('/')[-1]
+        url = "https://api.github.com/users/" + str(gh_username) + "/events"
+        response = requests.get(url)
 
-        gh_user = gh.get_user(gh_username)
+        if response.status_code != 200 and response.status_code != 301:
+            return HttpResponse(status=response.status_code)
+        
+        json_response = response.json()
 
-        # print(user.contributions)
-        gh_events = gh_user.get_public_events()
-        content = ""
-        for gh_event in gh_events:
-            # Get activity from last week. Change timedelta to suit how long you want
-            if gh_event.created_at >= datetime.now() - timedelta(days=7):
-                content += str(gh_event.type) + "occured at" + str(gh_event.created_at) + "in the repo" + str(gh_event.repo.name) + "\n"
+        activity_post = ""
+        for event in json_response:
+            created_at = event["created_at"]
+            created_at = created_at.replace("T", "-").replace("Z", "").replace(":", "-")
+            created_at = created_at.split("-")
+            created_at = datetime(int(created_at[0]), int(created_at[1]), int(created_at[2]), int(created_at[3]), int(created_at[4]), int(created_at[5]))
+
+            # Get activity from last week. Change timedelta based on preference
+            if created_at >= datetime.now() - timedelta(days=7):
+                activity_post += "Made a " + event["type"] + " in " + str(event["repo"]["name"])
+                activity_post += " at " + str(created_at) + "\n"
         
         response_body = JSONRenderer().render({
             "id": user.host+"/author/"+str(user.id),
             "host": user.host,
             "displayName": user.username,
             "url": user.host+"/author/"+str(user.id),
-            "github": user.github
-            "activity": content
+            "github": user.github,
+            "activity": activity_post,
         })
+
+        # TODO: Actually save the gh activity as a post
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")

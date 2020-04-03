@@ -34,5 +34,6 @@ urlpatterns = [
     path('author/<uuid:aid1>/friends/<uuid:aid2>/', views.friendship_by_aid),
     path('author/<uuid:aid>/followers/', views.followers),
     path('author/<uuid:aid>/following/', views.following),
+    path('author/<uuid:aid>/github/', views.github_post),
     path('friendrequest/', views.friendrequest),
 ]
