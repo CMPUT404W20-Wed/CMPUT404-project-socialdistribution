@@ -12,6 +12,8 @@ from .filters import get_posts_by_status, get_public_posts, user_is_authorized
 import json
 import requests
 import time
+from github import Github
+from datetime import datetime, timedelta
 from django.db.models import Q
 
 request_last_updated = 0
