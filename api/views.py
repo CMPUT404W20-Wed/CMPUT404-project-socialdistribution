@@ -568,3 +568,32 @@ def get_foreign_friends(login, author, adapter):
         except Exception as e:
             #raise(e)
             print("BAD")
+
+def github_post(request):
+    method = request.method
+    if method == "GET":
+        gh = Github("org-name", "access-token")
+        user = request.user
+        gh_username = user.github.split('/')[-1]
+
+        gh_user = gh.get_user(gh_username)
+
+        # print(user.contributions)
+        gh_events = gh_user.get_public_events()
+        content = ""
+        for gh_event in gh_events:
+            # Get activity from last week. Change timedelta to suit how long you want
+            if gh_event.created_at >= datetime.now() - timedelta(days=7):
+                content += str(gh_event.type) + "occured at" + str(gh_event.created_at) + "in the repo" + str(gh_event.repo.name) + "\n"
+        
+        response_body = JSONRenderer().render({
+            "id": user.host+"/author/"+str(user.id),
+            "host": user.host,
+            "displayName": user.username,
+            "url": user.host+"/author/"+str(user.id),
+            "github": user.github
+            "activity": content
+        })
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
