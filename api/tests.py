@@ -254,19 +254,9 @@ class EndpointTests(TestCase):
             "username": "new",
             "password": "456"
         }
-        # post = {
-        #     "title": "editme",
-        #     "description": "editme",
-        #     "content": "editme"
-        # }
-        # response1 = self.client.post('/api/author/posts/', post, content_type="application/json")
-        # post_id = response1.json()['post']['id']
-        # assert(len(Post.objects.filter(pk=post_id)) == 1)
-        # post["title"] = "edited"
         author_id = self.user1.id
         response = self.client.put('/api/author/{}/'.format(author_id), user, content_type="application/json")
         assert(response.status_code == 200)
         response_json = response.json()
         print(response_json)
-        # assert(response2_json['post']['title'] == "edited")
         # assert(Post.objects.get(pk=response2_json['post']['id']).title == "edited")
