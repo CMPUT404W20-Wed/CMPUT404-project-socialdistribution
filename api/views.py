@@ -589,7 +589,7 @@ def github_post(request, aid):
         
         json_response = response.json()
 
-        activity_post = "Github Weekly Activity\n"
+        activity_post = "Github Weekly Activity\n\n"
         for event in json_response:
             created_at = event["created_at"]
             created_at = created_at.replace("T", "-").replace("Z", "").replace(":", "-")
@@ -599,7 +599,7 @@ def github_post(request, aid):
             # Get activity from last week. Change timedelta based on preference
             if created_at >= datetime.now() - timedelta(days=7):
                 activity_post += "Made a " + event["type"] + " in " + str(event["repo"]["name"])
-                activity_post += " at " + str(created_at) + "\n"
+                activity_post += " at " + str(created_at) + "\n\n"
         
         post = {
             "author": request.user,
