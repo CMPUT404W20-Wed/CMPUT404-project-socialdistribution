@@ -477,7 +477,7 @@ def ensure_data():
             responses.append(response.json())
 
         # Delete all foreign posts and comments
-        User.objects.filter(local=False).delete()
+        #User.objects.filter(local=False).delete()
         Post.objects.filter(local=False).delete()
         Comment.objects.filter(local=False).delete()
 
@@ -485,7 +485,7 @@ def ensure_data():
         for response_json in responses:
             for post in response_json['posts']:
                 author_obj = adapter.create_author(post['author'])
-                get_foreign_friends(login, author_obj, adapter)
+                #get_foreign_friends(login, author_obj, adapter)
                 # if author is created, get it
                 post['author'] = author_obj
                 

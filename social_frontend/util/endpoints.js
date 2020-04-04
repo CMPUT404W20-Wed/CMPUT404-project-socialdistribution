@@ -44,3 +44,7 @@ export const friendshipEndpoint = (follower, target) => (
 export const imageAbsoluteURL = (origin, id, ext) => (
   `${origin}/api/media/${id}.${ext}`
 );
+
+export const imagePortalEndpoint = (url) => (
+  `/api/media-redirect/${window.encodeURIComponent(url)}`
+);
