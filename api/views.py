@@ -574,7 +574,7 @@ def get_foreign_friends(login, author, adapter):
 # Returns github activity for ME
 def github_post(request, aid):
     method = request.method
-    if method == "POST":
+    if method == "GET":
         user = request.user
         if user.id != aid:
             # Not authorized to make this request
@@ -589,7 +589,7 @@ def github_post(request, aid):
         
         json_response = response.json()
 
-        activity_post = ""
+        activity_post = "Github Weekly Activity\n"
         for event in json_response:
             created_at = event["created_at"]
             created_at = created_at.replace("T", "-").replace("Z", "").replace(":", "-")
