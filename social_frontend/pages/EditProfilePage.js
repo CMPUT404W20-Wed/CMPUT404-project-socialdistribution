@@ -15,6 +15,7 @@ class EditProfilePage extends React.Component {
     enteredUsername: '',
     enteredPassword1: '',
     enteredPassword2: '',
+    github: '',
   };
 
   constructor(props) {
@@ -23,6 +24,7 @@ class EditProfilePage extends React.Component {
     this.handleUsernameFieldChange = this.handleUsernameFieldChange.bind(this);
     this.handlePassword1FieldChange = this.handlePassword1FieldChange.bind(this);
     this.handlePassword2FieldChange = this.handlePassword2FieldChange.bind(this);
+    this.handleGitHubFieldChange = this.handleGitHubFieldChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -50,6 +52,12 @@ class EditProfilePage extends React.Component {
     });
   }
 
+  handleGitHubFieldChange(event) {
+    const github = event.target.value;
+
+    this.setState({ github });
+  }
+
   /**
    * Calls the reducer to login,
    * Will automatically re-render the page
@@ -63,10 +71,11 @@ class EditProfilePage extends React.Component {
       enteredUsername,
       enteredPassword1,
       enteredPassword2,
+      github,
     } = this.state;
     const { onEdit, id } = this.props;
 
-    return onEdit(id, enteredUsername, enteredPassword1, enteredPassword2);
+    return onEdit(id, enteredUsername, enteredPassword1, enteredPassword2, github);
   }
 
   render() {
@@ -74,12 +83,14 @@ class EditProfilePage extends React.Component {
       enteredUsername,
       enteredPassword1,
       enteredPassword2,
+      github,
     } = this.state;
 
     const { errorMessage, loading } = this.props;
 
     const enableSubmit = enteredUsername.length > 0
-      || (enteredPassword1.length > 0 && enteredPassword2.length);
+      || (enteredPassword1.length > 0 && enteredPassword2.length)
+      || github;
 
 
     return (
@@ -109,6 +120,14 @@ class EditProfilePage extends React.Component {
               placeholder="Verify Password"
               value={enteredPassword2}
               onChange={this.handlePassword2FieldChange}
+            />
+            <input
+              className="field"
+              name="github"
+              type="text"
+              placeholder="Add a GitHub URL"
+              value={github}
+              onChange={this.handleGitHubFieldChange}
             />
             {
               errorMessage
@@ -154,8 +173,8 @@ const mapStateToProps = ({
 
 const mapDispatchToProps = (dispatch) => ({
   onEdit:
-  (id, userName, password, password2) => dispatch(actions.editUser(
-    id, userName, password, password2,
+  (id, userName, password, password2, github) => dispatch(actions.editUser(
+    id, userName, password, password2, github,
   )),
 });
 

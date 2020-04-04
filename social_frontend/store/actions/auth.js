@@ -142,13 +142,14 @@ export const editFail = (errorMessage) => ({
   errorMessage,
 });
 
-export const editUser = (id, username, password, password2) => (
+export const editUser = (id, username, password, password2, github) => (
   (dispatch) => {
     dispatch(editStart());
     if (password === password2) {
       axios.put(`/api/author/${id}/`, {
         username,
         password,
+        github,
       }).then(() => {
         dispatch(editSuccess());
         window.location.reload();
