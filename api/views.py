@@ -601,16 +601,27 @@ def github_post(request, aid):
                 activity_post += "Made a " + event["type"] + " in " + str(event["repo"]["name"])
                 activity_post += " at " + str(created_at) + "\n"
         
+        post = {
+            "author": request.user,
+            "contentType": "text/plain",
+            "title": "Github Activity",
+            "description": "My Github activity for the past week",
+            "content": activity_post,
+            "visibility": "PUBLIC",
+        }
+        post = Post.objects.create(**post)
+
         response_body = JSONRenderer().render({
+            "query": "github",
+            "success": True,
             "id": user.host+"/author/"+str(user.id),
             "host": user.host,
             "displayName": user.username,
             "url": user.host+"/author/"+str(user.id),
             "github": user.github,
-            "activity": activity_post,
+            "post": PostSerializer(post).data,
         })
 
-        # TODO: Actually save the gh activity as a post
         return HttpResponse(content=response_body, content_type="application/json", status=200)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")

@@ -260,8 +260,17 @@ class EndpointTests(TestCase):
 
         client = Client()
         client.login(username="3", password="456")
+
+        response = self.c.get("/api/author/{}/posts/".format(self.user3.id))
+        response_body = response.json()
+        n_posts_pre = response_body["count"]
         
         response = client.post("/api/author/{}/github/".format(self.user3.id))
         assert(response.status_code == 200)
         response_body = response.json()
-        assert(len(response_body["activity"]) > 0)
+        assert(len(response_body["post"]) > 0)
+
+        # Make sure a post was actually created
+        response = self.c.get("/api/author/{}/posts/".format(self.user3.id))
+        response_body = response.json()
+        assert(n_posts_pre < response_body["count"])
