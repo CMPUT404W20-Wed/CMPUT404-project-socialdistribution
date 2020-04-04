@@ -16,7 +16,8 @@ import {
 
 
 const filterToQueryMap = {
-  all: 'public',
+  all: '',
+  public: 'public',
   following: 'following',
   related: 'foaf',
   friends: 'friends',
@@ -28,6 +29,9 @@ const filterToQueryMap = {
 const StreamFilterNav = () => (
   <nav className="stream-nav">
     <NavLink to="/" exact activeClassName="active">
+      Everything
+    </NavLink>
+    <NavLink to="/public" activeClassName="active">
       Public
     </NavLink>
     {/* <NavLink to="/following" activeClassName="active">
@@ -117,6 +121,7 @@ class StreamPage extends React.Component {
 StreamPage.propTypes = {
   filter: PropTypes.oneOf([
     'all',
+    'public',
     'related',
     'friends',
     'following',

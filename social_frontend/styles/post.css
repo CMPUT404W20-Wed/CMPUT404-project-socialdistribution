@@ -152,3 +152,15 @@
     padding: 16px;
     text-align: center;
 }
+
+.post-visibility {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    color: #888;
+    font-size: 10pt;
+}
+
+.own .post-visibility {
+    color: #a88;
+}
