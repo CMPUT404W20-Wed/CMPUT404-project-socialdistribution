@@ -73,13 +73,14 @@ export const authLogin = (username, password) => (
   }
 );
 
-export const authSignup = (username, password1, password2) => (
+export const authSignup = (username, password1, password2, github) => (
   (dispatch) => {
     dispatch(authStart());
     axios.post('/rest-auth/registration/', {
       username,
       password1,
       password2,
+      github,
     }).then(() => {
       dispatch(authSuccess(null));
     }).catch((err) => {

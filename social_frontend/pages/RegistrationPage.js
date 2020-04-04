@@ -15,6 +15,7 @@ class RegistrationPage extends React.Component {
     enteredUsername: '',
     enteredPassword1: '',
     enteredPassword2: '',
+    github: '',
   };
 
   constructor(props) {
@@ -23,6 +24,7 @@ class RegistrationPage extends React.Component {
     this.handleUsernameFieldChange = this.handleUsernameFieldChange.bind(this);
     this.handlePassword1FieldChange = this.handlePassword1FieldChange.bind(this);
     this.handlePassword2FieldChange = this.handlePassword2FieldChange.bind(this);
+    this.handleGitHubFieldChange = this.handleGitHubFieldChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -75,11 +77,18 @@ class RegistrationPage extends React.Component {
     return rst;
   }
 
+  handleGitHubFieldChange(event) {
+    const github = event.target.value;
+
+    this.setState({ github });
+  }
+
   render() {
     const {
       enteredUsername,
       enteredPassword1,
       enteredPassword2,
+      github,
     } = this.state;
 
     const { errorMessage, loading } = this.props;
@@ -114,6 +123,14 @@ class RegistrationPage extends React.Component {
               placeholder="Verify Password"
               value={enteredPassword2}
               onChange={this.handlePassword2FieldChange}
+            />
+            <input
+              className="field"
+              name="github"
+              type="text"
+              placeholder="Add a GitHub URL"
+              value={github}
+              onChange={this.handleGitHubFieldChange}
             />
             {
               errorMessage
@@ -152,8 +169,9 @@ const mapStateToProps = ({ loading, errorMessage }) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onRegister:
-  (userName, password1, password2) => dispatch(actions.authSignup(userName, password1, password2)),
+  onRegister: (userName, password1, password2, github) => dispatch(actions.authSignup(
+    userName, password1, password2, github,
+  )),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(RegistrationPage));
