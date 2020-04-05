@@ -13,9 +13,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import include, path
-from django.contrib.auth import login
+from django.urls import include, path, re_path
 from . import views
+
+from django.http import HttpResponseNotFound
 
 #Before adding url, make sure it's not being used by React, in social_frontend/App.js
 urlpatterns = [
@@ -29,11 +30,13 @@ urlpatterns = [
     path('posts/<uuid:pid>/comments/', views.comments_by_pid),
     path('posts/<uuid:pid>/comments/<uuid:cid>', views.comments_by_cid),
     path('register/', views.register),
-    path('login/', login),
+    path('login/', views.login),
+    path('logout/', views.logout),
     path('author/<uuid:aid>/', views.profile),
     path('author/<uuid:aid>/friends/', views.friends_by_aid),
     path('author/<uuid:aid1>/friends/<uuid:aid2>/', views.friendship_by_aid),
     path('author/<uuid:aid>/followers/', views.followers),
     path('author/<uuid:aid>/following/', views.following),
     path('friendrequest/', views.friendrequest),
+    re_path(r'.*', lambda req: HttpResponseNotFound()),
 ]

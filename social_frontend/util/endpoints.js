@@ -48,3 +48,19 @@ export const userSearchEndpoint = (query) => (
 export const imageAbsoluteURL = (origin, id, ext) => (
   `${origin}/api/media/${id}.${ext}`
 );
+
+export const loginEndpoint = () => (
+  '/api/login/'
+);
+
+export const registerEndpoint = () => (
+  '/api/register/'
+);
+
+export const logoutEndpoint = () => (
+  '/api/logout/'
+);
+
+export const loggedInUserEndpoint = () => (
+  '/api/login/'
+);
