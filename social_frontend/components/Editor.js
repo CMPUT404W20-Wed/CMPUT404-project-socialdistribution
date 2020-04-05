@@ -153,13 +153,10 @@ class PostForm extends React.Component {
   handleGitHubPost(event) {
     event.preventDefault();
 
-    const { id } = this.props;
+    const { id, submittedCallback } = this.props;
 
-    return new Promise(() => {
-      Axios.get(`/api/author/${id}/github/`).then(() => {
-        // maybe a better way to do this
-        window.location.reload();
-      });
+    return Axios.get(`/api/author/${id}/github/`).then((res) => {
+      submittedCallback(res.data.post);
     }).catch((err) => {
       console.log(err);
     });
