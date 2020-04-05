@@ -12,7 +12,7 @@ import updateObject from '../utility';
  */
 
 const initState = {
-  token: null,
+  authenticated: false,
   errorMessage: null,
   loading: false,
   id: null,
@@ -27,9 +27,9 @@ const authStart = (state) => (
 );
 
 
-const authSuccess = (state, action) => (
+const authSuccess = (state) => (
   updateObject(state, {
-    token: action.token,
+    authenticated: true,
     errorMessage: null,
     loading: false,
   })
@@ -44,7 +44,7 @@ const authFail = (state, action) => (
 
 const authLogout = (state) => (
   updateObject(state, {
-    token: null,
+    authenticated: false,
     id: null,
     username: null,
   })

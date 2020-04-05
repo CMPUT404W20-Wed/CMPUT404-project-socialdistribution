@@ -41,10 +41,29 @@ export const friendshipEndpoint = (follower, target) => (
   `/api/author/${follower}/friends/${target}/`
 );
 
+export const userSearchEndpoint = (query) => (
+  `/api/user-search?q=${query}`
+);
+
 export const imageAbsoluteURL = (origin, id, ext) => (
   `${origin}/api/media/${id}.${ext}`
 );
 
 export const imagePortalEndpoint = (url) => (
   `/api/media-redirect/${window.encodeURIComponent(url)}`
+
+export const loginEndpoint = () => (
+  '/api/login/'
+);
+
+export const registerEndpoint = () => (
+  '/api/register/'
+);
+
+export const logoutEndpoint = () => (
+  '/api/logout/'
+);
+
+export const loggedInUserEndpoint = () => (
+  '/api/login/'
 );

@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>app</title>
-        <meta charset="utf-8" />
-        {% load static %}
-        <link rel="stylesheet"
-              href="{% static "social_backend/index.css" %}" />
-        <script src="{% static "social_backend/index.js" %}" async></script>
-    </head>
-    <body>
-        <div id="root">
-        </div>
-    </body>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#000000" />
+		<meta
+			name="description"
+			content="Social Networking Site for CMPUT 404"
+		/>
+    <title>this.node.app</title>
+		{% load static %}
+		<link rel="icon" href="{% static "favicon/favicon.ico" %}" />
+		<link rel="apple-touch-icon" href="{% static "favicon/logo192.png" %}"  />
+    <link rel="manifest" href="{% static "favicon/manifest.json" %}" />
+    <link rel="stylesheet" href="{% static "social_backend/index.css" %}" />
+    <script src="{% static "social_backend/index.js" %}" async></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
 </html>

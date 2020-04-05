@@ -153,6 +153,30 @@
     text-align: center;
 }
 
+.post-title {
+    margin-left: 16px;
+}
+
+.post-description {
+    margin-left: 16px;
+    font-size: 12pt;
+}
+
+.post .tag-bar {
+    margin-left: 8px;
+    margin-bottom: 8px;
+    display: flex;
+}
+
+.post .tag-bar .tag {
+    font-size: 10pt;
+    border: 1px solid #ccc;
+    padding: 4px 12px;
+    border-radius: 16px;
+    color: #555;
+    margin-right: 8px;
+}
+
 .post-visibility {
     position: absolute;
     bottom: 12px;

@@ -7,6 +7,7 @@ import PostHeader from './PostHeader';
 import Comments from './Comments';
 import Editor from '../Editor';
 import PostContent from './PostContent';
+import TagBar from '../common/TagBar';
 import ModalLink from '../common/modal/ModalLink';
 import aidToUuid from '../../util/aidToUuid';
 import { postShape } from '../../util/shapes';
@@ -101,10 +102,14 @@ class Post extends React.Component {
     const {
       id: postId,
       author,
+      title,
+      description,
       content,
+      categories,
       comments,
       contentType,
       visibility,
+      visibleTo,
       unlisted,
     } = post;
 
@@ -155,11 +160,41 @@ class Post extends React.Component {
                 submittedCallback={this.doAfterPatch}
                 endpoint={endpoint}
                 defaultContent={content}
+                defaultDescription={description}
+                defaultTitle={title}
+                defaultCategories={categories}
+                defaultVisibility={visibility}
+                defaultVisibleTo={visibleTo}
+                defaultUnlistedState={unlisted}
               />
             )
-            : <PostContent content={content} contentType={contentType} />
+            : (
+              <>
+                {
+                  (title || description) && (
+                    <div className="post-preface">
+                      {title && <h3 className="post-title">{title}</h3>}
+                      {
+                        description && (
+                          <div className="post-description">{description}</div>
+                        )
+                      }
+                    </div>
+                  )
+                }
+                <PostContent content={content} contentType={contentType} />
+                {
+                  categories && categories.length > 0 && (
+                    <TagBar
+                      render={(category) => `#${category}`}
+                      items={categories}
+                    />
+                  )
+                }
+                {footer}
+              </>
+            )
         }
-        {footer}
       </article>
     );
   }
