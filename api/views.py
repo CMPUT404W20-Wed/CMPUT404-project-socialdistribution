@@ -521,8 +521,8 @@ def ensure_data():
         #User.objects.filter(local=False).delete()
         Post.objects.filter(local=False).delete()
         Comment.objects.filter(local=False).delete()
-
-            
+        Friend.objects.filter(local=False).delete()
+          
         for adapter, response_json in responses:
             for post in response_json['posts']:
                 author_obj = adapter.create_author(post['author'])
@@ -571,6 +571,8 @@ def get_foreign_friends(login, author, adapter):
                 response_json = response.json()
                 response_json['author'].pop('friends', None)
                 adapter.create_author(response_json['author'])
+                friend = Friend(user1=author.id, user2=author_id, local=False)
+                friend.save()
             except Exception as e:
                 print("Rejecting friend due to error:")
                 print(e)
