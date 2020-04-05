@@ -265,7 +265,7 @@ class EndpointTests(TestCase):
         response_body = response.json()
         n_posts_pre = response_body["count"]
         
-        response = client.post("/api/author/{}/github/".format(self.user3.id))
+        response = client.get("/api/author/{}/github/".format(self.user3.id))
         assert(response.status_code == 200)
         response_body = response.json()
         assert(len(response_body["post"]) > 0)
