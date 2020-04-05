@@ -626,7 +626,7 @@ def github_post(request, aid):
             "success": True,
             "id": user.host+"/author/"+str(user.id),
             "host": user.host,
-            "displayName": user.username,
+            "displayName": user.displayName,
             "url": user.host+"/author/"+str(user.id),
             "github": user.github,
             "post": PostSerializer(post).data,
