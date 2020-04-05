@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Axios from 'axios';
+import { connect } from 'react-redux';
 
 import Markdown from './Markdown';
 import Attachments from './Attachments';
@@ -104,7 +105,7 @@ PostFormControls.defaultProps = {
 
 
 /* Form enabling the user to create a new post. */
-export default class PostForm extends React.Component {
+class PostForm extends React.Component {
   state = {
     textContent: '',
     attachments: [],
@@ -129,6 +130,7 @@ export default class PostForm extends React.Component {
     this.handleAttachingToggle = this.handleAttachingToggle.bind(this);
     this.handleAttach = this.handleAttach.bind(this);
     this.handleDetach = this.handleDetach.bind(this);
+    this.handleGitHubPost = this.handleGitHubPost.bind(this);
   }
 
   componentDidMount() {
@@ -145,6 +147,21 @@ export default class PostForm extends React.Component {
     this.setState({
       textContent,
       canPost: (textContent.length > 0),
+    });
+  }
+
+  handleGitHubPost(event) {
+    event.preventDefault();
+
+    const { id } = this.props;
+
+    return new Promise(() => {
+      Axios.get(`/api/author/${id}/github/`).then(() => {
+        // maybe a better way to do this
+        window.location.reload();
+      });
+    }).catch((err) => {
+      console.log(err);
     });
   }
 
@@ -428,6 +445,7 @@ export default class PostForm extends React.Component {
           isPatching={isPatching}
           visibility={visibility}
         />
+        <input className="github" type="submit" value="Post GitHub" onClick={this.handleGitHubPost} />
       </form>
     );
   }
@@ -440,6 +458,7 @@ PostForm.propTypes = {
   defaultContent: PropTypes.string,
   endpoint: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
+  id: PropTypes.string,
 };
 
 PostForm.defaultProps = {
@@ -448,4 +467,11 @@ PostForm.defaultProps = {
   submittedCallback: undefined,
   defaultContent: '',
   onCancel: undefined,
+  id: null,
 };
+
+const mapStateToProps = (state) => ({
+  id: state.id,
+});
+
+export default connect(mapStateToProps)(PostForm);
