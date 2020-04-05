@@ -54,7 +54,7 @@ class EndpointTests(TestCase):
 
         
         # register a user with endpoint good and proper like
-        self.c.post('/api/register/', {'username':'user123','password':'12345'}, content_type='application/json')
+        self.c.post('/api/register/', {'username':'user123','password':'12345', 'github':''}, content_type='application/json')
 
         # ...need to approve the user
         u = User.objects.get(username='user123')
@@ -253,3 +253,16 @@ class EndpointTests(TestCase):
         
         response3 = self.client.delete('/api/posts/{}/comments/{}'.format(self.post1.id, comment_id))
         assert(response3.status_code == 204)
+
+    def test_edit_profile(self):
+        self.client.login(username='1', password='123')
+        user = {
+            "username": "new",
+            "password": "456"
+        }
+        author_id = self.user1.id
+        response = self.client.put('/api/author/{}/'.format(author_id), user, content_type="application/json")
+        assert(response.status_code == 200)
+        response_json = response.json()
+        print(response_json)
+        # assert(Post.objects.get(pk=response2_json['post']['id']).title == "edited")

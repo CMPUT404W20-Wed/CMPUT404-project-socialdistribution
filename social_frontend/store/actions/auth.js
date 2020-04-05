@@ -108,3 +108,44 @@ export const getUser = () => (
     });
   }
 );
+
+
+/**
+ * EDIT PROFILE REDUCER
+ *
+ *
+ *
+ */
+
+export const editStart = () => ({
+  type: actionTypes.EDIT_START,
+});
+
+export const editSuccess = () => ({
+  type: actionTypes.EDIT_SUCCESS,
+});
+
+export const editFail = (errorMessage) => ({
+  type: actionTypes.EDIT_FAIL,
+  errorMessage,
+});
+
+export const editUser = (id, username, password, password2, github) => (
+  (dispatch) => {
+    dispatch(editStart());
+    if (password === password2) {
+      axios.put(`/api/author/${id}/`, {
+        username,
+        password,
+        github,
+      }).then(() => {
+        dispatch(editSuccess());
+        window.location.reload();
+      }).catch((err) => {
+        dispatch(editFail(err.message));
+      });
+    } else {
+      dispatch(editFail("passwords don't match"));
+    }
+  }
+);
