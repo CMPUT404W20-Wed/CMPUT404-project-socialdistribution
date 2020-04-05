@@ -43,5 +43,5 @@ urlpatterns = [
     path('author/<uuid:aid>/followers/', views.followers),
     path('author/<uuid:aid>/following/', views.following),
     path('friendrequest/', views.friendrequest),
-    re_path(r'.*', lambda r: HttpResponseNotFound()),
+    re_path(r'.*', lambda req: HttpResponseNotFound()),
 ]

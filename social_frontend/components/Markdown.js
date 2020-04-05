@@ -17,13 +17,12 @@ const mdWriter = new CommonMark.HtmlRenderer({ safe: true });
 const parseMarkdown = (source) => {
   const ast = mdParser.parse(source);
   const w = ast.walker();
-  let e;
-  while(e = w.next()) {
+  for (let e = w.next(); e; e = w.next()) {
     if (e.entering && e.node.type === 'image') {
       e.node.destination = imagePortalEndpoint(e.node.destination);
     }
   }
-  return { __html: mdWriter.render(ast) }
+  return { __html: mdWriter.render(ast) };
 };
 
 const Markdown = ({ source }) => {
