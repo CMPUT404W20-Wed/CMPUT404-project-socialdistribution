@@ -18,6 +18,7 @@ from django.db.models import Q
 request_last_updated = 0
 
 from .views_.media import *
+from .views_.media_redir import *
 from .views_.usersearch import *
 from .views_.login import *
 

@@ -7,18 +7,31 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CommonMark from 'commonmark';
 
+import { imagePortalEndpoint } from '../util/endpoints';
+
 
 const mdParser = new CommonMark.Parser({ smart: true });
 const mdWriter = new CommonMark.HtmlRenderer({ safe: true });
 
 
-const parseMarkdown = (source) => (
-  { __html: mdWriter.render(mdParser.parse(source)) }
-);
+const parseMarkdown = (source) => {
+  const ast = mdParser.parse(source);
+  const w = ast.walker();
+  for (let e = w.next(); e; e = w.next()) {
+    if (e.entering && e.node.type === 'image') {
+      e.node.destination = imagePortalEndpoint(e.node.destination);
+    }
+  }
+  return { __html: mdWriter.render(ast) };
+};
 
-const Markdown = ({ source }) => (
-  <div className="md" dangerouslySetInnerHTML={parseMarkdown(source)} />
-);
+const Markdown = ({ source }) => {
+  const rendered = (
+    <div className="md" dangerouslySetInnerHTML={parseMarkdown(source)} />
+  );
+
+  return rendered;
+};
 
 Markdown.propTypes = {
   source: PropTypes.string.isRequired,

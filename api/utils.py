@@ -162,9 +162,13 @@ class Group3Adapter:
 group3adapter = Group3Adapter()
 group4adapter = Group4Adapter()
 
+testingadapter = Group4Adapter()
+testingadapter.path = "https://testing-mandala.herokuapp.com/"
+
 adapters = {
     "https://dsnfof.herokuapp.com/api/": group3adapter,
-    "https://cmput404-group-project-mandala.herokuapp.com/": group4adapter
+    "https://cmput404-group-project-mandala.herokuapp.com/": group4adapter,
+    "https://testing-mandala.herokuapp.com/": testingadapter,
 }
 
 def authenticate_node(request):

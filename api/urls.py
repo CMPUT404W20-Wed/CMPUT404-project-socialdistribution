@@ -13,6 +13,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+from django.http import HttpResponseNotFound
+from django.urls import include, path, re_path
+from django.contrib.auth import login
 from django.urls import include, path, re_path
 from . import views
 
@@ -22,6 +26,7 @@ from django.http import HttpResponseNotFound
 urlpatterns = [
     path('', views.index),
     path('media/<uuid:pid>.<str:format_>', views.media),
+    path('media-redirect/<path:url>', views.media_redir),
     path('user-search', views.user_search),
     path('author/posts/', views.posts_visible),
     path('author/<uuid:aid>/posts/', views.posts_by_aid),
