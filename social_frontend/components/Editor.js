@@ -7,7 +7,11 @@ import Markdown from './Markdown';
 import Attachments from './Attachments';
 import TagBar from './common/TagBar';
 import EditorUserBar from './EditorUserBar';
-import { imageAbsoluteURL, submitPostEndpoint } from '../util/endpoints';
+import {
+  imageAbsoluteURL,
+  submitPostEndpoint,
+  triggerGithubEndpoint,
+} from '../util/endpoints';
 
 import '../styles/editor.css';
 
@@ -190,7 +194,7 @@ class PostForm extends React.Component {
 
     const { id, submittedCallback } = this.props;
 
-    return Axios.get(`/api/author/${id}/github/`).then((res) => {
+    return Axios.get(triggerGithubEndpoint(id)).then((res) => {
       submittedCallback(res.data.post);
     }).catch((err) => {
       console.log(err);
@@ -456,6 +460,7 @@ class PostForm extends React.Component {
       isComment,
       isPatching,
       onCancel,
+      hasGithub,
     } = this.props;
     const {
       textContent,
@@ -476,6 +481,7 @@ class PostForm extends React.Component {
 
     const className = `post-form ${isComment ? 'comment-form' : ''} ${isMarkdown ? 'markdown-mode' : ''}`;
     const placeholder = isComment ? 'Add a comment' : 'Post to your stream';
+
     return (
       <form onSubmit={this.handleSubmit} className={className}>
         <div className="post-form-mode-controls">
@@ -587,7 +593,16 @@ class PostForm extends React.Component {
           isPatching={isPatching}
           visibility={visibility}
         />
-        <input className="github" type="submit" value="Post GitHub" onClick={this.handleGitHubPost} />
+        {
+          hasGithub && (
+            <input
+              className="github"
+              type="submit"
+              value="Post GitHub"
+              onClick={this.handleGitHubPost}
+            />
+          )
+        }
       </form>
     );
   }
@@ -596,6 +611,7 @@ class PostForm extends React.Component {
 PostForm.propTypes = {
   isComment: PropTypes.bool,
   isPatching: PropTypes.bool,
+  hasGithub: PropTypes.bool,
   submittedCallback: PropTypes.func,
   defaultContent: PropTypes.string,
   defaultTitle: PropTypes.string,
@@ -619,6 +635,7 @@ PostForm.propTypes = {
 PostForm.defaultProps = {
   isComment: false,
   isPatching: false,
+  hasGithub: false,
   submittedCallback: undefined,
   defaultContent: '',
   defaultTitle: '',
@@ -633,6 +650,7 @@ PostForm.defaultProps = {
 
 const mapStateToProps = (state) => ({
   id: state.id,
+  hasGithub: state.github && state.github.length > 0,
 });
 
 export default connect(mapStateToProps)(PostForm);

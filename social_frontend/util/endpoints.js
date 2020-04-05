@@ -68,3 +68,7 @@ export const logoutEndpoint = () => (
 export const loggedInUserEndpoint = () => (
   '/api/login/'
 );
+
+export const triggerGithubEndpoint = (id) => (
+  `/api/author/${id}/github/`
+);

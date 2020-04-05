@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -175,11 +174,5 @@ class RegistrationPage extends React.Component {
     );
   }
 }
-
-RegistrationPage.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired,
-  }).isRequired,
-};
 
 export default RegistrationPage;

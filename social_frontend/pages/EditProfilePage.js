@@ -8,9 +8,7 @@ import SuspensefulSubmit from '../components/common/suspend/SuspensefulSubmit';
 
 import '../styles/login.css';
 
-
-/* Page displaying a login form. */
-class EditProfilePage extends React.Component {
+class EditProfileFormM extends React.Component {
   state = {
     enteredUsername: '',
     enteredPassword1: '',
@@ -26,6 +24,14 @@ class EditProfilePage extends React.Component {
     this.handlePassword2FieldChange = this.handlePassword2FieldChange.bind(this);
     this.handleGitHubFieldChange = this.handleGitHubFieldChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    const { username, github } = this.props;
+    this.setState({
+      enteredUsername: username,
+      github,
+    });
   }
 
   handleUsernameFieldChange(event) {
@@ -86,12 +92,9 @@ class EditProfilePage extends React.Component {
       github,
     } = this.state;
 
-    const { errorMessage, loading } = this.props;
+    const { id, errorMessage, loading } = this.props;
 
-    const enableSubmit = enteredUsername.length > 0
-      || (enteredPassword1.length > 0 && enteredPassword2.length)
-      || github;
-
+    if (id === null) return null;
 
     return (
       <div className="login-page-wrapper">
@@ -135,7 +138,6 @@ class EditProfilePage extends React.Component {
             }
             <SuspensefulSubmit
               label="Edit Profile"
-              disabled={!enableSubmit}
               suspended={loading}
             />
           </form>
@@ -146,17 +148,21 @@ class EditProfilePage extends React.Component {
   }
 }
 
-EditProfilePage.propTypes = {
+EditProfileFormM.propTypes = {
   errorMessage: PropTypes.string,
   loading: PropTypes.bool,
   onEdit: PropTypes.func.isRequired,
   id: PropTypes.string,
+  username: PropTypes.string,
+  github: PropTypes.string,
 };
 
-EditProfilePage.defaultProps = {
+EditProfileFormM.defaultProps = {
   errorMessage: null,
   loading: false,
-  id: '',
+  id: null,
+  username: '',
+  github: '',
 };
 
 const mapStateToProps = ({
@@ -164,11 +170,13 @@ const mapStateToProps = ({
   errorMessage,
   id,
   username,
+  github,
 }) => ({
   loading,
   errorMessage,
   id,
   username,
+  github,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -178,4 +186,28 @@ const mapDispatchToProps = (dispatch) => ({
   )),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditProfilePage);
+const EditProfileForm = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditProfileFormM);
+
+
+const EditProfilePage = ({ id }) => (
+  id ? <EditProfileForm key={id} /> : null
+);
+
+EditProfilePage.propTypes = {
+  id: PropTypes.string,
+};
+
+EditProfilePage.defaultProps = {
+  id: null,
+};
+
+const mapStateToPropsForPage = ({
+  id,
+}) => ({
+  id,
+});
+
+export default connect(mapStateToPropsForPage)(EditProfilePage);
