@@ -1,22 +1,71 @@
 from .models import User, Post, Friend
 
+
+def user_is_authorized(user, post):
+    if post.author.id == user.id:
+        # can always see your own posts
+        return True
+    if post.visibility == 'PUBLIC':
+        return True
+    elif post.visibility == 'PRIVATE':
+        return post.author.id == user.id
+    elif post.visibility == 'FRIENDS':
+        post_author = post.author.id
+        # mutual friendship
+        return (Friend.objects.filter(user1=user.id, user2=post_author)
+                and Friend.objects.filter(user1=post_author, user2=user.id))
+    elif post.visibility == 'FOAF':
+        # First, find all people the FOAF post author follows
+        post_author = post.author.id
+        author_friends = Friend.objects.filter(user1=post_author)
+        for friend in author_friends:
+            if Friend.objects.filter(user1=friend.user2, user2=post_author):
+                # Both users are friends, check for a connection with this friend
+                # and the user getting foaf posts
+                friendship = (
+                        Friend.objects.filter(
+                            user1=friend.user2, user2=user.id)
+                        and Friend.objects.filter(
+                            user1=user.id, user2=friend.user2))
+                if friendship:
+                    # Have a foaf connection, add post
+                    return True
+        return False
+    elif post.visibility == 'SERVERONLY':
+        return (Friend.objects.filter(user1=user.id, user2=post_author)
+                and Friend.objects.filter(user1=post_author, user2=user.id)
+                and post.author.host == user.host)
+    #elif post.visibility == 'AUTHOR':
+    #    return user.id in post.visibleTo
+    else:
+        raise ValueError('Unsupported value for visibility')
+
+
+def get_posts_by_status(filter_status):
+    return list(filter(
+            lambda post: post.visibility == filter_status.upper(),
+            Post.objects.all()))
+
+
+def get_public_posts():
+    return list(filter(
+            lambda post: post.visibility not in ['PRIVATE', 'SERVERONLY'],
+            Post.objects.all()))
+
+
 def apply_filter(request, filter_status):
     # Get all posts and filter them to make sure the visibility matches what we need
     all_posts = Post.objects.all()
 
     filter_status = filter_status.upper()
-    posts = filter_on_status(all_posts, filter_status)
+    visibilities = ["PUBLIC", "PRIVATE", "FRIENDS", "FOAF", "SERVERONLY", "AUTHOR"]
+    if filter_status not in visibilities:
+        filter_status = "PUBLIC"
 
-    if filter_status == "PUBLIC" or filter_status == "":
-        return posts
-    elif filter_status == "PRIVATE":
-        return private_filter(request, posts)
-    elif filter_status == "FRIENDS":
-        return friend_filter(request, posts)
-    elif filter_status == "FOAF":
-        return foaf_filter(request, posts)
-    else:
-        return posts
+    return list(filter(
+        lambda post: user_is_authorized(request.user, post),
+        posts))
+
 
 # Return all posts of a particular status
 def filter_on_status(all_posts, filter_status):
@@ -26,43 +75,3 @@ def filter_on_status(all_posts, filter_status):
             posts.append(post)
 
     return posts
-
-# Return all my private posts
-def private_filter(request, posts):
-    for post in posts:
-        if request.user.id != post.author.id:
-            posts.remove(post)
-
-    return posts
-
-# Return all friend posts
-def friend_filter(request, posts):
-    user_id = request.user.id
-
-    for post in posts:
-        post_author = post.author.id
-        friendship = Friend.objects.filter(user1=user_id, user2=post_author) and Friend.objects.filter(user1=post_author, user2=user_id)
-        if (not friendship):
-            posts.remove(post)
-
-    return posts
-
-# Return all friend of a friend posts
-def foaf_filter(request, posts):
-    user_id = request.user.id
-
-    foaf_posts = []
-    for post in posts:
-        # First, find all people the FOAF post author follows
-        post_author = post.author.id
-        author_friends = Friend.objects.filter(user1=post_author)
-        for friend in author_friends:
-            if Friend.objects.filter(user1=friend.user2, user2=post_author):
-                # Both users are friends, check for a connection with this friend
-                # and the user getting foaf posts
-                friendship = Friend.objects.filter(user1=friend.user2, user2=user_id) and Friend.objects.filter(user1=user_id, user2=friend.user2)
-                if friendship:
-                    # Have a foaf connection, add post
-                    foaf_posts.append(post)
-
-    return foaf_posts

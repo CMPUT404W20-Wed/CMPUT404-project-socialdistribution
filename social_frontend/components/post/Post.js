@@ -8,6 +8,7 @@ import Comments from './Comments';
 import Editor from '../Editor';
 import PostContent from './PostContent';
 import ModalLink from '../common/modal/ModalLink';
+import aidToUuid from '../../util/aidToUuid';
 import { postShape } from '../../util/shapes';
 import safeFormat from '../../util/safeFormat';
 
@@ -103,9 +104,11 @@ class Post extends React.Component {
       content,
       comments,
       contentType,
+      visibility,
+      unlisted,
     } = post;
 
-    const { id: authorId } = author;
+    const authorId = aidToUuid(author.id);
     const isOwnPost = (authorId === currentUserId);
     const commentCount = comments ? comments.length : 0;
 
@@ -136,6 +139,8 @@ class Post extends React.Component {
       <article className={`post ${className}`}>
         <PostHeader
           author={author}
+          visibility={visibility}
+          unlisted={unlisted}
           isOwnPost={isOwnPost}
           onEditClick={this.doEdit}
           onDeleteClick={this.doDelete}

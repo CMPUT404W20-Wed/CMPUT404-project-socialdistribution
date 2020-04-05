@@ -77,9 +77,10 @@ const Header = ({
   id,
   username,
   doLogout,
+  headerTitle,
 }) => (
   <header className="header">
-    <h1><Link to="/">App</Link></h1>
+    <h1 className="margin-left"><Link className="link" to="/">{headerTitle}</Link></h1>
     {
       (isAuthenticated)
         ? <UserMenu id={id} username={username} doLogout={doLogout} />
@@ -93,6 +94,7 @@ Header.propTypes = {
   id: PropTypes.string,
   username: PropTypes.string,
   doLogout: PropTypes.func,
+  headerTitle: PropTypes.string,
 };
 
 Header.defaultProps = {
@@ -100,6 +102,7 @@ Header.defaultProps = {
   id: null,
   username: null,
   doLogout: undefined,
+  headerTitle: 'this.node.app',
 };
 
 
@@ -127,6 +130,7 @@ const Main = () => (
     <Route
       path={[
         '/',
+        '/public',
         '/following',
         '/related',
         '/friends',
@@ -264,9 +268,31 @@ class App extends React.Component {
       doLogout,
     } = this.props;
 
+    /**
+     * Creates a random title for webpage just for kicks
+     */
+    const generateTitle = () => {
+      const titles = ['this', 'node', 'app'];
+
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+      const getRandomInt = (max) => (
+        Math.floor(Math.random() * Math.floor(max))
+      );
+
+      const headerTitle = `${titles[getRandomInt(3)]}.${titles[getRandomInt(3)]}.${titles[getRandomInt(3)]}`;
+      return headerTitle;
+    };
+    const title = generateTitle();
+
     return (
       <Router>
-        <Header isAuthenticated={isAuthenticated} id={id} username={username} doLogout={doLogout} />
+        <Header
+          isAuthenticated={isAuthenticated}
+          id={id}
+          username={username}
+          doLogout={doLogout}
+          headerTitle={title}
+        />
         {
           (isAuthenticated)
             ? <Main />
@@ -292,7 +318,7 @@ App.defaultProps = {
 };
 
 const mapStateToProps = (state) => ({
-  isAuthenticated: state.token !== null,
+  isAuthenticated: state.authenticated,
   id: state.id,
   username: state.username,
 });

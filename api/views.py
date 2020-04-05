@@ -1,14 +1,23 @@
 from django.core import serializers
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from django.shortcuts import get_object_or_404
 from rest_framework.renderers import JSONRenderer
 from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from django.shortcuts import render, redirect
 from .forms import UserForm
-from .models import User, Post, Comment, Friend
+from .models import User, Post, Comment, Friend, LocalLogin, RemoteLogin, url
 from django.core.paginator import Paginator
 from .utils import *
-from .filters import apply_filter
+from .filters import get_posts_by_status, get_public_posts, user_is_authorized
 import json
+import requests
+import time
+from django.db.models import Q
+
+request_last_updated = 0
+
+from .views_.media import *
+from .views_.login import *
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
 
@@ -25,11 +34,23 @@ def index(request):
 
 # author/posts
 def posts_visible(request):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
+    ensure_data()
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
-        # TODO: posts visible to the currently authenticated user
-        posts = apply_filter(request, filter_)
+
+        if filter_:
+            posts = get_posts_by_status(filter_)
+        else:
+            posts = Post.objects.all()
+
+        posts = list(filter(
+                lambda post: (user_is_authorized(request.user, post)
+                    and not post.unlisted),
+                posts))
+
         posts_pages = Paginator(posts, size)
         response_body = {
             "query": "posts",
@@ -55,13 +76,24 @@ def posts_visible(request):
 # posts by author id
 # author/<uuid:aid>/posts
 def posts_by_aid(request, aid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
+    ensure_data()
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
         # all posts made by author id aid visible to currently authed user
-        # TODO: this thing here ignores the visibility thing
         user = User.objects.get(pk=aid)
         posts = Post.objects.filter(author=user)
+
+        # Note that your own unlisted posts show up on your profile,
+        # but others' unlisted posts don't show up on their profile
+        posts = list(filter(
+                lambda post: (user_is_authorized(request.user, post)
+                    and not (post.unlisted
+                        and not post.author.id == request.user.id)),
+                posts))
+
         posts_pages = Paginator(posts, size)
         response_body = {
             "query": "posts",
@@ -76,11 +108,19 @@ def posts_by_aid(request, aid):
 
 # posts/
 def all_posts(request):
+    # NOTE: This endpoint will return unlisted posts,
+    # so it is only available to other nodes, not the frontend
+    if not authenticate_node(request):
+        return HttpResponse(status=401, content="Unauthorized")
+
     method = request.method
+    ensure_data()
     if method == "GET":
-        # TODO: only visible posts or something
         page, size, filter_ = get_post_query_params(request)
-        posts = apply_filter(request, filter_)
+        posts = list(filter(
+                lambda post: user_is_authorized(request.user, post),
+                get_public_posts()))
+
         posts_pages = Paginator(posts, size)
         response_body = {
             "query": "posts",
@@ -96,9 +136,16 @@ def all_posts(request):
 # posts by post id
 # posts/<uuid:pid>
 def posts_by_pid(request, pid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
+    ensure_data()
     method = request.method
     if method == "GET":
-        post = Post.objects.get(pk=pid)
+        post = get_object_or_404(Post, pk=pid)
+        if not user_is_authorized(request.user, post):
+            # returning forbidden would leak information
+            return HttpResponseNotFound()
+
         response_body = JSONRenderer().render({
             "query": "getPost",
             "post": PostSerializer(post).data
@@ -128,10 +175,17 @@ def posts_by_pid(request, pid):
 # comments by post id
 # posts/<uuid:pid>/comments
 def comments_by_pid(request, pid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
+    ensure_data()
     method = request.method
     if method == "GET":
         page, size, filter_ = get_post_query_params(request)
-        post = Post.objects.get(pk=pid)
+        post = get_object_or_404(Post, pk=pid)
+        if not user_is_authorized(request.user, post):
+            # returning forbidden would leak information
+            return HttpResponseNotFound()
+
         comments = Comment.objects.filter(post=post)
         comments_pages = Paginator(comments, size)
         response_body = {
@@ -158,8 +212,18 @@ def comments_by_pid(request, pid):
 
 # TODO: pid not actually needed, but we can check cid is a comment of pid if we want
 def comments_by_cid(request, pid, cid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
+    ensure_data()
     method = request.method
-    comment = Comment.objects.get(pk=cid)
+
+    post = get_object_or_404(Post, pk=pid)
+    if not user_is_authorized(request.user, post):
+        # returning forbidden would leak information
+        return HttpResponseNotFound()
+
+    comment = get_object_or_404(Comment, post=post, pk=cid)
+
     if comment.author.id == request.user.pk:
         if method == "DELETE":
             comment.delete()
@@ -177,38 +241,12 @@ def comments_by_cid(request, pid, cid):
     else:
         return HttpResponse(stauts=401)
 
-# TODO: render() the front get if its a get
-def register(request):
-    method = request.method
-    if method == "POST":
-        form = UserForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            # TODO: check wtf this does
-            # user.set_password(user.password)
-            user.save()
-    # TODO: Implement a response for when the user already exists with the same name
-    else:
-        return HttpResponse(status=405, content="Method Not Allowed")
-
-# referenced login from https://medium.com/@himanshuxd/how-to-create-registration-login-webapp-with-django-2-0-fd33dc7a6c67
-def login(request):
-    method = request.method
-    if method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(username=username, password=password)
-        if user:
-            # TODO: serve up some home page - which page?
-            redirect("/posts/")
-        else:
-            # TODO: serve some other page - which page? Login + error message?
-            # We probably want to include more in the response than just status code
-            return HttpResponse(status=401)
 
 # Query for FOAF
 # author/<uuid:aid>/friends/
 def friends_by_aid(request, aid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     # Get the friends of the author
     if method == "GET":
@@ -251,6 +289,8 @@ def friends_by_aid(request, aid):
 
 # author/<authorid>/friends/<authorid2>/
 def friendship_by_aid(request, aid1, aid2):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     if method == "GET":
         friendship = Friend.objects.filter(user1=aid1, user2=aid2) and Friend.objects.filter(user2=aid1, user1=aid2)
@@ -291,6 +331,8 @@ def friendship_by_aid(request, aid1, aid2):
 
 # friendrequest/
 def friendrequest(request):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     if method == "POST":
         body = json.loads(request.body)
@@ -311,6 +353,8 @@ def friendrequest(request):
 
 # author/<authorid>/followers/
 def followers(request, aid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     if method == "GET":
         followers = Friend.objects.filter(user2=aid)
@@ -332,6 +376,8 @@ def followers(request, aid):
 
 # author/<authorid>/following/
 def following(request, aid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
     method = request.method
     if method == "GET":
         following = Friend.objects.filter(user1=aid)
@@ -354,6 +400,9 @@ def following(request, aid):
 # Returns a specified profile
 # author/<uuid:aid>/
 def profile(request, aid):
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
+    ensure_data()
     method = request.method
     if method == "GET":
         friends = Friend.objects.filter(user1=aid)
@@ -410,7 +459,7 @@ def profile(request, aid):
             if len(json_body["password"]) != 0:
                 author.password = json_body["password"]
 
-            if len(json_body["github"]) != 0:
+            if len(json_body.get("github",'')) != 0:
                 author.github = json_body["github"]
 
             author.save()
@@ -423,3 +472,100 @@ def profile(request, aid):
             return HttpResponse(status=401)
     else:
         return HttpResponse(status=405, content="Method Not Allowed")
+
+def grab_external_data():
+    #print("Here")
+    global request_last_updated
+    # Make the request every 60 seconds
+    if (time.time() - request_last_updated) > 60:
+        # Update the time
+        request_last_updated = time.time()
+        all_posts_json = []
+        for login in RemoteLogin.objects.all():
+            response = requests.get("{}{}".format(login.host, "posts"), headers={"Authorization": login.get_authorization()})
+        all_posts_json += response.json().get('posts', [])
+        #import pdb; pdb.set_trace()
+        for post in all_posts_json:
+            post
+        #print("Make the request: {}".format(request_last_updated))
+    else:
+        pass
+        #print("Don't make the request")
+
+def ensure_data():
+    global request_last_updated
+    
+    if (time.time() - request_last_updated) > 60:
+        # Update the time
+        request_last_updated = time.time()
+        print("Running Request")
+
+        # Get the foreign data first -- this might take a while
+        responses = []
+        for login in RemoteLogin.objects.all():
+            print("-->", login.host)
+            try:
+                adapter = adapters[login.host]
+
+                response = adapter.get_request(
+                        "{}{}".format(login.host, "posts"), login)
+                responses.append(response.json())
+            except:
+                print("Failed to get posts from", login.host)
+                continue
+
+        # Delete all foreign posts and comments
+        #User.objects.filter(local=False).delete()
+        Post.objects.filter(local=False).delete()
+        Comment.objects.filter(local=False).delete()
+
+            
+        for response_json in responses:
+            for post in response_json['posts']:
+                author_obj = adapter.create_author(post['author'])
+                get_foreign_friends(login, author_obj, adapter)
+                # if author is created, get it
+                post['author'] = author_obj
+                
+                comments = post['comments']
+
+                # create post before creating comments
+                try:
+                    post_obj = adapter.create_post(post)
+
+                    for comment in comments:
+                        # print("Comment: {}".format(comment))
+                        author_obj = adapter.create_author(comment['author'])
+                        get_foreign_friends(login, author_obj, adapter)
+                        comment['author'] = author_obj
+                        comment['post'] = post_obj
+                        if not comment['contentType']:
+                            comment['contentType'] = 'text/plain'
+                        comment_obj = adapter.create_comment(comment)
+                        # get or create? save?
+                except:
+                    print("Rejecting post due to error")
+
+    else:
+        pass
+        # print("Nope")
+        
+
+def get_foreign_friends(login, author, adapter):
+    url = adapter.get_friends_path(author)
+    #print("URL: {}".format(url))
+    response = adapter.get_request(url, login)
+    #print("Code: {}".format(response.status_code))
+    response_json = response.json()
+
+    for author_id in response_json['authors']:
+        #print('Author: {}'.format(author_id))
+        url = adapter.get_author_path(author)
+        try:
+            response = adapter.get_request(url, login)
+            response_json = response.json()
+            response_json['author'].pop('friends', None)
+            adapter.create_author(response_json['author'])
+        except Exception as e:
+            #raise(e)
+            print("BAD")

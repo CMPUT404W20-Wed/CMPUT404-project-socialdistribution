@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import Suspender from './common/suspend/Suspender';
 import safeFormat from '../util/safeFormat';
+import aidToUuid from '../util/aidToUuid';
 import { listen, removeListener } from '../util/broadcast';
 import {
   profileEndpoint,
@@ -52,7 +53,10 @@ class Profile extends React.Component {
   doLoadProfile(id) {
     return Axios.get(profileEndpoint(id)).then(({ data: profile }) => {
       this.setState({
-        profile,
+        profile: {
+          id: aidToUuid(profile.id),
+          ...profile,
+        },
       });
     }).catch((error) => {
       // TODO error?
@@ -119,8 +123,9 @@ class Profile extends React.Component {
       followers,
     } = profile;
 
-    // TODO this can probably be done better
-    const friendIds = friends.map(({ id: fid }) => fid.split('/').slice(-1)[0]);
+    const friendIds = friends.map(({ id: fid }) => aidToUuid(fid));
+    const followingIds = following.map((fid) => aidToUuid(fid));
+    const followerIds = followers.map((fid) => aidToUuid(fid));
 
     let friendLabel;
     let friendActionLabel;
@@ -129,11 +134,11 @@ class Profile extends React.Component {
       friendLabel = 'Friend';
       friendActionLabel = 'Unfriend';
       friendClass = 'friend';
-    } else if (following && following.indexOf(currentUserId) >= 0) {
+    } else if (followingIds && followingIds.indexOf(currentUserId) >= 0) {
       friendLabel = 'Follower';
       friendActionLabel = 'Friend';
       friendClass = 'follower';
-    } else if (followers && followers.indexOf(currentUserId) >= 0) {
+    } else if (followerIds && followerIds.indexOf(currentUserId) >= 0) {
       friendLabel = 'Following';
       friendActionLabel = 'Unfollow';
       friendClass = 'following';
