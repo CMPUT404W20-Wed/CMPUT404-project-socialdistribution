@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_safe
 from django.views.decorators.gzip import gzip_page
 
+from ..utils import authenticate_node
+
 @require_safe
 @gzip_page
 def media(request, pid, format_):
@@ -14,8 +16,9 @@ def media(request, pid, format_):
     post = get_object_or_404(Post, pk=pid)
     content = base64.b64decode(post.content)
 
-    # TODO Check if the post is visible to the current user
-    # (posts_by_pid doesn't do this yet either)
+    # Check if the post is visible to the current user
+    if not (request.user.is_authenticated or authenticate_node(request)):
+        return HttpResponse(status=401, content="Unauthorized")
 
     # Determine the format
     if format_ == 'png':

@@ -51,6 +51,7 @@ export const imageAbsoluteURL = (origin, id, ext) => (
 
 export const imagePortalEndpoint = (url) => (
   `/api/media-redirect/${window.encodeURIComponent(url)}`
+);
 
 export const loginEndpoint = () => (
   '/api/login/'

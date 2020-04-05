@@ -21,7 +21,7 @@ def media_redir(request, url):
         adapter = adapters[remote.host]
 
         response = adapter.get_request(url, remote)
-        print(response.content)
+        print(url, response.content)
         data = response.json()
         post = data['posts'][0]
 
