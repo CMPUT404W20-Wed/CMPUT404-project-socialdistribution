@@ -4,6 +4,8 @@ import copy
 import requests
 import base64
 
+from .utils_.schema import *
+
 def create_pagination_info(request, objects_paginator: Paginator, page, size, filter_):
     uri = request.build_absolute_uri()
     info = dict()
@@ -32,8 +34,8 @@ class Group4Adapter:
         author_json['local'] = False
         author_json['id'] = id
         author_obj = User(**author_json)
-        author_obj.username = author_json['displayName']
-        author_obj.password = ""
+        author_obj.username = ('$' + id)
+        author_obj.set_unusable_password()
         author_obj.save()
         return author_obj
 
@@ -100,8 +102,8 @@ class Group3Adapter:
         author_json['id'] = id
         author_json['local'] = False
         author_obj = User(**author_json)
-        author_obj.username = author_json['displayName']
-        author_obj.password = ""
+        author_obj.username = ('$' + id)
+        author_obj.set_unusable_password()
         author_obj.save()
         return author_obj
 

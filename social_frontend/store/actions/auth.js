@@ -1,6 +1,11 @@
 import axios from 'axios';
 import * as actionTypes from './actionTypes';
 
+import {
+  loginEndpoint,
+  logoutEndpoint,
+  loggedInUserEndpoint,
+} from '../../util/endpoints';
 
 /**
  * Actions portion of redux
@@ -16,9 +21,8 @@ export const authStart = () => ({
   type: actionTypes.AUTH_START,
 });
 
-export const authSuccess = (token) => ({
+export const authSuccess = () => ({
   type: actionTypes.AUTH_SUCCESS,
-  token,
 });
 
 export const authFail = (errorMessage) => ({
@@ -32,8 +36,8 @@ export const logout = () => ({
 
 export const doLogout = () => (
   (dispatch) => {
-    axios.post('/rest-auth/logout/').then(() => {
-      localStorage.removeItem('token');
+    axios.post(logoutEndpoint()).then(() => {
+      localStorage.removeItem('authenticated');
       localStorage.removeItem('expirationDate');
       dispatch(logout());
     }).catch((err) => {
@@ -57,48 +61,32 @@ export const checkAuthTimeout = (expirationTime) => (
 export const authLogin = (username, password) => (
   (dispatch) => {
     dispatch(authStart());
-    axios.post('/rest-auth/login/', {
+    axios.post(loginEndpoint(), {
       username,
       password,
-    }).then((res) => {
-      const token = res.data.key;
+    }).then(() => {
       const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-      localStorage.setItem('token', token);
+      localStorage.setItem('authenticated', true);
       localStorage.setItem('expirationDate', expirationDate);
-      dispatch(authSuccess(token));
+      dispatch(authSuccess());
       dispatch(checkAuthTimeout(3600));
     }).catch((err) => {
-      dispatch(authFail(err.message));
-    });
-  }
-);
-
-export const authSignup = (username, password1, password2) => (
-  (dispatch) => {
-    dispatch(authStart());
-    axios.post('/rest-auth/registration/', {
-      username,
-      password1,
-      password2,
-    }).then(() => {
-      dispatch(authSuccess(null));
-    }).catch((err) => {
-      dispatch(authFail(err.message));
+      dispatch(authFail(err.response.data || err.message));
     });
   }
 );
 
 export const authCheckState = () => (
   (dispatch) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const isAuthenticated = localStorage.getItem('authenticated');
+    if (!isAuthenticated) {
       dispatch(doLogout());
     } else {
       const expirationDate = new Date(localStorage.getItem('expirationDate'));
       if (expirationDate <= new Date()) {
         dispatch(doLogout());
       } else {
-        dispatch(authSuccess(token));
+        dispatch(authSuccess());
         dispatch(checkAuthTimeout((expirationDate.getTime() - new Date().getTime()) / 1000));
       }
     }
@@ -113,8 +101,8 @@ export const setUserData = (id, username) => ({
 
 export const getUser = () => (
   (dispatch) => {
-    axios.get('/rest-auth/user/').then((res) => (
-      dispatch(setUserData(res.data.pk, res.data.username))
+    axios.get(loggedInUserEndpoint()).then((res) => (
+      dispatch(setUserData(res.data.id, res.data.username))
     )).catch((err) => {
       Error(err);
     });

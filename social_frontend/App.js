@@ -274,7 +274,7 @@ App.defaultProps = {
 };
 
 const mapStateToProps = (state) => ({
-  isAuthenticated: state.token !== null,
+  isAuthenticated: state.authenticated,
   id: state.id,
   username: state.username,
 });

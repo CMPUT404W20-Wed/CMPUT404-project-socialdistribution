@@ -4,7 +4,7 @@ from .models import User, Post
 class UserSerializer(serializers.Serializer):
     id = serializers.SerializerMethodField()
     # TODO: what is the difference between url and id?
-    displayName = serializers.CharField(source='username')
+    displayName = serializers.CharField()
     host = serializers.URLField()
     github = serializers.URLField()
     
