@@ -105,6 +105,7 @@ class Friend(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user1 = models.CharField(max_length=40)
     user2 = models.CharField(max_length=40)
+    local = models.BooleanField(default=True)
 
 '''
 class Node(models.Model):
