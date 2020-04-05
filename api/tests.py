@@ -34,6 +34,7 @@ class EndpointTests(TestCase):
         self.user2.save()
 
         self.user3 = User(username='3', approved=True)
+        self.user3.set_password('456')
         self.user3.host = "http://localhost:8000"
         self.user3.save()
         
@@ -253,6 +254,27 @@ class EndpointTests(TestCase):
         
         response3 = self.client.delete('/api/posts/{}/comments/{}'.format(self.post1.id, comment_id))
         assert(response3.status_code == 204)
+
+    def test_github_post(self):
+        self.user3.github = "https://github.com/Scott-Dupasquier"
+        self.user3.save()
+
+        client = Client()
+        client.login(username="3", password="456")
+
+        response = self.c.get("/api/author/{}/posts/".format(self.user3.id))
+        response_body = response.json()
+        n_posts_pre = response_body["count"]
+        
+        response = client.get("/api/author/{}/github/".format(self.user3.id))
+        assert(response.status_code == 200)
+        response_body = response.json()
+        assert(len(response_body["post"]) > 0)
+
+        # Make sure a post was actually created
+        response = self.c.get("/api/author/{}/posts/".format(self.user3.id))
+        response_body = response.json()
+        assert(n_posts_pre < response_body["count"])
 
     def test_edit_profile(self):
         self.client.login(username='1', password='123')

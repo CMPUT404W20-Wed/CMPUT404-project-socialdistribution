@@ -70,6 +70,7 @@
 .content-text {
     padding: 1em;
     font-size: 11pt;
+    white-space: pre-wrap;
 }
 
 .content-markdown {

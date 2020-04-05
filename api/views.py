@@ -12,6 +12,7 @@ from .filters import get_posts_by_status, get_public_posts, user_is_authorized
 import json
 import requests
 import time
+from datetime import datetime, timedelta
 from django.db.models import Q
 
 request_last_updated = 0
@@ -575,3 +576,59 @@ def get_foreign_friends(login, author, adapter):
     except Exception as e:
         print("Rejecting entire friends list due to error:")
         print(e)
+
+# /author/<id>/github/
+# Returns github activity for ME
+def github_post(request, aid):
+    method = request.method
+    if method == "GET":
+        user = request.user
+        if user.id != aid:
+            # Not authorized to make this request
+            return HttpResponse(status=401, content="Unauthorized")
+        
+        gh_username = user.github.split('/')[-1]
+        url = "https://api.github.com/users/" + str(gh_username) + "/events"
+        response = requests.get(url)
+
+        if response.status_code != 200 and response.status_code != 301:
+            return HttpResponse(status=response.status_code)
+        
+        json_response = response.json()
+
+        activity_post = "Github Weekly Activity\n\n"
+        for event in json_response:
+            created_at = event["created_at"]
+            created_at = created_at.replace("T", "-").replace("Z", "").replace(":", "-")
+            created_at = created_at.split("-")
+            created_at = datetime(int(created_at[0]), int(created_at[1]), int(created_at[2]), int(created_at[3]), int(created_at[4]), int(created_at[5]))
+
+            # Get activity from last week. Change timedelta based on preference
+            if created_at >= datetime.now() - timedelta(days=7):
+                activity_post += "Made a " + event["type"] + " in " + str(event["repo"]["name"])
+                activity_post += " at " + str(created_at) + "\n\n"
+        
+        post = {
+            "author": request.user,
+            "contentType": "text/plain",
+            "title": "Github Activity",
+            "description": "My Github activity for the past week",
+            "content": activity_post,
+            "visibility": "PUBLIC",
+        }
+        post = Post.objects.create(**post)
+
+        response_body = JSONRenderer().render({
+            "query": "github",
+            "success": True,
+            "id": user.host+"/author/"+str(user.id),
+            "host": user.host,
+            "displayName": user.username,
+            "url": user.host+"/author/"+str(user.id),
+            "github": user.github,
+            "post": PostSerializer(post).data,
+        })
+
+        return HttpResponse(content=response_body, content_type="application/json", status=200)
+    else:
+        return HttpResponse(status=405, content="Method Not Allowed")
