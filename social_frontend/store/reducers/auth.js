@@ -57,6 +57,27 @@ const setUserData = (state, action) => (
   })
 );
 
+const editStart = (state) => (
+  updateObject(state, {
+    errorMessage: null,
+    loading: true,
+  })
+);
+
+const editSuccess = (state) => (
+  updateObject(state, {
+    errorMessage: null,
+    loading: false,
+  })
+);
+
+const editFail = (state, action) => (
+  updateObject(state, {
+    errorMessage: action.errorMessage,
+    loading: false,
+  })
+);
+
 const reducer = (state = initState, action) => {
   switch (action.type) {
     case actionTypes.AUTH_START:
@@ -69,6 +90,12 @@ const reducer = (state = initState, action) => {
       return authLogout(state, action);
     case actionTypes.SET_USER:
       return setUserData(state, action);
+    case actionTypes.EDIT_START:
+      return editStart(state, action);
+    case actionTypes.EDIT_SUCCESS:
+      return editSuccess(state, action);
+    case actionTypes.EDIT_FAIL:
+      return editFail(state, action);
     default:
       return state;
   }
