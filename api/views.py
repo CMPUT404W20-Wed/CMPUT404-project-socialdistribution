@@ -418,7 +418,7 @@ def profile(request, aid):
                 friend_list.append({
                     "id": friend_profile.host+'/author/'+str(friend_profile.id),
                     "host": friend_profile.host,
-                    "displayName": friend_profile.username,
+                    "displayName": friend_profile.displayName,
                     "url": friend_profile.host+'/author/'+str(friend_profile.id),
                 })
 
@@ -440,7 +440,7 @@ def profile(request, aid):
         response_body = JSONRenderer().render({
             "id": user.host+"/author/"+str(user.id),
             "host": user.host,
-            "displayName": user.username,
+            "displayName": user.displayName,
             "url": user.host+"/author/"+str(user.id),
             "friends": friend_list,
             "friendCount": len(friend_list),
