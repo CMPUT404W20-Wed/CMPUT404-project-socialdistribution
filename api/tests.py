@@ -280,7 +280,8 @@ class EndpointTests(TestCase):
         self.client.login(username='1', password='123')
         user = {
             "username": "new",
-            "password": "456"
+            "password": "456",
+            "github": "",
         }
         author_id = self.user1.id
         response = self.client.put('/api/author/{}/'.format(author_id), user, content_type="application/json")
