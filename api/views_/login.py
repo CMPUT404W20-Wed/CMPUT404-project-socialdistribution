@@ -41,7 +41,8 @@ def login(request):
 def register(request):
     data = try_extract_schema({
             'username': str,
-            'password': str
+            'password': str,
+            'github': str
         }, request.body)
     if data is None:
         return HttpResponseBadRequest("Invalid request")
