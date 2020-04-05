@@ -54,7 +54,7 @@ class EndpointTests(TestCase):
 
         
         # register a user with endpoint good and proper like
-        self.c.post('/api/register/', {'username':'user123','password':'12345'}, content_type='application/json')
+        self.c.post('/api/register/', {'username':'user123','password':'12345', 'github':''}, content_type='application/json')
 
         # ...need to approve the user
         u = User.objects.get(username='user123')
