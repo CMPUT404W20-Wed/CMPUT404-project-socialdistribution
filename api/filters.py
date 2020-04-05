@@ -35,8 +35,8 @@ def user_is_authorized(user, post):
         return (Friend.objects.filter(user1=user.id, user2=post_author)
                 and Friend.objects.filter(user1=post_author, user2=user.id)
                 and post.author.host == user.host)
-    #elif post.visibility == 'AUTHOR':
-    #    return user.id in post.visibleTo
+    elif post.visibility == 'AUTHOR':
+        return str(user.id) in post.visibleTo
     else:
         raise ValueError('Unsupported value for visibility')
 

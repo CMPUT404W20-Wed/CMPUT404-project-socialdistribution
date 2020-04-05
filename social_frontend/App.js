@@ -127,6 +127,7 @@ const Main = () => (
         '/related',
         '/friends',
         '/personal',
+        '/private',
       ]}
       exact
     >

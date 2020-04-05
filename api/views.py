@@ -17,6 +17,7 @@ from django.db.models import Q
 request_last_updated = 0
 
 from .views_.media import *
+from .views_.usersearch import *
 from .views_.login import *
 
 # TODO: serializers should only spit out certain fields (per example-article.json), ez but tedious
@@ -486,7 +487,7 @@ def ensure_data():
 
                 response = adapter.get_request(
                         "{}{}".format(login.host, "posts"), login)
-                responses.append(response.json())
+                responses.append((adapter, response.json()))
             except:
                 print("Failed to get posts from", login.host)
                 continue
@@ -497,7 +498,7 @@ def ensure_data():
         Comment.objects.filter(local=False).delete()
 
             
-        for response_json in responses:
+        for adapter, response_json in responses:
             for post in response_json['posts']:
                 author_obj = adapter.create_author(post['author'])
                 get_foreign_friends(login, author_obj, adapter)
@@ -520,8 +521,9 @@ def ensure_data():
                             comment['contentType'] = 'text/plain'
                         comment_obj = adapter.create_comment(comment)
                         # get or create? save?
-                except:
-                    print("Rejecting post due to error")
+                except Exception as e:
+                    print("Rejecting post due to error:")
+                    print(e)
 
     else:
         pass
@@ -529,20 +531,24 @@ def ensure_data():
         
 
 def get_foreign_friends(login, author, adapter):
-    url = adapter.get_friends_path(author)
-    #print("URL: {}".format(url))
-    response = adapter.get_request(url, login)
-    #print("Code: {}".format(response.status_code))
-    response_json = response.json()
+    try:
+        url = adapter.get_friends_path(author)
+        #print("URL: {}".format(url))
+        response = adapter.get_request(url, login)
+        #print("Code: {}".format(response.status_code))
+        response_json = response.json()
 
-    for author_id in response_json['authors']:
-        #print('Author: {}'.format(author_id))
-        url = adapter.get_author_path(author)
-        try:
-            response = adapter.get_request(url, login)
-            response_json = response.json()
-            response_json['author'].pop('friends', None)
-            adapter.create_author(response_json['author'])
-        except Exception as e:
-            #raise(e)
-            print("BAD")
+        for author_id in response_json['authors']:
+            #print('Author: {}'.format(author_id))
+            url = adapter.get_author_path(author)
+            try:
+                response = adapter.get_request(url, login)
+                response_json = response.json()
+                response_json['author'].pop('friends', None)
+                adapter.create_author(response_json['author'])
+            except Exception as e:
+                print("Rejecting friend due to error:")
+                print(e)
+    except Exception as e:
+        print("Rejecting entire friends list due to error:")
+        print(e)
