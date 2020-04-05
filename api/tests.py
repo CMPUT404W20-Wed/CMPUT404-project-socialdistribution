@@ -26,14 +26,14 @@ class SerializerTests(TestCase):
 class EndpointTests(TestCase):
     def setUp(self):
         self.c = Client()
-        self.user1 = User(username='1')
+        self.user1 = User(username='1', approved=True)
         self.user1.set_password('123')
-        self.user2 = User(username='2')
+        self.user2 = User(username='2', approved=True)
         self.user2.host = "http://localhost:8000"
         self.user1.save()
         self.user2.save()
 
-        self.user3 = User(username='3')
+        self.user3 = User(username='3', approved=True)
         self.user3.set_password('456')
         self.user3.host = "http://localhost:8000"
         self.user3.save()
@@ -55,7 +55,14 @@ class EndpointTests(TestCase):
 
         
         # register a user with endpoint good and proper like
-        self.c.post('/rest-auth/registration/', {'username':'user123','password1':'12345','password2':'12345'})
+        self.c.post('/api/register/', {'username':'user123','password':'12345', 'github': ''}, content_type='application/json')
+
+        # ...need to approve the user
+        u = User.objects.get(username='user123')
+        u.approved = True
+        u.save()
+
+        self.c.login(username='user123', password='12345')
     
     def test_register_login(self):
         client = Client()
@@ -63,8 +70,6 @@ class EndpointTests(TestCase):
         assert(response) # should be true if we were able to login with the user123
     
     def test_post_just_one(self):
-        client = Client()
-        client.login(username='user123', password='12345')
         post = {
             "title": "1",
             "description": "2",
@@ -75,7 +80,7 @@ class EndpointTests(TestCase):
         assert(response_json['success'] == True)
         assert(len(Post.objects.filter(title="1")) == 1)
         post_object = Post.objects.filter(title="1")[0]
-        assert(str(post_object.author.pk) == client.session["_auth_user_id"])
+        assert(str(post_object.author.pk) == self.c.session["_auth_user_id"])
         assert(response_json['post']['title'] == '1')
         assert(response_json['post']['description'] == '2')
         assert(response_json['post']['id'] == str(post_object.pk))
@@ -135,8 +140,6 @@ class EndpointTests(TestCase):
         assert(len(response_body["authors"]) == 0)
 
     def test_post_friends(self):
-        client = Client()
-        client.login(username='user123', password='12345')
         post = {
             "query": "friends",
             "author": str(self.user1.id),
@@ -150,8 +153,6 @@ class EndpointTests(TestCase):
         assert(len(response.json()['authors']) == 1)
 
     def test_friendrequest(self):
-        client = Client()
-        client.login(username='user123', password='12345')
         post = {
             "query": "friendrequest",
             "author": {

@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 
 import Markdown from './Markdown';
 import Attachments from './Attachments';
+import TagBar from './common/TagBar';
+import EditorUserBar from './EditorUserBar';
 import { imageAbsoluteURL, submitPostEndpoint } from '../util/endpoints';
 
 import '../styles/editor.css';
@@ -62,6 +64,7 @@ const PostFormControls = ({
                 <option value="FOAF">Friends of friends</option>
                 <option value="FRIENDS">All friends</option>
                 <option value="SERVERONLY">Local friends</option>
+                <option value="AUTHOR">Specific people</option>
                 <option value="PRIVATE">Private</option>
               </select>
               <input
@@ -89,6 +92,7 @@ PostFormControls.propTypes = {
     'FOAF',
     'FRIENDS',
     'SERVERONLY',
+    'AUTHOR',
     'PRIVATE',
   ]).isRequired,
   cancelCallback: PropTypes.func,
@@ -108,37 +112,68 @@ PostFormControls.defaultProps = {
 class PostForm extends React.Component {
   state = {
     textContent: '',
+    title: '',
+    description: '',
     attachments: [],
+    categories: [],
     canPost: false,
     visibility: 'PUBLIC',
+    visibleTo: [],
     errorMessage: null,
     isMarkdown: false,
     isUnlisted: false,
     isPreview: false,
     isAttaching: false,
+    showAdvanced: false,
   };
 
   constructor(props) {
     super(props);
 
     this.handleTextChange = this.handleTextChange.bind(this);
+    this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
+    this.handleTitleChange = this.handleTitleChange.bind(this);
     this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMarkdownToggle = this.handleMarkdownToggle.bind(this);
     this.handlePreviewToggle = this.handlePreviewToggle.bind(this);
     this.handleUnlistedToggle = this.handleUnlistedToggle.bind(this);
     this.handleAttachingToggle = this.handleAttachingToggle.bind(this);
+    this.handleAdvancedToggle = this.handleAdvancedToggle.bind(this);
+    this.handleAddCategory = this.handleAddCategory.bind(this);
+    this.handleRemoveCategory = this.handleRemoveCategory.bind(this);
+    this.handleAddUser = this.handleAddUser.bind(this);
+    this.handleRemoveUser = this.handleRemoveUser.bind(this);
     this.handleAttach = this.handleAttach.bind(this);
     this.handleDetach = this.handleDetach.bind(this);
     this.handleGitHubPost = this.handleGitHubPost.bind(this);
   }
 
   componentDidMount() {
-    const { defaultContent } = this.props;
+    const {
+      defaultContent,
+      defaultTitle,
+      defaultDescription,
+      defaultCategories,
+      defaultVisibility,
+      defaultVisibleTo,
+      defaultUnlistedState,
+    } = this.props;
 
     this.setState({
       textContent: defaultContent,
+      title: defaultTitle,
+      description: defaultDescription,
+      categories: defaultCategories ?? [],
+      visibility: defaultVisibility,
+      visibleTo: defaultVisibleTo ?? [],
+      isUnlisted: defaultUnlistedState,
       canPost: (defaultContent.length > 0),
+      showAdvanced: (
+        (defaultCategories && defaultCategories.length > 0)
+        || defaultTitle.length > 0
+        || defaultDescription.length > 0
+      ),
     });
   }
 
@@ -159,6 +194,20 @@ class PostForm extends React.Component {
       submittedCallback(res.data.post);
     }).catch((err) => {
       console.log(err);
+    });
+  }
+
+  handleDescriptionChange(event) {
+    const textContent = event.target.value;
+    this.setState({
+      description: textContent,
+    });
+  }
+
+  handleTitleChange(event) {
+    const textContent = event.target.value;
+    this.setState({
+      title: textContent,
     });
   }
 
@@ -184,11 +233,15 @@ class PostForm extends React.Component {
     } = this.props;
     const {
       textContent: content,
+      description,
+      title,
+      categories,
       attachments,
       isMarkdown,
       isUnlisted,
       isAttaching,
       visibility,
+      visibleTo,
     } = this.state;
 
     // Handle attachments
@@ -215,13 +268,13 @@ class PostForm extends React.Component {
 
         const attachmentPost = {
           visibility,
+          visibleTo,
           contentType: attachmentType,
           content: window.btoa(attachmentContent),
           title: file.name,
           unlisted: true,
           description: 'Attachment',
-          // categories: [],
-          // visibleTo: [],
+          categories: [],
         };
 
         return Axios.post(submitPostEndpoint(), attachmentPost).then(({
@@ -235,7 +288,6 @@ class PostForm extends React.Component {
     ).then((attachmentSpecs) => {
       // Handle the main post
 
-      const title = ''; // TODO
       const contentType = isMarkdown ? 'text/markdown' : 'text/plain';
 
       let adjustedContent;
@@ -264,12 +316,12 @@ class PostForm extends React.Component {
         : {
           title,
           visibility,
+          visibleTo,
+          categories,
+          description,
           contentType: adjustedContentType,
           content: adjustedContent,
           unlisted: isUnlisted,
-          description: '',
-          // categories: [],
-          // visibleTo: [],
         };
 
       const method = isPatching ? 'put' : 'post';
@@ -280,7 +332,10 @@ class PostForm extends React.Component {
       }) => {
         this.setState({
           textContent: '',
+          description: '',
+          title: '',
           attachments: [],
+          categories: [],
           canPost: false,
           isPreview: false,
         });
@@ -345,6 +400,37 @@ class PostForm extends React.Component {
     });
   }
 
+  handleAdvancedToggle(event) {
+    const value = event.target.checked;
+    this.setState({
+      showAdvanced: value,
+    });
+  }
+
+  handleAddCategory(category) {
+    this.setState(({ categories }) => ({
+      categories: [...categories, category],
+    }));
+  }
+
+  handleRemoveCategory(index) {
+    this.setState(({ categories }) => ({
+      categories: categories.filter((a, i) => i !== index),
+    }));
+  }
+
+  handleAddUser(id) {
+    this.setState(({ visibleTo }) => ({
+      visibleTo: [...visibleTo, id],
+    }));
+  }
+
+  handleRemoveUser(index) {
+    this.setState(({ visibleTo }) => ({
+      visibleTo: visibleTo.filter((u, i) => i !== index),
+    }));
+  }
+
   handleAttach(file) {
     const fr = new FileReader();
     fr.onload = ({ target: { result } }) => {
@@ -373,13 +459,18 @@ class PostForm extends React.Component {
     } = this.props;
     const {
       textContent,
+      title,
+      description,
+      categories,
       attachments,
       canPost,
       isMarkdown,
       isPreview,
       isUnlisted,
       isAttaching,
+      showAdvanced,
       visibility,
+      visibleTo,
       errorMessage,
     } = this.state;
 
@@ -395,6 +486,18 @@ class PostForm extends React.Component {
             checked={isMarkdown}
             onChange={this.handleMarkdownToggle}
           />
+          {
+            !isComment && (
+              <input
+                type="checkbox"
+                name="markdown"
+                className="post-form-advanced-toggle"
+                title="Advanced"
+                checked={showAdvanced}
+                onChange={this.handleAdvancedToggle}
+              />
+            )
+          }
           <input
             type="checkbox"
             name="markdown"
@@ -410,6 +513,24 @@ class PostForm extends React.Component {
           onAttach={this.handleAttach}
           onDetach={this.handleDetach}
         />
+        {
+          showAdvanced && !isComment && (
+            <>
+              <input
+                value={title}
+                onChange={this.handleTitleChange}
+                className="post-form-title"
+                placeholder="Title"
+              />
+              <textarea
+                value={description}
+                onChange={this.handleDescriptionChange}
+                className="post-form-description"
+                placeholder="Description"
+              />
+            </>
+          )
+        }
         {
           isMarkdown && isPreview
             ? (
@@ -428,7 +549,31 @@ class PostForm extends React.Component {
               />
             )
         }
+        {
+          showAdvanced && !isComment && (
+            <TagBar
+              editable
+              editPlaceholder="Add category"
+              items={categories}
+              render={(text) => `#${text}`}
+              onAddItem={this.handleAddCategory}
+              onRemoveItem={this.handleRemoveCategory}
+            />
+          )
+        }
         {errorMessage}
+        {
+          visibility === 'AUTHOR' && (
+            <>
+              <h4 className="user-bar-header">Share with</h4>
+              <EditorUserBar
+                items={visibleTo}
+                onAddUser={this.handleAddUser}
+                onRemoveUser={this.handleRemoveUser}
+              />
+            </>
+          )
+        }
         <PostFormControls
           canPost={canPost}
           canPreview={isMarkdown}
@@ -453,6 +598,19 @@ PostForm.propTypes = {
   isPatching: PropTypes.bool,
   submittedCallback: PropTypes.func,
   defaultContent: PropTypes.string,
+  defaultTitle: PropTypes.string,
+  defaultDescription: PropTypes.string,
+  defaultCategories: PropTypes.arrayOf(PropTypes.string),
+  defaultUnlistedState: PropTypes.bool,
+  defaultVisibility: PropTypes.oneOf([
+    'PUBLIC',
+    'FOAF',
+    'FRIENDS',
+    'SERVERONLY',
+    'AUTHOR',
+    'PRIVATE',
+  ]),
+  defaultVisibleTo: PropTypes.arrayOf(PropTypes.string),
   endpoint: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   id: PropTypes.string,
@@ -463,6 +621,12 @@ PostForm.defaultProps = {
   isPatching: false,
   submittedCallback: undefined,
   defaultContent: '',
+  defaultTitle: '',
+  defaultDescription: '',
+  defaultCategories: null,
+  defaultVisibleTo: null,
+  defaultUnlistedState: false,
+  defaultVisibility: 'PUBLIC',
   onCancel: undefined,
   id: null,
 };

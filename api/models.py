@@ -23,11 +23,11 @@ class User(AbstractUser): # has a username, password
     
     # don't need this because this class inherits username
     displayName = models.CharField(max_length=127)
-    github = models.CharField(max_length=255)
-    firstName = models.CharField(max_length=63)
-    lastName = models.CharField(max_length=63)
-    email = models.CharField(max_length=127)
-    bio = models.TextField()
+    github = models.CharField(max_length=255, default="", blank=True)
+    firstName = models.CharField(max_length=63, default="", blank=True)
+    lastName = models.CharField(max_length=63, default="", blank=True)
+    email = models.CharField(max_length=127, default="", blank=True)
+    bio = models.TextField(default="", blank=True)
     local = models.BooleanField(default=True)
 
 class Post(models.Model):
@@ -86,7 +86,7 @@ class Comment(models.Model):
     # ID of the Comment (UUID)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     
     comment = models.TextField()
     # TODO: comments will always be text/markdown? what to do on front end?

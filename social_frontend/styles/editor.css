@@ -113,10 +113,163 @@
     margin-top: 8px;
 }
 
+.post-form input.post-form-advanced-toggle {
+    margin-left: auto;
+    margin-right: 8px;
+}
+
 .post-form input.post-form-attach-toggle {
     margin-left: auto;
 }
 
 .github {
     margin-top: 5pt;
+}
+
+.post-form input.post-form-advanced-toggle + .post-form-attach-toggle {
+    margin-left: 0;
+}
+
+.post-form input.post-form-title {
+    background-color: white;
+    border: 1px solid #ccc;
+    margin-bottom: 4px;
+    padding-left: 1em;
+    font-weight: bold;
+}
+
+.post-form-description {
+    resize: vertical;
+    border: 1px solid #ccc;
+    min-height: 3em;
+    padding: 1em;
+    font-family: sans-serif;
+    font-size: 11pt;
+    margin-bottom: 16px;
+}
+
+.post-form-description::placeholder {
+    color: #aaa;
+    opacity: 1;
+}
+
+.post-form .tag-bar,
+.post-form .user-bar {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.post-form .tag-bar .tag {
+    border: 1px solid #ccc;
+    border-radius: 24px;
+    padding-right: 8px;
+    font-size: 10pt;
+    color: #555;
+    margin-right: 8px;
+}
+
+.post-form .tag-bar .tag button,
+.post-form .user-bar .tag button {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    padding: 0;
+    border: none;
+    background-color: unset;
+    margin: 0;
+    cursor: pointer;
+}
+
+.post-form .tag-bar input {
+    background-color: white;
+    font-size: 10pt;
+    padding: 4px 12px;
+    width: 8em;
+    border: 1px solid #ccc;
+    border-radius: 24px;
+}
+
+.post-form .user-bar .tag-new {
+    position: relative;
+}
+
+.post-form .user-bar input {
+    background-color: white;
+    font-size: 10pt;
+    padding: 4px;
+    width: 8em;
+    border: 1px solid #ccc;
+}
+
+.post-form .user-bar .tag-suggestions {
+    position: absolute;
+    top: 26px;
+    z-index: 10;
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    border-radius: 0 0 4px 4px;
+    font-size: 10pt;
+    width: calc(8em + 8px);
+}
+
+.post-form .user-bar .tag-suggestions > button {
+    border: none;
+    background-color: unset;
+    width: 100%;
+    padding: 4px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.post-form .user-bar .tag-suggestions> button:last-child {
+    border-radius: 0 0 3px 3px;
+}
+
+.post-form .user-bar .tag-suggestions > button:hover {
+    background-color: white;
+}
+
+.post-form .user-bar .tag-suggestions > button:first-child {
+    background-color: #fcc;
+    font-weight: bold;
+}
+
+.post-form .user-bar .tag-suggestions > button:first-child:hover {
+    background-color: #fdd;
+}
+
+.post-form .user-bar .tag,
+.post-form .user-bar .user-tag {
+    display: flex;
+    flex-wrap: none;
+    align-items: center;
+}
+
+.post-form .user-bar .tag {
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+    margin-right: 8px;
+}
+
+.post-form .user-tag-name {
+    margin: 0 8px;
+}
+
+.post-form .user-bar-header {
+    margin: 0;
+    color: #555;
+    font-weight: normal;
+    margin-top: 16px;
+    font-size: 11pt;
+}
+
+.post-form .user-bar .tag img {
+    display: block;
+    width: 24px;
+    height: 24px;
+    background-color: #0c0;
+    overflow: hidden;
+    color: transparent;
 }
