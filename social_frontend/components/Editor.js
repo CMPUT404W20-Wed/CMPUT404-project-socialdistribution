@@ -14,6 +14,7 @@ import {
 } from '../util/endpoints';
 
 import '../styles/editor.css';
+import SuspensefulSubmit from './common/suspend/SuspensefulSubmit';
 
 
 /* Control cluster at the bottom of the post form.
@@ -129,6 +130,7 @@ class PostForm extends React.Component {
     isPreview: false,
     isAttaching: false,
     showAdvanced: false,
+    fetchingGitHub: false,
   };
 
   constructor(props) {
@@ -194,10 +196,14 @@ class PostForm extends React.Component {
 
     const { id, submittedCallback } = this.props;
 
+    this.setState({ fetchingGitHub: true });
+
     return Axios.get(triggerGithubEndpoint(id)).then((res) => {
       submittedCallback(res.data.post);
+      this.setState({ fetchingGitHub: false });
     }).catch((err) => {
       console.log(err);
+      this.setState({ fetchingGitHub: false });
     });
   }
 
@@ -477,133 +483,136 @@ class PostForm extends React.Component {
       visibility,
       visibleTo,
       errorMessage,
+      fetchingGitHub,
     } = this.state;
 
     const className = `post-form ${isComment ? 'comment-form' : ''} ${isMarkdown ? 'markdown-mode' : ''}`;
     const placeholder = isComment ? 'Add a comment' : 'Post to your stream';
 
     return (
-      <form onSubmit={this.handleSubmit} className={className}>
-        <div className="post-form-mode-controls">
-          <input
-            type="checkbox"
-            name="markdown"
-            title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}
-            checked={isMarkdown}
-            onChange={this.handleMarkdownToggle}
+      <div>
+        <form onSubmit={this.handleSubmit} className={className}>
+          <div className="post-form-mode-controls">
+            <input
+              type="checkbox"
+              name="markdown"
+              title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}
+              checked={isMarkdown}
+              onChange={this.handleMarkdownToggle}
+            />
+            {
+              !isComment && (
+                <input
+                  type="checkbox"
+                  name="markdown"
+                  className="post-form-advanced-toggle"
+                  title="Advanced"
+                  checked={showAdvanced}
+                  onChange={this.handleAdvancedToggle}
+                />
+              )
+            }
+            <input
+              type="checkbox"
+              name="markdown"
+              className="post-form-attach-toggle"
+              title="Attach"
+              checked={isAttaching}
+              onChange={this.handleAttachingToggle}
+            />
+          </div>
+          <Attachments
+            attachments={attachments}
+            visible={isAttaching}
+            onAttach={this.handleAttach}
+            onDetach={this.handleDetach}
           />
           {
-            !isComment && (
-              <input
-                type="checkbox"
-                name="markdown"
-                className="post-form-advanced-toggle"
-                title="Advanced"
-                checked={showAdvanced}
-                onChange={this.handleAdvancedToggle}
+            showAdvanced && !isComment && (
+              <>
+                <input
+                  value={title}
+                  onChange={this.handleTitleChange}
+                  className="post-form-title"
+                  placeholder="Title"
+                />
+                <textarea
+                  value={description}
+                  onChange={this.handleDescriptionChange}
+                  className="post-form-description"
+                  placeholder="Description"
+                />
+              </>
+            )
+          }
+          {
+            isMarkdown && isPreview
+              ? (
+                <div className="post-form-preview">
+                  <Markdown source={textContent} />
+                </div>
+              )
+              : (
+                <textarea
+                  value={textContent}
+                  onChange={this.handleTextChange}
+                  onFocus={this.handleFocus}
+                  onBlur={this.handleBlur}
+                  className="post-form-text"
+                  placeholder={placeholder}
+                />
+              )
+          }
+          {
+            showAdvanced && !isComment && (
+              <TagBar
+                editable
+                editPlaceholder="Add category"
+                items={categories}
+                render={(text) => `#${text}`}
+                onAddItem={this.handleAddCategory}
+                onRemoveItem={this.handleRemoveCategory}
               />
             )
           }
-          <input
-            type="checkbox"
-            name="markdown"
-            className="post-form-attach-toggle"
-            title="Attach"
-            checked={isAttaching}
-            onChange={this.handleAttachingToggle}
+          {errorMessage}
+          {
+            visibility === 'AUTHOR' && (
+              <>
+                <h4 className="user-bar-header">Share with</h4>
+                <EditorUserBar
+                  items={visibleTo}
+                  onAddUser={this.handleAddUser}
+                  onRemoveUser={this.handleRemoveUser}
+                />
+              </>
+            )
+          }
+          <PostFormControls
+            canPost={canPost}
+            canPreview={isMarkdown}
+            onPreviewToggle={this.handlePreviewToggle}
+            onUnlistedToggle={this.handleUnlistedToggle}
+            onVisibilityChange={this.handleVisibilityChange}
+            isComment={isComment}
+            isUnlisted={isUnlisted}
+            canCancel={onCancel !== undefined}
+            cancelCallback={onCancel}
+            isPatching={isPatching}
+            visibility={visibility}
           />
-        </div>
-        <Attachments
-          attachments={attachments}
-          visible={isAttaching}
-          onAttach={this.handleAttach}
-          onDetach={this.handleDetach}
-        />
-        {
-          showAdvanced && !isComment && (
-            <>
-              <input
-                value={title}
-                onChange={this.handleTitleChange}
-                className="post-form-title"
-                placeholder="Title"
-              />
-              <textarea
-                value={description}
-                onChange={this.handleDescriptionChange}
-                className="post-form-description"
-                placeholder="Description"
-              />
-            </>
-          )
-        }
-        {
-          isMarkdown && isPreview
-            ? (
-              <div className="post-form-preview">
-                <Markdown source={textContent} />
-              </div>
-            )
-            : (
-              <textarea
-                value={textContent}
-                onChange={this.handleTextChange}
-                onFocus={this.handleFocus}
-                onBlur={this.handleBlur}
-                className="post-form-text"
-                placeholder={placeholder}
-              />
-            )
-        }
-        {
-          showAdvanced && !isComment && (
-            <TagBar
-              editable
-              editPlaceholder="Add category"
-              items={categories}
-              render={(text) => `#${text}`}
-              onAddItem={this.handleAddCategory}
-              onRemoveItem={this.handleRemoveCategory}
-            />
-          )
-        }
-        {errorMessage}
-        {
-          visibility === 'AUTHOR' && (
-            <>
-              <h4 className="user-bar-header">Share with</h4>
-              <EditorUserBar
-                items={visibleTo}
-                onAddUser={this.handleAddUser}
-                onRemoveUser={this.handleRemoveUser}
-              />
-            </>
-          )
-        }
-        <PostFormControls
-          canPost={canPost}
-          canPreview={isMarkdown}
-          onPreviewToggle={this.handlePreviewToggle}
-          onUnlistedToggle={this.handleUnlistedToggle}
-          onVisibilityChange={this.handleVisibilityChange}
-          isComment={isComment}
-          isUnlisted={isUnlisted}
-          canCancel={onCancel !== undefined}
-          cancelCallback={onCancel}
-          isPatching={isPatching}
-          visibility={visibility}
-        />
+        </form>
         {
           hasGithub && (
-            <input
-              className="github"
-              type="submit"
-              value="Post GitHub"
-              onClick={this.handleGitHubPost}
+            <SuspensefulSubmit
+              label="Post My Weekly Github Activity"
+              disabled={false}
+              suspended={fetchingGitHub}
+              action={this.handleGitHubPost}
             />
           )
         }
-      </form>
+      </div>
     );
   }
 }

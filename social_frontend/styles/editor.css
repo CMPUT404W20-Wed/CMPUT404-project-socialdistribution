@@ -1,6 +1,7 @@
 
 .post-form {
     margin: 8px;
+    margin-bottom: 0;
     margin-top: 20px;
     padding: 8px 8px;
     background-color: #f0f0f0;
@@ -120,10 +121,6 @@
 
 .post-form input.post-form-attach-toggle {
     margin-left: auto;
-}
-
-.github {
-    margin-top: 5pt;
 }
 
 .post-form input.post-form-advanced-toggle + .post-form-attach-toggle {
