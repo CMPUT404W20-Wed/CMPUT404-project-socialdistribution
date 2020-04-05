@@ -17,6 +17,7 @@ const initState = {
   loading: false,
   id: null,
   username: null,
+  github: null,
 };
 
 const authStart = (state) => (
@@ -47,6 +48,7 @@ const authLogout = (state) => (
     authenticated: false,
     id: null,
     username: null,
+    github: null,
   })
 );
 
@@ -54,6 +56,7 @@ const setUserData = (state, action) => (
   updateObject(state, {
     id: action.id,
     username: action.username,
+    github: action.github,
   })
 );
 

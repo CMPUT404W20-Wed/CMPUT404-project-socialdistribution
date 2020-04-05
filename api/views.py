@@ -462,8 +462,7 @@ def profile(request, aid):
             if len(json_body["password"]) != 0:
                 author.password = json_body["password"]
 
-            if len(json_body.get("github",'')) != 0:
-                author.github = json_body["github"]
+            author.github = json_body["github"]
 
             author.save()
             response_body = JSONRenderer().render({

@@ -93,16 +93,15 @@ export const authCheckState = () => (
   }
 );
 
-export const setUserData = (id, username) => ({
+export const setUserData = (userData) => ({
   type: actionTypes.SET_USER,
-  id,
-  username,
+  ...userData,
 });
 
 export const getUser = () => (
   (dispatch) => {
     axios.get(loggedInUserEndpoint()).then((res) => (
-      dispatch(setUserData(res.data.id, res.data.username))
+      dispatch(setUserData(res.data))
     )).catch((err) => {
       Error(err);
     });
@@ -140,6 +139,7 @@ export const editUser = (id, username, password, password2, github) => (
         github,
       }).then(() => {
         dispatch(editSuccess());
+        dispatch(setUserData({ username, github }));
         window.location.reload();
       }).catch((err) => {
         dispatch(editFail(err.message));

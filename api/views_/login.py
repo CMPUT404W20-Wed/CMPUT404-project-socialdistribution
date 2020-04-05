@@ -31,7 +31,8 @@ def login(request):
         if request.user.is_authenticated:
             return JsonResponse({
                     'id': request.user.id,
-                    'username': request.user.username
+                    'username': request.user.username,
+                    'github': request.user.github,
                 })
         else:
             return HttpResponseBadRequest("Not logged in")
