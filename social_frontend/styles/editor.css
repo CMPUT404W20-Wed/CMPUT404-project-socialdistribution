@@ -44,6 +44,7 @@
 .post-form-mode-controls {
     padding-bottom: 8px;
     display: flex;
+    justify-content: space-between;
 }
 
 .post-form .submit,

@@ -75,7 +75,7 @@ const PostFormControls = ({
                 <option value="PRIVATE">Private</option>
               </select>
               <button type="button" onClick={onUnlistedToggle} className={`fa-button ${isUnlisted ? 'fa-active' : ''}`} title={`Unlisted: ${isUnlisted ? 'yes' : 'no'}`}>
-                <FontAwesomeIcon icon={isUnlisted ? 'eye-slash' : 'eye'} className="fa-2x" />
+                <FontAwesomeIcon icon={isUnlisted ? 'eye-slash' : 'eye'} className="fa-lg" />
               </button>
             </>
           )
@@ -495,18 +495,20 @@ class PostForm extends React.Component {
         <form onSubmit={this.handleSubmit} className={className}>
           <div className="post-form-mode-controls">
             <button type="button" onClick={this.handleMarkdownToggle} className={`fa-button ${isMarkdown ? 'fa-active' : ''}`} title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}>
-              <FontAwesomeIcon icon={['fab', 'markdown']} className="fa-2x" />
+              <FontAwesomeIcon icon={['fab', 'markdown']} className="fa-lg" />
             </button>
-            {
-              !isComment && (
-                <button type="button" onClick={this.handleAdvancedToggle} className={`fa-button ${showAdvanced ? 'fa-active' : ''}`} title="Advanced">
-                  <FontAwesomeIcon icon="heading" className="fa-2x" />
-                </button>
-              )
-            }
-            <button type="button" onClick={this.handleAttachingToggle} className={`fa-button ${isAttaching ? 'fa-active' : ''}`} title="Attach">
-              <FontAwesomeIcon icon="paperclip" className="fa-lg" />
-            </button>
+            <div>
+              {
+                !isComment && (
+                  <button type="button" onClick={this.handleAdvancedToggle} className={`fa-button ${showAdvanced ? 'fa-active' : ''}`} title="Advanced">
+                    <FontAwesomeIcon icon="heading" className="fa-lg" />
+                  </button>
+                )
+              }
+              <button type="button" onClick={this.handleAttachingToggle} className={`fa-button ${isAttaching ? 'fa-active' : ''}`} title="Attach">
+                <FontAwesomeIcon icon="paperclip" className="fa-lg" />
+              </button>
+            </div>
           </div>
           <Attachments
             attachments={attachments}
