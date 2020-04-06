@@ -85,7 +85,7 @@ class Post(models.Model):
 class Comment(models.Model):
     # ID of the Comment (UUID)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.DO_NOTHING)
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     
     comment = models.TextField()
