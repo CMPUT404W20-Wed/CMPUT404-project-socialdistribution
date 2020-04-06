@@ -22,7 +22,7 @@ const SuspensefulSubmit = ({
 }) => (
   action ? (
     <button
-      type="submit"
+      type="button"
       disabled={disabled || suspended}
       className={`submit suspenseful action ${className}`}
       onClick={action}
@@ -34,7 +34,7 @@ const SuspensefulSubmit = ({
     <button
       type="submit"
       disabled={disabled || suspended}
-      className="submit suspenseful"
+      className={`submit suspenseful ${className}`}
     >
       {label}
       {suspended && <Suspender />}

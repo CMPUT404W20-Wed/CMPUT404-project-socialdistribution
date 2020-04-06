@@ -297,7 +297,12 @@ class PostForm extends React.Component {
           id: returnedPost.id,
           name: file.name,
           ext: attachmentExt,
-        }));
+        })).catch((error) => {
+          this.setState({
+            errorMessage: error.message,
+            suspended: false,
+          });
+        });
       }),
     ).then((attachmentSpecs) => {
       // Handle the main post
@@ -383,6 +388,7 @@ class PostForm extends React.Component {
       }).catch((error) => {
         this.setState({
           errorMessage: error.message,
+          suspended: false,
         });
       });
     });
