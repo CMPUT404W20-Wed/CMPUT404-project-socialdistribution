@@ -282,6 +282,7 @@
 
 .fa-button {
     width: 40pt !important;
+    margin: 0 !important;
 }
 
 .fa-active {
@@ -290,4 +291,8 @@
 
 .fa-button :hover {
     cursor: pointer;
+}
+
+.fa-margin {
+    margin-right: 8px !important;
 }

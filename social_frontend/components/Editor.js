@@ -500,7 +500,7 @@ class PostForm extends React.Component {
             <div>
               {
                 !isComment && (
-                  <button type="button" onClick={this.handleAdvancedToggle} className={`fa-button ${showAdvanced ? 'fa-active' : ''}`} title="Advanced">
+                  <button type="button" onClick={this.handleAdvancedToggle} className={`fa-button fa-margin ${showAdvanced ? 'fa-active' : ''}`} title="Advanced">
                     <FontAwesomeIcon icon="heading" className="fa-lg" />
                   </button>
                 )
