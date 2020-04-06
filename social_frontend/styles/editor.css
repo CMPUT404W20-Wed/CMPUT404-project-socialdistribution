@@ -43,16 +43,18 @@
 .post-form-mode-controls {
     padding-bottom: 8px;
     display: flex;
+    justify-content: space-between;
 }
 
-.post-form input[type=submit],
+.post-form .submit,
 .post-form button {
     width: 100px;
     margin-right: 8px;
 }
 
-.post-form input[type=submit] {
+.post-form .submit {
     font-weight: bold;
+    width: 8em;
 }
 
 .post-form input[type=checkbox] {
@@ -120,10 +122,6 @@
 
 .post-form input.post-form-attach-toggle {
     margin-left: auto;
-}
-
-.github {
-    margin-top: 5pt;
 }
 
 .post-form input.post-form-advanced-toggle + .post-form-attach-toggle {
@@ -272,4 +270,29 @@
     background-color: #0c0;
     overflow: hidden;
     color: transparent;
+}
+
+.post-form .github-submit {
+    width: 100%;
+    margin: 0;
+    margin-top: 16px;
+    font-weight: bold;
+}
+
+.fa-button {
+    width: 40pt !important;
+    margin: 0 !important;
+    cursor: pointer;
+}
+
+.fa-active {
+    background-color: #fcc !important;
+}
+
+.fa-button :hover {
+    cursor: pointer;
+}
+
+.fa-margin {
+    margin-right: 8px !important;
 }

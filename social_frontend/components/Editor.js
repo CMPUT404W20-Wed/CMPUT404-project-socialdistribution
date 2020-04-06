@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Axios from 'axios';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Markdown from './Markdown';
 import Attachments from './Attachments';
@@ -14,12 +15,14 @@ import {
 } from '../util/endpoints';
 
 import '../styles/editor.css';
+import SuspensefulSubmit from './common/suspend/SuspensefulSubmit';
 
 
 /* Control cluster at the bottom of the post form.
  * canPost should be set based on whether the post is valid.
  */
 const PostFormControls = ({
+  suspended,
   isComment,
   isUnlisted,
   canPost,
@@ -39,9 +42,9 @@ const PostFormControls = ({
 
   return (
     <div className="post-form-controls">
-      <input
-        type="submit"
-        value={submitLabel}
+      <SuspensefulSubmit
+        label={submitLabel}
+        suspended={suspended}
         disabled={!canPost}
       />
       {
@@ -71,13 +74,9 @@ const PostFormControls = ({
                 <option value="AUTHOR">Specific people</option>
                 <option value="PRIVATE">Private</option>
               </select>
-              <input
-                type="checkbox"
-                name="unlisted"
-                title={`Unlisted: ${isUnlisted ? 'yes' : 'no'}`}
-                checked={isUnlisted}
-                onChange={onUnlistedToggle}
-              />
+              <button type="button" onClick={onUnlistedToggle} className={`fa-button ${isUnlisted ? 'fa-active' : ''}`} title={`Unlisted: ${isUnlisted ? 'yes' : 'no'}`}>
+                <FontAwesomeIcon icon={isUnlisted ? 'eye-slash' : 'eye'} className="fa-lg" />
+              </button>
             </>
           )
       }
@@ -91,6 +90,7 @@ PostFormControls.propTypes = {
   canPost: PropTypes.bool.isRequired,
   canCancel: PropTypes.bool.isRequired,
   isPatching: PropTypes.bool.isRequired,
+  suspended: PropTypes.bool.isRequired,
   visibility: PropTypes.oneOf([
     'PUBLIC',
     'FOAF',
@@ -129,6 +129,8 @@ class PostForm extends React.Component {
     isPreview: false,
     isAttaching: false,
     showAdvanced: false,
+    fetchingGitHub: false,
+    suspended: false,
   };
 
   constructor(props) {
@@ -194,10 +196,14 @@ class PostForm extends React.Component {
 
     const { id, submittedCallback } = this.props;
 
+    this.setState({ fetchingGitHub: true });
+
     return Axios.get(triggerGithubEndpoint(id)).then((res) => {
       submittedCallback(res.data.post);
+      this.setState({ fetchingGitHub: false });
     }).catch((err) => {
       console.log(err);
+      this.setState({ fetchingGitHub: false });
     });
   }
 
@@ -248,6 +254,10 @@ class PostForm extends React.Component {
       visibleTo,
     } = this.state;
 
+    this.setState({
+      suspended: true,
+    });
+
     // Handle attachments
 
     Promise.all(
@@ -287,7 +297,12 @@ class PostForm extends React.Component {
           id: returnedPost.id,
           name: file.name,
           ext: attachmentExt,
-        }));
+        })).catch((error) => {
+          this.setState({
+            errorMessage: error.message,
+            suspended: false,
+          });
+        });
       }),
     ).then((attachmentSpecs) => {
       // Handle the main post
@@ -365,22 +380,25 @@ class PostForm extends React.Component {
           returnedContent = returnedPost;
         }
 
+        this.setState({
+          suspended: false,
+        });
+
         submittedCallback(returnedContent);
       }).catch((error) => {
         this.setState({
           errorMessage: error.message,
+          suspended: false,
         });
       });
     });
   }
 
-  handleMarkdownToggle(event) {
-    const value = event.target.checked;
-    this.setState({
-      isMarkdown: value,
-    });
+  handleMarkdownToggle() {
+    const { isMarkdown } = this.state;
+    this.setState({ isMarkdown: !isMarkdown });
 
-    if (!value) this.setState({ isPreview: false });
+    if (!isMarkdown) this.setState({ isPreview: false });
   }
 
   handlePreviewToggle() {
@@ -390,25 +408,19 @@ class PostForm extends React.Component {
     });
   }
 
-  handleUnlistedToggle(event) {
-    const value = event.target.checked;
-    this.setState({
-      isUnlisted: value,
-    });
+  handleUnlistedToggle() {
+    const { isUnlisted } = this.state;
+    this.setState({ isUnlisted: !isUnlisted });
   }
 
-  handleAttachingToggle(event) {
-    const value = event.target.checked;
-    this.setState({
-      isAttaching: value,
-    });
+  handleAttachingToggle() {
+    const { isAttaching } = this.state;
+    this.setState({ isAttaching: !isAttaching });
   }
 
-  handleAdvancedToggle(event) {
-    const value = event.target.checked;
-    this.setState({
-      showAdvanced: value,
-    });
+  handleAdvancedToggle() {
+    const { showAdvanced } = this.state;
+    this.setState({ showAdvanced: !showAdvanced });
   }
 
   handleAddCategory(category) {
@@ -477,6 +489,8 @@ class PostForm extends React.Component {
       visibility,
       visibleTo,
       errorMessage,
+      fetchingGitHub,
+      suspended,
     } = this.state;
 
     const className = `post-form ${isComment ? 'comment-form' : ''} ${isMarkdown ? 'markdown-mode' : ''}`;
@@ -485,33 +499,21 @@ class PostForm extends React.Component {
     return (
       <form onSubmit={this.handleSubmit} className={className}>
         <div className="post-form-mode-controls">
-          <input
-            type="checkbox"
-            name="markdown"
-            title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}
-            checked={isMarkdown}
-            onChange={this.handleMarkdownToggle}
-          />
-          {
-            !isComment && (
-              <input
-                type="checkbox"
-                name="markdown"
-                className="post-form-advanced-toggle"
-                title="Advanced"
-                checked={showAdvanced}
-                onChange={this.handleAdvancedToggle}
-              />
-            )
-          }
-          <input
-            type="checkbox"
-            name="markdown"
-            className="post-form-attach-toggle"
-            title="Attach"
-            checked={isAttaching}
-            onChange={this.handleAttachingToggle}
-          />
+          <button type="button" onClick={this.handleMarkdownToggle} className={`fa-button ${isMarkdown ? 'fa-active' : ''}`} title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}>
+            <FontAwesomeIcon icon={['fab', 'markdown']} className="fa-lg" />
+          </button>
+          <div>
+            {
+              !isComment && (
+                <button type="button" onClick={this.handleAdvancedToggle} className={`fa-button fa-margin ${showAdvanced ? 'fa-active' : ''}`} title="Advanced">
+                  <FontAwesomeIcon icon="heading" className="fa-lg" />
+                </button>
+              )
+            }
+            <button type="button" onClick={this.handleAttachingToggle} className={`fa-button ${isAttaching ? 'fa-active' : ''}`} title="Attach">
+              <FontAwesomeIcon icon="paperclip" className="fa-lg" />
+            </button>
+          </div>
         </div>
         <Attachments
           attachments={attachments}
@@ -581,6 +583,7 @@ class PostForm extends React.Component {
           )
         }
         <PostFormControls
+          suspended={suspended}
           canPost={canPost}
           canPreview={isMarkdown}
           onPreviewToggle={this.handlePreviewToggle}
@@ -594,12 +597,12 @@ class PostForm extends React.Component {
           visibility={visibility}
         />
         {
-          hasGithub && (
-            <input
-              className="github"
-              type="submit"
-              value="Post GitHub"
-              onClick={this.handleGitHubPost}
+          hasGithub && !isComment && !isPatching && (
+            <SuspensefulSubmit
+              label="Post My Weekly Github Activity"
+              className="github-submit"
+              suspended={fetchingGitHub}
+              action={this.handleGitHubPost}
             />
           )
         }

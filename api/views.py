@@ -598,7 +598,7 @@ def github_post(request, aid):
         
         json_response = response.json()
 
-        activity_post = "Github Weekly Activity\n\n"
+        activity_post = ""
         for event in json_response:
             created_at = event["created_at"]
             created_at = created_at.replace("T", "-").replace("Z", "").replace(":", "-")
