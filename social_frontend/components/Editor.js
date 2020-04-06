@@ -497,118 +497,116 @@ class PostForm extends React.Component {
     const placeholder = isComment ? 'Add a comment' : 'Post to your stream';
 
     return (
-      <div>
-        <form onSubmit={this.handleSubmit} className={className}>
-          <div className="post-form-mode-controls">
-            <button type="button" onClick={this.handleMarkdownToggle} className={`fa-button ${isMarkdown ? 'fa-active' : ''}`} title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}>
-              <FontAwesomeIcon icon={['fab', 'markdown']} className="fa-lg" />
+      <form onSubmit={this.handleSubmit} className={className}>
+        <div className="post-form-mode-controls">
+          <button type="button" onClick={this.handleMarkdownToggle} className={`fa-button ${isMarkdown ? 'fa-active' : ''}`} title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}>
+            <FontAwesomeIcon icon={['fab', 'markdown']} className="fa-lg" />
+          </button>
+          <div>
+            {
+              !isComment && (
+                <button type="button" onClick={this.handleAdvancedToggle} className={`fa-button fa-margin ${showAdvanced ? 'fa-active' : ''}`} title="Advanced">
+                  <FontAwesomeIcon icon="heading" className="fa-lg" />
+                </button>
+              )
+            }
+            <button type="button" onClick={this.handleAttachingToggle} className={`fa-button ${isAttaching ? 'fa-active' : ''}`} title="Attach">
+              <FontAwesomeIcon icon="paperclip" className="fa-lg" />
             </button>
-            <div>
-              {
-                !isComment && (
-                  <button type="button" onClick={this.handleAdvancedToggle} className={`fa-button fa-margin ${showAdvanced ? 'fa-active' : ''}`} title="Advanced">
-                    <FontAwesomeIcon icon="heading" className="fa-lg" />
-                  </button>
-                )
-              }
-              <button type="button" onClick={this.handleAttachingToggle} className={`fa-button ${isAttaching ? 'fa-active' : ''}`} title="Attach">
-                <FontAwesomeIcon icon="paperclip" className="fa-lg" />
-              </button>
-            </div>
           </div>
-          <Attachments
-            attachments={attachments}
-            visible={isAttaching}
-            onAttach={this.handleAttach}
-            onDetach={this.handleDetach}
-          />
-          {
-            showAdvanced && !isComment && (
-              <>
-                <input
-                  value={title}
-                  onChange={this.handleTitleChange}
-                  className="post-form-title"
-                  placeholder="Title"
-                />
-                <textarea
-                  value={description}
-                  onChange={this.handleDescriptionChange}
-                  className="post-form-description"
-                  placeholder="Description"
-                />
-              </>
+        </div>
+        <Attachments
+          attachments={attachments}
+          visible={isAttaching}
+          onAttach={this.handleAttach}
+          onDetach={this.handleDetach}
+        />
+        {
+          showAdvanced && !isComment && (
+            <>
+              <input
+                value={title}
+                onChange={this.handleTitleChange}
+                className="post-form-title"
+                placeholder="Title"
+              />
+              <textarea
+                value={description}
+                onChange={this.handleDescriptionChange}
+                className="post-form-description"
+                placeholder="Description"
+              />
+            </>
+          )
+        }
+        {
+          isMarkdown && isPreview
+            ? (
+              <div className="post-form-preview">
+                <Markdown source={textContent} />
+              </div>
             )
-          }
-          {
-            isMarkdown && isPreview
-              ? (
-                <div className="post-form-preview">
-                  <Markdown source={textContent} />
-                </div>
-              )
-              : (
-                <textarea
-                  value={textContent}
-                  onChange={this.handleTextChange}
-                  onFocus={this.handleFocus}
-                  onBlur={this.handleBlur}
-                  className="post-form-text"
-                  placeholder={placeholder}
-                />
-              )
-          }
-          {
-            showAdvanced && !isComment && (
-              <TagBar
-                editable
-                editPlaceholder="Add category"
-                items={categories}
-                render={(text) => `#${text}`}
-                onAddItem={this.handleAddCategory}
-                onRemoveItem={this.handleRemoveCategory}
+            : (
+              <textarea
+                value={textContent}
+                onChange={this.handleTextChange}
+                onFocus={this.handleFocus}
+                onBlur={this.handleBlur}
+                className="post-form-text"
+                placeholder={placeholder}
               />
             )
-          }
-          {errorMessage}
-          {
-            visibility === 'AUTHOR' && (
-              <>
-                <h4 className="user-bar-header">Share with</h4>
-                <EditorUserBar
-                  items={visibleTo}
-                  onAddUser={this.handleAddUser}
-                  onRemoveUser={this.handleRemoveUser}
-                />
-              </>
-            )
-          }
-          <PostFormControls
-            suspended={suspended}
-            canPost={canPost}
-            canPreview={isMarkdown}
-            onPreviewToggle={this.handlePreviewToggle}
-            onUnlistedToggle={this.handleUnlistedToggle}
-            onVisibilityChange={this.handleVisibilityChange}
-            isComment={isComment}
-            isUnlisted={isUnlisted}
-            canCancel={onCancel !== undefined}
-            cancelCallback={onCancel}
-            isPatching={isPatching}
-            visibility={visibility}
-          />
-          {
-            hasGithub && !isComment && !isPatching && (
-              <SuspensefulSubmit
-                label="Post My Weekly Github Activity"
-                className="github-submit"
-                suspended={fetchingGitHub}
-                action={this.handleGitHubPost}
+        }
+        {
+          showAdvanced && !isComment && (
+            <TagBar
+              editable
+              editPlaceholder="Add category"
+              items={categories}
+              render={(text) => `#${text}`}
+              onAddItem={this.handleAddCategory}
+              onRemoveItem={this.handleRemoveCategory}
+            />
+          )
+        }
+        {errorMessage}
+        {
+          visibility === 'AUTHOR' && (
+            <>
+              <h4 className="user-bar-header">Share with</h4>
+              <EditorUserBar
+                items={visibleTo}
+                onAddUser={this.handleAddUser}
+                onRemoveUser={this.handleRemoveUser}
               />
-            )
-          }
-        </form>
-      </div>
+            </>
+          )
+        }
+        <PostFormControls
+          suspended={suspended}
+          canPost={canPost}
+          canPreview={isMarkdown}
+          onPreviewToggle={this.handlePreviewToggle}
+          onUnlistedToggle={this.handleUnlistedToggle}
+          onVisibilityChange={this.handleVisibilityChange}
+          isComment={isComment}
+          isUnlisted={isUnlisted}
+          canCancel={onCancel !== undefined}
+          cancelCallback={onCancel}
+          isPatching={isPatching}
+          visibility={visibility}
+        />
+        {
+          hasGithub && !isComment && !isPatching && (
+            <SuspensefulSubmit
+              label="Post My Weekly Github Activity"
+              className="github-submit"
+              suspended={fetchingGitHub}
+              action={this.handleGitHubPost}
+            />
+          )
+        }
+      </form>
     );
   }
 }
