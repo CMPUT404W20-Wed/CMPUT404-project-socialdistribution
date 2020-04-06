@@ -282,6 +282,7 @@
 .fa-button {
     width: 40pt !important;
     margin: 0 !important;
+    cursor: pointer;
 }
 
 .fa-active {
