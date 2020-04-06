@@ -46,14 +46,15 @@
     display: flex;
 }
 
-.post-form input[type=submit],
+.post-form .submit,
 .post-form button {
     width: 100px;
     margin-right: 8px;
 }
 
-.post-form input[type=submit] {
+.post-form .submit {
     font-weight: bold;
+    width: 8em;
 }
 
 .post-form input[type=checkbox] {
@@ -269,4 +270,11 @@
     background-color: #0c0;
     overflow: hidden;
     color: transparent;
+}
+
+.post-form .github-submit {
+    width: 100%;
+    margin: 0;
+    margin-top: 16px;
+    font-weight: bold;
 }

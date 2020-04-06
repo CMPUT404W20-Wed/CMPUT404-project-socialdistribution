@@ -18,12 +18,13 @@ const SuspensefulSubmit = ({
   disabled,
   suspended,
   action,
+  className,
 }) => (
   action ? (
     <button
-      type="button"
+      type="submit"
       disabled={disabled || suspended}
-      className="submit suspenseful action"
+      className={`submit suspenseful action ${className}`}
       onClick={action}
     >
       {label}
@@ -46,12 +47,14 @@ SuspensefulSubmit.propTypes = {
   disabled: PropTypes.bool,
   suspended: PropTypes.bool,
   action: PropTypes.func,
+  className: PropTypes.string,
 };
 
 SuspensefulSubmit.defaultProps = {
   disabled: false,
   suspended: false,
   action: null,
+  className: '',
 };
 
 export default SuspensefulSubmit;

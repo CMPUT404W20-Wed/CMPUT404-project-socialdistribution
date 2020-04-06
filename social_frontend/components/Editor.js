@@ -21,6 +21,7 @@ import SuspensefulSubmit from './common/suspend/SuspensefulSubmit';
  * canPost should be set based on whether the post is valid.
  */
 const PostFormControls = ({
+  suspended,
   isComment,
   isUnlisted,
   canPost,
@@ -40,9 +41,9 @@ const PostFormControls = ({
 
   return (
     <div className="post-form-controls">
-      <input
-        type="submit"
-        value={submitLabel}
+      <SuspensefulSubmit
+        label={submitLabel}
+        suspended={suspended}
         disabled={!canPost}
       />
       {
@@ -92,6 +93,7 @@ PostFormControls.propTypes = {
   canPost: PropTypes.bool.isRequired,
   canCancel: PropTypes.bool.isRequired,
   isPatching: PropTypes.bool.isRequired,
+  suspended: PropTypes.bool.isRequired,
   visibility: PropTypes.oneOf([
     'PUBLIC',
     'FOAF',
@@ -131,6 +133,7 @@ class PostForm extends React.Component {
     isAttaching: false,
     showAdvanced: false,
     fetchingGitHub: false,
+    suspended: false,
   };
 
   constructor(props) {
@@ -254,6 +257,10 @@ class PostForm extends React.Component {
       visibleTo,
     } = this.state;
 
+    this.setState({
+      suspended: true,
+    });
+
     // Handle attachments
 
     Promise.all(
@@ -371,6 +378,10 @@ class PostForm extends React.Component {
           returnedContent = returnedPost;
         }
 
+        this.setState({
+          suspended: false,
+        });
+
         submittedCallback(returnedContent);
       }).catch((error) => {
         this.setState({
@@ -484,6 +495,7 @@ class PostForm extends React.Component {
       visibleTo,
       errorMessage,
       fetchingGitHub,
+      suspended,
     } = this.state;
 
     const className = `post-form ${isComment ? 'comment-form' : ''} ${isMarkdown ? 'markdown-mode' : ''}`;
@@ -589,6 +601,7 @@ class PostForm extends React.Component {
             )
           }
           <PostFormControls
+            suspended={suspended}
             canPost={canPost}
             canPreview={isMarkdown}
             onPreviewToggle={this.handlePreviewToggle}
@@ -601,17 +614,17 @@ class PostForm extends React.Component {
             isPatching={isPatching}
             visibility={visibility}
           />
+          {
+            hasGithub && !isComment && !isPatching && (
+              <SuspensefulSubmit
+                label="Post My Weekly Github Activity"
+                className="github-submit"
+                suspended={fetchingGitHub}
+                action={this.handleGitHubPost}
+              />
+            )
+          }
         </form>
-        {
-          hasGithub && (
-            <SuspensefulSubmit
-              label="Post My Weekly Github Activity"
-              disabled={false}
-              suspended={fetchingGitHub}
-              action={this.handleGitHubPost}
-            />
-          )
-        }
       </div>
     );
   }
