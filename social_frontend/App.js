@@ -8,6 +8,17 @@ import {
 } from 'react-router-dom';
 import { connect } from 'react-redux';
 
+import { library } from '@fortawesome/fontawesome-svg-core';
+import {
+  faPaperclip,
+  faEyeSlash,
+  faEye,
+  faHeading,
+} from '@fortawesome/free-solid-svg-icons';
+import {
+  faMarkdown,
+} from '@fortawesome/free-brands-svg-icons';
+
 import StreamPage from './pages/StreamPage';
 import PostPage from './pages/PostPage';
 import EditProfilePage from './pages/EditProfilePage';
@@ -19,6 +30,15 @@ import PopupMenu from './components/common/PopupMenu';
 import * as actions from './store/actions/auth';
 
 import './styles/page.css';
+
+
+library.add(
+  faPaperclip,
+  faMarkdown,
+  faEyeSlash,
+  faEye,
+  faHeading,
+);
 
 /* User context menu; appears at right of header bar.
  * Contains Profile and Log Out links.

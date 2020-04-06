@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Axios from 'axios';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Markdown from './Markdown';
 import Attachments from './Attachments';
@@ -73,13 +74,9 @@ const PostFormControls = ({
                 <option value="AUTHOR">Specific people</option>
                 <option value="PRIVATE">Private</option>
               </select>
-              <input
-                type="checkbox"
-                name="unlisted"
-                title={`Unlisted: ${isUnlisted ? 'yes' : 'no'}`}
-                checked={isUnlisted}
-                onChange={onUnlistedToggle}
-              />
+              <button type="button" onClick={onUnlistedToggle} className={`fa-button ${isUnlisted ? 'fa-active' : ''}`} title={`Unlisted: ${isUnlisted ? 'yes' : 'no'}`}>
+                <FontAwesomeIcon icon={isUnlisted ? 'eye-slash' : 'eye'} className="fa-2x" />
+              </button>
             </>
           )
       }
@@ -391,13 +388,11 @@ class PostForm extends React.Component {
     });
   }
 
-  handleMarkdownToggle(event) {
-    const value = event.target.checked;
-    this.setState({
-      isMarkdown: value,
-    });
+  handleMarkdownToggle() {
+    const { isMarkdown } = this.state;
+    this.setState({ isMarkdown: !isMarkdown });
 
-    if (!value) this.setState({ isPreview: false });
+    if (!isMarkdown) this.setState({ isPreview: false });
   }
 
   handlePreviewToggle() {
@@ -407,25 +402,19 @@ class PostForm extends React.Component {
     });
   }
 
-  handleUnlistedToggle(event) {
-    const value = event.target.checked;
-    this.setState({
-      isUnlisted: value,
-    });
+  handleUnlistedToggle() {
+    const { isUnlisted } = this.state;
+    this.setState({ isUnlisted: !isUnlisted });
   }
 
-  handleAttachingToggle(event) {
-    const value = event.target.checked;
-    this.setState({
-      isAttaching: value,
-    });
+  handleAttachingToggle() {
+    const { isAttaching } = this.state;
+    this.setState({ isAttaching: !isAttaching });
   }
 
-  handleAdvancedToggle(event) {
-    const value = event.target.checked;
-    this.setState({
-      showAdvanced: value,
-    });
+  handleAdvancedToggle() {
+    const { showAdvanced } = this.state;
+    this.setState({ showAdvanced: !showAdvanced });
   }
 
   handleAddCategory(category) {
@@ -505,33 +494,19 @@ class PostForm extends React.Component {
       <div>
         <form onSubmit={this.handleSubmit} className={className}>
           <div className="post-form-mode-controls">
-            <input
-              type="checkbox"
-              name="markdown"
-              title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}
-              checked={isMarkdown}
-              onChange={this.handleMarkdownToggle}
-            />
+            <button type="button" onClick={this.handleMarkdownToggle} className={`fa-button ${isMarkdown ? 'fa-active' : ''}`} title={`Markdown: ${isMarkdown ? 'on' : 'off'}`}>
+              <FontAwesomeIcon icon={['fab', 'markdown']} className="fa-2x" />
+            </button>
             {
               !isComment && (
-                <input
-                  type="checkbox"
-                  name="markdown"
-                  className="post-form-advanced-toggle"
-                  title="Advanced"
-                  checked={showAdvanced}
-                  onChange={this.handleAdvancedToggle}
-                />
+                <button type="button" onClick={this.handleAdvancedToggle} className={`fa-button ${showAdvanced ? 'fa-active' : ''}`} title="Advanced">
+                  <FontAwesomeIcon icon="heading" className="fa-2x" />
+                </button>
               )
             }
-            <input
-              type="checkbox"
-              name="markdown"
-              className="post-form-attach-toggle"
-              title="Attach"
-              checked={isAttaching}
-              onChange={this.handleAttachingToggle}
-            />
+            <button type="button" onClick={this.handleAttachingToggle} className={`fa-button ${isAttaching ? 'fa-active' : ''}`} title="Attach">
+              <FontAwesomeIcon icon="paperclip" className="fa-lg" />
+            </button>
           </div>
           <Attachments
             attachments={attachments}

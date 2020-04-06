@@ -278,3 +278,15 @@
     margin-top: 16px;
     font-weight: bold;
 }
+
+.fa-button {
+    width: 40pt !important;
+}
+
+.fa-active {
+    background-color: #fcc !important;
+}
+
+.fa-button :hover {
+    cursor: pointer;
+}
