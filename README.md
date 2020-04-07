@@ -20,7 +20,7 @@ Building The Project
 
 1. Create a python virtual environment
 
-    `virtual venv python===python3`
+    `virtualenv venv --python=python3`
     
 2. Activate python virtual environment
 
@@ -32,7 +32,7 @@ Building The Project
     
 3. Install JavaScript dependencies    
 
-    `npm i`
+    `npm install`
 
 4. Start Parcel
 
