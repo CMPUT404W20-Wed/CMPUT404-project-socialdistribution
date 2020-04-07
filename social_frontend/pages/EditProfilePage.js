@@ -128,7 +128,7 @@ class EditProfileFormM extends React.Component {
               className="field"
               name="github"
               type="text"
-              placeholder="Add a GitHub URL"
+              placeholder="github.com/username"
               value={github}
               onChange={this.handleGitHubFieldChange}
             />
