@@ -28,7 +28,7 @@ Building The Project
 
 2. Install python dependencies    
 
-    `pip install -r requirements`
+    `pip install -r requirements.txt`
     
 3. Install JavaScript dependencies    
 
