@@ -14,6 +14,33 @@ Group Members
     nkryzano
     guzhva
     sdupasqu
+    
+Building The Project
+========================
+
+1. Create a python virtual environment
+
+    `virtual venv python===python3`
+    
+2. Activate python virtual environment
+
+    `source venv/bin/activate`
+
+2. Install python dependencies    
+
+    `pip install -r requirements.txt`
+    
+3. Install JavaScript dependencies    
+
+    `npm i`
+
+4. Start Parcel
+
+    `npm start`
+    
+5. Start Django Server
+
+    `python manage.py runserver`
 
 Contributors / Licensing
 ========================
