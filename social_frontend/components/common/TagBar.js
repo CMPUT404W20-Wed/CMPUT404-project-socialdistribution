@@ -33,7 +33,7 @@ class TagInput extends React.Component {
 
       const { suggestions } = this.props;
 
-      const completedText = suggestions ? suggestions[0] : text;
+      const completedText = suggestions.length ? suggestions[0] : text;
       this.submit(completedText);
     }
   }
