@@ -497,7 +497,7 @@ def grab_external_data():
 def ensure_data():
     global request_last_updated
     
-    if (time.time() - request_last_updated) > 60:
+    if (time.time() - request_last_updated) > 180:
         # Update the time
         request_last_updated = time.time()
         print("Running Request")
