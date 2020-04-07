@@ -1,40 +1,55 @@
 # This file specifies how to GET, POST, DELETE, PUT
 # with our api
 
+# The service can be replaced by a different service
+# For documentation service is the host for anyone
+
+# This document details the response formats for our api
+
 # This is not proper JSON, set editor to Spaces - 4 when editing this
 
 # The following are ways URIs that can be used for post retrieval
 #
-# http://service/author/posts (posts that are visible to the currently authenticated user)
+# https://service/author/posts/ (posts that are visible to the currently authenticated user)
+# Methods accepted: GET, POST
 # or
-# http://service/posts (all posts marked as public on the server)
+# https://service/posts/ (all posts marked as public on the server)
+# Methods accepted: GET
 # or
-# http://service/author/{AUTHOR_ID}/posts (all posts made by {AUTHOR_ID} visible to the currently authenticated user)
+# https://service/author/{AUTHOR_ID}/posts/ (all posts made by {AUTHOR_ID} visible to the currently authenticated user)
+# Methods accepted: GET
 # or
-# http://service/posts/{POST_ID} access to a single post with id = {POST_ID}
+# https://service/posts/{POST_ID}/ access to a single post with id = {POST_ID}
+# Methods accepted: GET, DELETE, PUT
 # or
-# http://service/posts/{post_id}/comments access to the comments in a post
+# https://service/posts/{post_id}/comments/ access to the comments in a post
+# Methods accepted: GET, POST
+#
+# Filtering is done by making a query at the end of the path
+# GET http://service/api/author/posts/?filter=public
+# Returns posts that match the specific filter requirements
+# Valid filters: public, private, friend, foaf
 #
 # All of the previous URIs will get a list of posts like this:
 # If a page is provided, return the results for that page, if no page is provided return page 0
 # If a size is provided, return pages in this size up to the maximum set on the server. If no size is provided
 # return the default page size
 # Use same pagination style for all endpoints in this file
-# Example:
-# GET http://service/author/posts?page=4&size=50
-# GET http://service/author/posts?page=4
+# Examples:
+# GET https://service/author/posts?page=4&size=50
+# GET https://service/author/posts?page=4
+# GET http://service/api/author/posts/?filter=public
 {
 	"query": "posts",
-	# GET to http://service/posts
 	# number of posts
-	"count": 1023,
+	"count": 1,
 	# Page size
 	"size": 50,
 	# Do not return next if last page
-	"next": "http://service/author/posts?page=5",
+	"next": "https://service/author/posts?page=5",
 	# Do not return previous if page is 0.
-	"previous": "http://service/author/posts?page=3",
-	# should be sorted newest(first) to oldest(last)
+	"previous": "https://service/author/posts?page=3",
+	# sorted newest(first) to oldest(last)
 	"posts":[
 		{
 			# title of a post
@@ -51,13 +66,13 @@
 			"content":"Here's some example content",
 			"author":{
 				# ID of the Author
-				"id":"http://127.0.0.1:5454/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+				"id":"https://service/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
 				# the home host of the author
-				"host":"http://127.0.0.1:5454/",
+				"host":"https://service/",
 				# the display name of the author
 				"displayName":"Lara Croft",
 				# url to the authors profile
-				"url":"http://127.0.0.1:5454/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+				"url":"https://service/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
 				# Authors github
 				"github": "http://github.com/laracroft"
 			},
@@ -66,34 +81,34 @@
 			# comments about the post
 			# return a maximum number of comments
 			# total number of comments for this post
-			"count": 1023,
+			"count": 1,
 			# page size
 			"size": 50,
 			# the first page of comments
 			"next": "http://service/posts/{post_id}/comments",
-			# You should return ~ 5 comments per post.
-			# should be sorted newest(first) to oldest(last)
+
+			# sorted newest(first) to oldest(last)
 			"comments":[
 				{
 					"author":{
                         # ID of the Author (UUID)
-                        "id":"http://127.0.0.1:5454/author/1d698d25ff008f7538453c120f581471",
+                        "id":"https://service/author/1d698d25ff008f7538453c120f581471",
                         # url to the authors information
-                        "url":"http://127.0.0.1:5454/author/1d698d25ff008f7538453c120f581471",
-						"host":"http://127.0.0.1:5454/",
+                        "url":"https://service/author/1d698d25ff008f7538453c120f581471",
+						"host":"https://service/",
 						"displayName":"Greg Johnson",
 						"github": "http://github.com/gjohnson"
 					},
 					"comment":"Sick Olde English",
 					"contentType":"text/markdown",
 					# ISO 8601 TIMESTAMP
-					"published":"2015-03-09T13:07:04+00:00",
+					"published":"2020-03-09T13:07:04+00:00",
 					# ID of the Comment (UUID)
 					"id":"de305d54-75b4-431b-adb2-eb6b9e546013"
 				}
 			]
 			# ISO 8601 TIMESTAMP
-			"published":"2015-03-09T13:07:04+00:00",
+			"published":"2020-03-09T13:07:04+00:00",
 			# ID of the Post (UUID)
 			"id":"de305d54-75b4-431b-adb2-eb6b9e546013",
 			# visibility used for filtering
@@ -112,50 +127,123 @@
 	]
 }
 
+# POST https://service/author/posts/
+{
+	"query": "posts",
+	"success": True,
+	"message": "Post Created",
+	"post": {
+		"id": "d2a6e5db-8b0a-430d-addc-af0157cea21c", 
+		"title": "Post you just made",
+		"description": "A description you made",
+		# Also have text/markdown
+		"contentType": "text/plain",
+		"content": "The actual contents of the post",
+		"source":"http://lastplaceigotthisfrom.com/posts/yyyyy",
+		"origin":"http://whereitcamefrom.com/posts/zzzzz",
+		"author": {
+			"id": "http://service/f547d9ba-e6cb-4370-9044-ec45ebd9edc5",
+			"displayName": "username",
+			"host": "http://host-service.com/",
+			"github": "https://github.com/Your-GitHub-Profile",
+		},
+		# Comments will be empty since this is a new post
+		"comments": [],
+		"published": "2020-04-07T14:55:13.185128Z",
+		"visibility": "PUBLIC",
+		"unlisted": False,
+		"categories": ["cool", "fun"],
+		# List of ids for the post to be visible to
+		"visibleTo": ["https://service/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e", "https://service/author/1d698d25ff008f7538453c120f581471"]
+	}
+}
+
+# DELETE https://service/posts/{POST_ID}/
+# Deletes the post and returns 204 No Content if successful, 401 Unauthorized if it isn't
+
+# PUT https://service/posts/{POST_ID}/
+{
+	"query": "putPost",
+	"post": {
+		"id": "d2a6e5db-8b0a-430d-addc-af0157cea21c", 
+		"title": "Post you made",
+		"description": "A description you made",
+		"contentType": "text/plain",
+		"content": "The actual contents of the post are now changed!",
+		"source":"http://lastplaceigotthisfrom.com/posts/yyyyy",
+		"origin":"http://whereitcamefrom.com/posts/zzzzz",
+		"author": {
+			"id": "http://service/f547d9ba-e6cb-4370-9044-ec45ebd9edc5",
+			"displayName": "username",
+			"host": "http://host-service.com/",
+			"github": "https://github.com/Your-GitHub-Profile",
+		},
+		"comments": [
+			{
+				"author":{
+					"id":"https://service/author/1d698d25ff008f7538453c120f581471",
+					"url":"https://service/author/1d698d25ff008f7538453c120f581471",
+					"host":"https://service/",
+					"displayName":"Greg Johnson",
+					"github": "http://github.com/gjohnson"
+				},
+				"comment":"Keeps old comments",
+				"contentType":"text/markdown",
+				"published":"2020-03-09T13:07:04+00:00",
+				"id":"de305d54-75b4-431b-adb2-eb6b9e546013"
+			}
+		],
+		"published": "2020-04-07T14:55:13.185128Z",
+		"visibility": "PUBLIC",
+		"unlisted": False,
+		"categories": ["cool", "fun"],
+		"visibleTo": ["https://service/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e", "https://service/author/1d698d25ff008f7538453c120f581471"]
+	}
+}
 
 # Example
-# http://service/posts/{post_id}/comments access to the comments in a post
-# http://service/posts/{post_id}/comments?page=4
-# http://service/posts/{post_id}/comments?page=4&size=40
+# GET http://service/posts/{post_id}/comments/ access to the comments in a post
+# GET http://service/posts/{post_id}/comments?page=4
+# GET http://service/posts/{post_id}/comments?page=4&size=40
 {
 	"query": "comments",
-    # comments about the post
-    # return a maximum number of comments
-    # A list of posts
-    "count": 1023,
+    "count": 1,
     "size": 50,
-    # Do not return next if last page
     "next": "http://service/posts/{post_id}/comments?page=5",
-    # Do not return previous if page is 0.
-    "previous": "http://service/posts/{post_id}/comments?page=3",
+	"previous": "http://service/posts/{post_id}/comments?page=3",
+	# A list of all the comments
     "comments":[{
+		# Information about the author
         "author":{
-            "id":"http://127.0.0.1:5454/8d919f29c12e8f97bcbbd34cc908f19ab9496989",
-            "host":"http://127.0.0.1:5454/",
-            "displayName":"Greg"
-        },
-        "comment":"Sick Olde English",
+            "id":"https://service/8d919f29c12e8f97bcbbd34cc908f19ab9496989",
+            "host":"https://service/",
+			"displayName":"Greg",
+			"github": "https://github.com/greg"
+		},
+		# Actual content of the comment
+        "comment":"A comment on a post",
         "contentType":"text/markdown",
         "published":"2015-03-09T13:07:04+00:00",
         "id":"5471fe89-7697-4625-a06e-b3ad18577b72"
     }]
 }
-# DELETE to http://service/posts/{post_id}/comments/{comment_id}
+
+# DELETE to http://service/posts/{POST_ID}/comments/{COMMENT_ID}/
 # Returns 204 if DELETE succeeds, 401 if it doesn't
 
 # JSON post body of what you post to a posts' comemnts
-# POST to http://service/posts/{POST_ID}/comments
+# POST to http://service/posts/{POST_ID}/comments/
 {
 	"query": "addComment",
 	"post":"http://whereitcamefrom.com/posts/zzzzz",
 	"comment":{
 	    "author":{
             # ID of the Author
-            "id":"http://127.0.0.1:5454/author/1d698d25ff008f7538453c120f581471",
-		   "host":"http://127.0.0.1:5454/",
+            "id":"http://service/author/1d698d25ff008f7538453c120f581471",
+		   "host":"http://service/",
 		   "displayName":"Greg Johnson",
 		   # url to the authors profile
-            "url":"http://127.0.0.1:5454/author/1d698d25ff008f7538453c120f581471",
+            "url":"http://service/author/1d698d25ff008f7538453c120f581471",
 		   # HATEOS url for Github API
 		   "github": "http://github.com/gjohnson"
 	   },
@@ -168,25 +256,44 @@
 	}
 }
 # Responds with
-# 200 OK
+# 200 OK or 403 forbidden if they don't have visibility
 {
 	"query": "addComment",
-    "success":true,
-    "message":"Comment Added"
-}
-# or if they don't have the visibility
-# 403 Forbidden
-{
-	"query": "addComment",
-    "success":false,
-    "message":"Comment not allowed"
+    "success":true, # or false
+    "message":"Comment Added" # or not allowed
 }
 
 
+# The following are the author endpoints 
+#
+# https://service/author/{AUTHOR_ID}/ (gets the author profile information)
+# Methods accepted: GET, PUT
+# or
+# https://service/author/{AUTHOR_ID}/friends/ (friends of the author id)
+# Methods accepted: GET, POST
+# or
+# https://service/author/{AUTHOR_ID}/friends/{AUTHOR_ID}/ (asks if 2 authors are friends)
+# Methods accepted: GET, DELETE
+# or
+# https://service/author/{AUTHOR_ID}/followers/  (all posts made by {AUTHOR_ID} visible to the currently authenticated user)
+# Methods accepted: GET
+# or
+# https://service/author/{AUTHOR_ID}/following/ access to a single post with id = {POST_ID}
+# Methods accepted: GET
+# or
+# https://service/author/{AUTHOR_ID}/github/ access to the comments in a post
+# Methods accepted: GET
+#
+# All of the previous URIs will get a list of posts like this:
+# If a page is provided, return the results for that page, if no page is provided return page 0
+# If a size is provided, return pages in this size up to the maximum set on the server. If no size is provided
+# return the default page size
+# Use same pagination style for all endpoints in this file
+# Examples:
 
 # a reponse if friends or not
-# ask a service GET http://service/author/<authorid>/friends/
-responds with:
+# ask a service GET http://service/author/{AUTHOR_ID}/friends/
+# responds with:
 {
 	"query":"friends",
 	# Array of Author UUIDs
@@ -196,8 +303,34 @@ responds with:
 	]
 }
 
+# POST http://service/author/{AUTHOR_ID}/friends/
+# Runs a check with all authors in the list to see if they have a friendship with this user
+# This is needed for FOAF calls, it asks the other server to decide to send us a
+# post or not based on friends.
+# one of Greg's friends has to be be LARA's friend
+{
+	"query": "friends",
+	"author": "f46c78d5-a8b4-40fa-8a72-a7e8d5d511b1",
+	# List of authors to check
+	"authors": [
+		"http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+		"http://service/author/ae345d54-75b4-431b-adb2-fb6b9e547891",
+		"http://service/author/1234f63c-d619-4605-9270-b04e9db6aa13"
+	]
+}
+# responds with
+{
+	"query": "friends",
+	"author": "http://service/author/ae345d54-75b4-431b-adb2-fb6b9e547891",
+	# List of authors who are friends of the queried author
+	"authors": [
+		"http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+		"http://service/author/1234f63c-d619-4605-9270-b04e9db6aa13"
+	]
+}
+
 # Ask if 2 authors are friends
-# GET http://service/author/<authorid>/friends/<authorid2>
+# GET http://service/author/{AUTHOR_ID}/friends/{AUTHOR_ID}
 # STRIP the http:// and https:// from the URI in the restful query
 # If you need a template (optional): GET http://service/author/<authorid1>/friends/<service2>/author/<authorid2>
 # where authorid1 = de305d54-75b4-431b-adb2-eb6b9e546013 (actually author http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013 )
@@ -205,46 +338,19 @@ responds with:
 # GET http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013/friends/127.0.0.1%3A5454%2Fauthor%2Fae345d54-75b4-431b-adb2-fb6b9e547891
 # Please escape / of IDs with %2F e.g. urllib.parse.quote( "http://service/author/whatever" , safe='~()*!.\'')
 # responds with:
-{	"query":"friends",
+{	
+	"query":"friends",
         # Array of Author UUIDs
         "authors":[
-            "http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
-            "http://127.0.0.1:5454/author/ae345d54-75b4-431b-adb2-fb6b9e547891"
+            "http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+            "http://service/author/ae345d54-75b4-431b-adb2-fb6b9e547891"
         ],
         # boolean true or false
         "friends": true
 }
 
-# ask a service if anyone in the list is a friend
-# POST to http://service/author/<authorid>/friends
-{
-	"query":"friends",
-	"author":"<authorid>",
-	# Array of Author ids
-	"authors": [
-	    "http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
-		"http://127.0.0.1:5454/author/ae345d54-75b4-431b-adb2-fb6b9e547891",
-		"...",
-		"...",
-		"..."
-  	]
-}
-
-# reponds with
-{
-	"query":"friends",
- 	"author":"<authorid>", # where <authorid> is the full URL of the author in question
- 	# Array of Author ids who are friends
-	"authors": [
-	    "http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
-		"http://127.0.0.1:5454/author/ae345d54-75b4-431b-adb2-fb6b9e547891",
-		"..."
-  	]
-}
-
-# This is needed for FOAF calls, it asks the other server to decide to send us a
-# post or not based on friends.
-# one of Greg's friends has to be be LARA's friend
+# DELETE http://service/author/{AUTHOR_ID}/friends/{AUTHOR_ID}
+# Responds with 200 OK or 401 Unauthorized
 
 # Here GREG tries to get a post from LARA that's marked as FOAF visibility
 # the server will query greg's server to ensure that he is friends with 7de and 11c
@@ -258,39 +364,39 @@ responds with:
 	"url":"http://service/posts/{POST_ID}",
  	"author":{ # requestor
  	    # UUID
-		"id":"http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
-		"host":"http://127.0.0.1:5454/",
+		"id":"http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+		"host":"http://service/",
 		"displayName":"Jerry Johnson",
 		# url to the authors information
-		"url":"http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+		"url":"http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013",
 		# HATEOS
 		"github": "http://github.com/jjohnson"
  	},
 	# friends of author
  	"friends":[
-		"http://127.0.0.1:5454/author/7deee0684811f22b384ccb5991b2ca7e78abacde",
-		"http://127.0.0.1:5454/author/11c3783f15f7ade03430303573098f0d4d20797b",
+		"http://service/author/7deee0684811f22b384ccb5991b2ca7e78abacde",
+		"http://service/author/11c3783f15f7ade03430303573098f0d4d20797b",
 	]
 }
 # then this returns with the generic GET http://service/posts/{POST_ID}
-# DELETE to http://service/posts/{POST_ID} returns 204 if it succeeds, 401 if it doesn't
 
+# DELETE to http://service/posts/{POST_ID} 
+# returns 204 if it succeeds, 401 if it doesn't
 
 # to make a friend request, POST to http://service/friendrequest
-
 {
 	"query":"friendrequest",
 	"author": {
-		"id":"http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
-		"host":"http://127.0.0.1:5454/",
+		"id":"http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+		"host":"http://service/",
 		"displayName":"Greg Johnson",
-        "url":"http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+        "url":"http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013",
 	},
 	"friend": {
-		"id":"http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e637281",
-		"host":"http://127.0.0.1:5454/",
+		"id":"http://service/author/de305d54-75b4-431b-adb2-eb6b9e637281",
+		"host":"http://service/",
 		"displayName":"Lara Croft",
-        "url":"http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+        "url":"http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013",
 	}
 }
 
@@ -303,17 +409,31 @@ responds with:
 # Response
 {
     "id":"http://service/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
-    "host":"http://127.0.0.1:5454/",
+    "host":"http://service/",
     "displayName":"Lara",
-    "url":"http://127.0.0.1:5454/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+    "url":"http://service/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
     "friends": [
         {
-            "id":"http://127.0.0.1:5454/author/8d919f29c12e8f97bcbbd34cc908f19ab9496989",
-            "host":"http://127.0.0.1:5454/",
+            "id":"http://service/author/8d919f29c12e8f97bcbbd34cc908f19ab9496989",
+            "host":"http://service/",
             "displayName":"Greg",
-            "url": "http://127.0.0.1:5454/author/8d919f29c12e8f97bcbbd34cc908f19ab9496989"
+            "url": "http://service/author/8d919f29c12e8f97bcbbd34cc908f19ab9496989"
         }
     ],
+}
+
+# To edit your profile
+# PUT http://service/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e
+# If you don't want to change something leave it blank, like password in this case
+{
+	"username": "new",
+	"password": "",
+	"github": "https://github.com/gjohnson"
+}
+# Responds with 200 OK if succeeds or 401 Unauthorized
+{
+	"query": "putAuthor",
+	"success": True # or False
 }
 
 # Followers and Following requests are done similarly
@@ -324,103 +444,82 @@ responds with:
 #
 # Response
 {
-    "query": "following",
+    "query": "following", # or followers
     "authors": [
-        "http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
-		"http://127.0.0.1:5454/author/ae345d54-75b4-431b-adb2-fb6b9e547891",
+        "http://service/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+		"http://service/author/ae345d54-75b4-431b-adb2-fb6b9e547891",
 		"..."
     ],
     "count": 10,
 }
 
-# Filtering is done by making a query at the end of the path
-# GET http://service/api/author/posts/?filter=public
-# Returns posts that match the specific filter requirements
-# Valid filters: public, private, friend, foaf
+# To create a post of github activity for the past week
+# GET http://service/author/{AUTHOR_ID}/github/
+# responds with 401 Unauthorized if requesting author isn't same as id in the url
+# any status code GitHub sends that isn't a success code from GitHub
+{
+	"query": "github",
+	"success": True, # or False
+	"id": "http://host-service.com/author/a53aab6d-e6df-492b-8065-2c70f10ae53d",
+	"host": "http://host-service.com/",
+	"displayName": "gh",
+	"url": "http://host-service.com/author/a53aab6d-e6df-492b-8065-2c70f10ae53d",
+	"github": "https://github.com/githubuser",
+	"post": {
+		"id": "fe083fc2-0e8b-4584-a152-74512f1c0954",
+		"title": "Github Activity",
+		"description": "My Github activity for the past week",
+		"contentType": "text/plain",
+		"content": "Made a CreateEvent in CMPUT404W20-Wed/CMPUT404-project-socialdistribution at 2020-04-07 13:57:27",
+		"source": "http://host-service.com/",
+		"origin": "http://host-service.com/",
+		"author": {
+			"id": "http://host-service.com/a53aab6d-e6df-492b-8065-2c70f10ae53d",
+			"displayName": "gh",
+			"host": "http://host-service.com/",
+			"github": "https://github.com/githubuser",
+		},
+		# Comments will be empty since this is a new post
+		"comments": [],
+		"published": "2020-04-07T14:55:13.185128Z",
+		"visibility": "PUBLIC",
+		"unlisted": False,
+		"categories": [],
+		# List of ids for the post to be visible to
+		"visibleTo": []
+	}
+}
+
+# The following are the endpoints for logging in/out and registering
 #
-# Response
+# http://service/login/
+# Methods accepted: GET, POST
+# GET http://service/login/
+# responds with
 {
-    "query": "posts",
-    # Amount of posts
-    "count": 10,
-    # Size of pages
-    "size": 50,
-    "posts": [
-		{
-			# Post title
-			"title":"A post title about a post about web dev",
-			# where did you get this post from?
-			"source":"http://lastplaceigotthisfrom.com/posts/yyyyy",
-			# where is it actually from
-			"origin":"http://whereitcamefrom.com/posts/zzzzz",
-			# a brief description of the post
-			"description":"This post discusses stuff -- brief",
-			# The content type of the post
-			"contentType":"text/plain",
-			"content":"Þā wæs on burgum Bēowulf Scyldinga, lēof lēod-cyning, longe þrāge folcum gefrǣge (fæder ellor hwearf, aldor of earde), oð þæt him eft onwōc hēah Healfdene; hēold þenden lifde, gamol and gūð-rēow, glæde Scyldingas. Þǣm fēower bearn forð-gerīmed in worold wōcun, weoroda rǣswan, Heorogār and Hrōðgār and Hālga til; hȳrde ic, þat Elan cwēn Ongenþēowes wæs Heaðoscilfinges heals-gebedde. Þā wæs Hrōðgāre here-spēd gyfen, wīges weorð-mynd, þæt him his wine-māgas georne hȳrdon, oð þæt sēo geogoð gewēox, mago-driht micel. Him on mōd bearn, þæt heal-reced hātan wolde, medo-ærn micel men gewyrcean, þone yldo bearn ǣfre gefrūnon, and þǣr on innan eall gedǣlan geongum and ealdum, swylc him god sealde, būton folc-scare and feorum gumena. Þā ic wīde gefrægn weorc gebannan manigre mǣgðe geond þisne middan-geard, folc-stede frætwan. Him on fyrste gelomp ǣdre mid yldum, þæt hit wearð eal gearo, heal-ærna mǣst; scōp him Heort naman, sē þe his wordes geweald wīde hæfde. Hē bēot ne ālēh, bēagas dǣlde, sinc æt symle. Sele hlīfade hēah and horn-gēap: heaðo-wylma bād, lāðan līges; ne wæs hit lenge þā gēn þæt se ecg-hete āðum-swerian 85 æfter wæl-nīðe wæcnan scolde. Þā se ellen-gǣst earfoðlīce þrāge geþolode, sē þe in þȳstrum bād, þæt hē dōgora gehwām drēam gehȳrde hlūdne in healle; þǣr wæs hearpan swēg, swutol sang scopes. Sægde sē þe cūðe frum-sceaft fīra feorran reccan",
-			
-			"author":{
-				# ID of the Author
-				"id":"http://127.0.0.1:5454/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
-				# the home host of the author
-				"host":"http://127.0.0.1:5454/",
-				# the display name of the author
-				"displayName":"Lara Croft",
-				# url to the authors profile
-				"url":"http://127.0.0.1:5454/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
-				# HATEOS url for Github API
-				"github": "http://github.com/laracroft"
-			},
-			# categories this post fits into (a list of strings
-			"categories":["web","tutorial"],
-			# comments about the post
-			# return a maximum number of comments
-			# total number of comments for this post
-			"count": 1023,
-			# page size
-			"size": 50,
-			# the first page of comments
-			"next": "http://service/posts/{post_id}/comments",
-
-			"comments":[
-				{
-					"author":{
-					    # ID of the Author (UUID)
-                        "id":"http://127.0.0.1:5454/author/1d698d25ff008f7538453c120f581471",
-                        # url to the authors information
-                        "url":"http://127.0.0.1:5454/author/1d698d25ff008f7538453c120f581471",
-						"host":"http://127.0.0.1:5454/",
-						"displayName":"Greg Johnson",
-						"github": "http://github.com/gjohnson"
-					},
-					"comment":"Sick Olde English",
-					"contentType":"text/markdown",
-					# ISO 8601 TIMESTAMP
-					"published":"2015-03-09T13:07:04+00:00",
-					# ID of the Comment (UUID)
-					"id":"de305d54-75b4-431b-adb2-eb6b9e546013"
-				}
-			]
-			"published":"2015-03-09T13:07:04+00:00",
-			"id":"de305d54-75b4-431b-adb2-eb6b9e546013",
-			"visibility":"PUBLIC",
-			"visibleTo":[],
-            "unlisted":false
-		}
-	]
+	"id": "http://host-service.com/a53aab6d-e6df-492b-8065-2c70f10ae53d",
+	"username": "Greg",
+	"github": "https://github.com/gjohnson",
 }
 
-# http://service/author/{AUTHOR_ID}/friends
-# GET to http://service/author/{AUTHOR_ID1}/friends/{AUTHOR_ID2}
-# Returns if 2 uuids are friends or not
+# POST http://service/login/
 {
-    "query": "friends",
-    "friends": "false",
-    "authors": [
-        "http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
-		"http://127.0.0.1:5454/author/ae345d54-75b4-431b-adb2-fb6b9e547891",
-    ]
+	"username": "Greg",
+	"password": "123",
 }
-# DELETE to http://service/author/{AUTHOR_ID1}/friends/{AUTHOR_ID2}
-# deletes an existing friendship, author 1 will no longer follow author 2
-# Returns 200 if delete succeeds or 401 if it doesn't
+# Responds with bad request error if failed, generic 200 otherwise
+
+# http://service/logout/
+# Methods accepted: POST
+# POST http://service/logout/
+# Replies with basic empty request if successful
+
+# http://service/register
+# Methods accepted: POST
+# POST http://service/register/
+{
+	"username": "Greg",
+	"password": "123",
+	"github": "https://github.com/gjohnson"
+}
+# responds with 201 if succeeded, any other code indicates failure. No content returned
